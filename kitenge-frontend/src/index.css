@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  html {
+    @apply text-base;
+    /* Prevent font size adjustment on iOS */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  html, body {
+    @apply m-0 p-0;
+    /* Smooth scrolling on mobile */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply font-sans bg-white text-gray-900 min-h-screen;
+    /* Better font rendering on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .dark body {
+    @apply bg-black text-gray-100;
+  }
+  
+  /* Better touch targets on mobile */
+  @media (max-width: 640px) {
+    button, a, input, select, textarea {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-darker text-white font-medium rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base transition-all duration-150 hover:shadow-lg hover:-translate-y-0.5 active:scale-95;
+    /* Better touch targets */
+    min-height: 44px;
+    @media (min-width: 640px) {
+      min-height: auto;
+    }
+  }
+  
+  .btn-outline {
+    @apply border border-gray-300 hover:bg-primary-soft text-gray-900 dark:text-gray-100 dark:border-gray-700 rounded-full px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base transition-all duration-150 active:scale-95;
+    /* Better touch targets */
+    min-height: 44px;
+    @media (min-width: 640px) {
+      min-height: auto;
+    }
+  }
+  
+  .card {
+    @apply bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl shadow-subtle hover:shadow-soft transition-all duration-300 overflow-hidden;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 sm:py-3.5 text-base sm:text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all;
+    /* Better touch targets and prevent zoom on iOS */
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    @media (min-width: 640px) {
+      font-size: 14px;
+      min-height: auto;
+    }
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Mobile-optimized text sizes */
+  .text-mobile-sm {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-mobile-base {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-mobile-lg {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-mobile-xl {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .text-mobile-2xl {
+    @apply text-xl sm:text-2xl;
+  }
+  
+  .text-mobile-3xl {
+    @apply text-2xl sm:text-3xl;
+  }
+  
+  /* Mobile spacing */
+  .mobile-px {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .mobile-py {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+  
+  /* Touch-friendly */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    @apply flex items-center justify-center;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+

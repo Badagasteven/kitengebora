@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kitenge Bora – Orders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+
+  <script src="/scripts/notifications.js" defer></script>
+  <script src="/scripts/orders.js" defer></script>
+</head>
+
+<body class="admin-body orders-body">
+
+  <!-- New order sound -->
+  <audio id="kb-new-order-sound" src="/sounds/new-order.mp3" preload="auto"></audio>
+
+  <div class="shell">
+    <div class="admin-card">
+
+      <!-- HEADER -->
+      <div class="section-header">
+        <div>
+          <div class="tag">Orders</div>
+          <h1>Orders Dashboard</h1>
+          <p class="subtext">View incoming customer orders and their details.</p>
+        </div>
+
+        <div class="section-header-right">
+          <button class="btn-outline btn-small" onclick="location.href='/admin.html'">
+            Back to admin
+          </button>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="admin-metrics">
+        <div class="metric-card">
+          <div class="metric-label">Total orders</div>
+          <div class="metric-value" id="metric-orders-total">–</div>
+          <div class="metric-sub">All time</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">Orders today</div>
+          <div class="metric-value" id="metric-orders-today">–</div>
+          <div class="metric-sub">Since midnight</div>
+        </div>
+
+        <div class="metric-card metric-revenue">
+          <div class="metric-label">Revenue</div>
+          <div class="metric-value" id="metric-orders-revenue">RWF 0</div>
+          <div class="metric-sub">Subtotal + delivery (all)</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-label">Avg order value</div>
+          <div class="metric-value" id="metric-orders-avg">RWF 0</div>
+          <div class="metric-sub">Per order</div>
+        </div>
+      </div>
+
+      <!-- ALERT PLACEHOLDER -->
+      <div id="orders-alert"></div>
+
+      <!-- ORDERS TABLE CARD -->
+      <div class="orders-table-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Recent orders</h2>
+            <p class="hint">Click “View” to see full order details.</p>
+          </div>
+
+          <div class="panel-toolbar">
+            <input
+              id="orders-search"
+              type="text"
+              placeholder="Search by name, phone or ID..."
+            />
+            <select id="orders-channel">
+              <option value="all">All channels</option>
+              <option value="store">Store</option>
+              <option value="whatsapp">WhatsApp</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Channel</th>
+                <th>Subtotal</th>
+                <th>Delivery</th>
+                <th>Total</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- ORDER MODAL BACKDROP      -->
+  <!-- ========================= -->
+  <div class="detail-backdrop" id="order-backdrop"></div>
+
+  <!-- ========================= -->
+  <!-- ORDER DETAILS MODAL       -->
+  <!-- ========================= -->
+  <div class="detail-modal order-detail-modal" id="order-modal">
+    <div class="detail-modal-header">
+      <h3 id="order-modal-title">Order details</h3>
+      <button id="order-close">×</button>
+    </div>
+
+    <div class="order-detail-body">
+      <!-- ORDER META -->
+      <div id="order-meta" class="order-meta"></div>
+
+      <!-- ORDER ITEMS -->
+      <div class="order-items-wrapper">
+        <h4>Items</h4>
+
+        <table class="admin-table" id="order-items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Unit price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- MODAL ACTIONS -->
+      <div class="modal-actions" style="margin-top:1rem; display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn-danger btn-small" id="order-delete">Delete order</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

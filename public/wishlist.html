@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kitenge Bora – Wishlist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+
+</head>
+
+<body class="store-body">
+  <!-- HEADER -->
+  <header class="store-header">
+    <div class="header-inner">
+
+      <!-- BRAND -->
+      <div class="brand">
+        <div>
+          <div class="brand-title">KITENGE BORA</div>
+          <div class="brand-tagline">Curated African fabrics & outfits</div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="header-actions">
+        <button class="header-link" type="button" onclick="location.href='/'">
+          Store
+        </button>
+
+        <span class="header-link active">
+          Wishlist
+        </span>
+
+        <button class="header-link" type="button" onclick="location.href='/account.html'">
+          My account
+        </button>
+
+        <!-- ADMIN BUTTON (only via JS for admin user) -->
+        <button
+          class="header-link"
+          id="admin-page-btn"
+          type="button"
+          style="display:none;"
+        >
+          Admin
+        </button>
+
+        <!-- LOGIN BUTTON (for guests / admin) -->
+        <button
+          class="header-link"
+          id="login-btn"
+          type="button"
+          onclick="location.href='/login.html'"
+        >
+          Login
+        </button>
+
+        <!-- ACCOUNT BOX (for logged-in customers) -->
+        <div id="account-box" class="account-box" style="display:none;">
+          <span class="account-email" id="account-email"></span>
+          <button class="btn-outline btn-small" id="logout-btn" type="button">
+            Logout
+          </button>
+        </div>
+
+        <!-- Theme -->
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <section class="section-header">
+      <div>
+        <h2>Wishlist</h2>
+        <p>Items you’ve saved to view or buy later.</p>
+      </div>
+      <div class="section-header-right">
+        <button class="btn btn-outline" type="button" onclick="location.href='/'">
+          Back to store
+        </button>
+      </div>
+    </section>
+
+    <section class="wishlist-section">
+      <div id="wishlist-empty" class="wishlist-empty" style="display:none;">
+        Your wishlist is empty.<br />
+        Browse the store and tap ♥ on items you like.
+      </div>
+
+      <section class="products-grid" id="wishlist-grid"></section>
+    </section>
+  </main>
+
+   <section class="kb-promo-banner">
+  <div class="kb-footer-max">
+    <p>Free delivery in Kigali on orders over <strong>RWF 50,000</strong>. Cash on delivery available.</p>
+  </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <!-- Reusable footer -->
+  <footer class="kb-footer">
+  <div class="kb-footer-max">
+
+    <!-- MAIN LINKS -->
+    <section class="kb-footer-links">
+      <div class="kb-footer-group">
+        <h4>Company</h4>
+        <a href="/">Home</a>
+        <a href="/contact.html">Contact Us</a>
+        <a href="/how-to-buy.html">How To Buy</a>
+        <a href="/returns.html">Returns & Refunds Policy</a>
+      </div>
+
+      <div class="kb-footer-group">
+        <h4>Shop</h4>
+        <a href="/">Products</a>
+        <a href="/wishlist.html">Wishlist</a>
+      </div>
+
+      <div class="kb-footer-group">
+        <h4>Customer Service</h4>
+        <a href="/account.html">Profile</a>
+        <a href="/contact.html">Customer Support</a>
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW with Social Icons -->
+    <section class="kb-footer-bottom">
+      <span>© <span id="year"></span> Badaga Steven. All rights reserved.</span>
+
+      <div class="kb-footer-socials-small">
+        <a href="https://instagram.com/kitenge_bora" target="_blank" class="kb-footer-social kb-footer-social--ig">IG</a>
+        <a href="https://facebook.com/kitengebora" target="_blank" class="kb-footer-social kb-footer-social--fb">f</a>
+        <a href="https://tiktok.com/@kitengebora" target="_blank" class="kb-footer-social kb-footer-social--tt">♪</a>
+        <a href="https://wa.me/250788883986" target="_blank" class="kb-footer-social kb-footer-social--wa">WA</a>
+      </div>
+    </section>
+
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const y = document.getElementById('year');
+    if (y) y.textContent = new Date().getFullYear();
+  });
+</script>
+  <script src="/scripts/wishlist.js" defer></script>
+</body>
+</html>

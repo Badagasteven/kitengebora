@@ -1,0 +1,7 @@
+node_modules/ 
+healthcare-backend/node_modules/ 
+.env 
+target/ 
+bin/ 
+.idea/ 
+.vscode/ 

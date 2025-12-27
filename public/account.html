@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kitenge Bora – My account</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+
+</head>
+
+<body class="store-body">
+
+  <!-- HEADER -->
+  <header class="store-header">
+    <div class="header-inner">
+
+      <!-- BRAND -->
+      <div class="brand">
+        <div>
+          <div class="brand-title">KITENGE BORA</div>
+          <div class="brand-tagline">Curated African fabrics & outfits</div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="header-actions">
+        <button class="header-link" type="button" onclick="location.href='/'">
+          Store
+        </button>
+
+        <button class="header-link" type="button" onclick="location.href='/wishlist.html'">
+          Wishlist
+        </button>
+
+        <span class="header-link active">
+          My account
+        </span>
+
+        <!-- ADMIN BUTTON (only via JS) -->
+        <button
+          class="header-link"
+          id="admin-page-btn"
+          type="button"
+          style="display:none;"
+        >
+          Admin
+        </button>
+
+        <!-- LOGIN BUTTON (for guest / admin) -->
+        <button
+          class="header-link"
+          id="login-btn"
+          type="button"
+          onclick="location.href='/login.html'"
+        >
+          Login
+        </button>
+
+        <!-- ACCOUNT BOX (for customer) -->
+        <div id="account-box" class="account-box" style="display:none;">
+          <span class="account-email" id="account-email"></span>
+          <button class="btn-outline btn-small" id="logout-btn" type="button">
+            Logout
+          </button>
+        </div>
+
+        <!-- Theme -->
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <section class="section-header">
+      <div>
+        <h2>My account</h2>
+        <p id="account-subtitle">Loading your account...</p>
+      </div>
+      <div class="section-header-right">
+        <button class="btn btn-outline" type="button" onclick="location.href='/'">
+          Back to store
+        </button>
+      </div>
+    </section>
+
+    <!-- Orders history -->
+    <section class="orders-section">
+      <h3 class="orders-title">Order history (this device)</h3>
+      <p class="orders-subtitle">
+        These are orders you placed from this browser using WhatsApp checkout.
+      </p>
+
+      <div id="orders-empty" class="account-empty" style="display:none;">
+        You haven’t placed any orders from this device yet.
+      </div>
+
+      <div id="orders-list"></div>
+    </section>
+
+    <!-- Wishlist preview -->
+    <section class="account-wishlist-section">
+      <div class="account-wishlist-header">
+        <div>
+          <h3 class="wishlist-title">Wishlist</h3>
+          <p class="wishlist-subtitle">
+            Items you’ve saved. Manage them here or open the full wishlist.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-outline btn-small"
+          onclick="location.href='/wishlist.html'"
+        >
+          View full wishlist
+        </button>
+      </div>
+
+      <div id="account-wishlist-empty" class="wishlist-empty" style="display:none;">
+        You have no items in your wishlist yet.
+      </div>
+
+      <div id="account-wishlist-list" class="account-wishlist-list"></div>
+    </section>
+  </main>
+
+
+   <section class="kb-promo-banner">
+  <div class="kb-footer-max">
+    <p>Free delivery in Kigali on orders over <strong>RWF 50,000</strong>. Cash on delivery available.</p>
+  </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="kb-footer">
+  <div class="kb-footer-max">
+
+    <!-- MAIN LINKS -->
+    <section class="kb-footer-links">
+      <div class="kb-footer-group">
+        <h4>Company</h4>
+        <a href="/">Home</a>
+        <a href="/contact.html">Contact Us</a>
+        <a href="/how-to-buy.html">How To Buy</a>
+        <a href="/returns.html">Returns & Refunds Policy</a>
+      </div>
+
+      <div class="kb-footer-group">
+        <h4>Shop</h4>
+        <a href="/">Products</a>
+        <a href="/wishlist.html">Wishlist</a>
+      </div>
+
+      <div class="kb-footer-group">
+        <h4>Customer Service</h4>
+        <a href="/account.html">Profile</a>
+        <a href="/contact.html">Customer Support</a>
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW with Social Icons -->
+    <section class="kb-footer-bottom">
+      <span>© <span id="year"></span> Badaga Steven. All rights reserved.</span>
+
+      <div class="footer-social">
+  <span>Follow us</span>
+
+  <a href="https://www.instagram.com/kitenge_bora" target="_blank" aria-label="Instagram">
+    <i class="fab fa-instagram"></i>
+  </a>
+
+  <a href="https://www.facebook.com/kitengebora" target="_blank" aria-label="Facebook">
+    <i class="fab fa-facebook-f"></i>
+  </a>
+
+  <a href="https://www.tiktok.com/@kitenge_bora" target="_blank" aria-label="TikTok">
+    <i class="fab fa-tiktok"></i>
+  </a>
+
+  <a href="https://wa.me/250788883986" target="_blank" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+</div>
+
+    </section>
+
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const y = document.getElementById('year');
+    if (y) y.textContent = new Date().getFullYear();
+  });
+</script>
+
+  <script src="/scripts/account.js" defer></script>
+
+</body>
+</html>

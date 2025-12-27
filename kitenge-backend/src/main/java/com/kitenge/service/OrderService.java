@@ -1,0 +1,389 @@
+package com.kitenge.service;
+
+import com.kitenge.dto.OrderRequest;
+import com.kitenge.dto.OrderItemDto;
+import com.kitenge.model.Order;
+import com.kitenge.model.OrderItem;
+import com.kitenge.model.Product;
+import com.kitenge.model.User;
+import com.kitenge.repository.OrderRepository;
+import com.kitenge.repository.ProductRepository;
+import com.kitenge.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final JavaMailSender mailSender;
+    private final WhatsAppService whatsAppService;
+    
+    @Value("${app.admin.email}")
+    private String adminEmail;
+    
+    @Value("${app.admin.whatsapp:250788883986}")
+    private String adminWhatsApp;
+    
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+    
+    public Optional<Order> getOrderById(Long id) {
+        return orderRepository.findById(id);
+    }
+    
+    public List<Order> getOrdersByUserId(Long userId) {
+        if (userId == null) {
+            return List.of();
+        }
+        return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
+    
+    public List<Order> getOrdersByCustomer(String email, String phone) {
+        if (email != null && !email.trim().isEmpty()) {
+            return orderRepository.findByCustomerNameIgnoreCase(email.trim());
+        }
+        if (phone != null && !phone.trim().isEmpty()) {
+            return orderRepository.findByCustomerPhone(phone.trim());
+        }
+        return List.of(); // Return empty list if no filter provided
+    }
+    
+    /**
+     * Generates a monthly order number that resets to 1 at the start of each month
+     * @return The next order number for the current month
+     */
+    private Integer generateMonthlyOrderNumber() {
+        LocalDateTime now = LocalDateTime.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+        
+        Optional<Integer> lastOrderNumber = orderRepository.findLastOrderNumberForMonth(year, month);
+        
+        if (lastOrderNumber.isPresent() && lastOrderNumber.get() != null) {
+            return lastOrderNumber.get() + 1;
+        } else {
+            // First order of the month
+            return 1;
+        }
+    }
+    
+    @Transactional
+    public Order createOrder(OrderRequest request, Long userId) {
+        Order order = new Order();
+        // Handle optional customer name
+        if (request.getCustomerName() != null && !request.getCustomerName().trim().isEmpty()) {
+            order.setCustomerName(request.getCustomerName().trim());
+        } else {
+            order.setCustomerName("Guest Customer");
+        }
+        order.setCustomerPhone(request.getCustomerPhone().trim());
+        order.setChannel(request.getChannel() != null ? request.getChannel() : "store");
+        order.setSubtotal(request.getSubtotal());
+        order.setDeliveryOption(request.getDeliveryOption());
+        order.setDeliveryFee(request.getDeliveryFee() != null ? request.getDeliveryFee() : 0);
+        order.setDeliveryLocation(request.getDeliveryLocation() != null ? request.getDeliveryLocation().trim() : null);
+        order.setUserId(userId); // Link order to user account (null for guest orders)
+        
+        for (OrderItemDto itemDto : request.getItems()) {
+            OrderItem item = new OrderItem();
+            item.setOrder(order);
+            item.setProductId(itemDto.getProductId());
+            item.setQuantity(itemDto.getQuantity());
+            item.setUnitPrice(itemDto.getUnitPrice());
+            order.getItems().add(item);
+        }
+        
+        order.setStatus("PENDING");
+        
+        // Generate monthly order number (resets to 1 each month)
+        Integer orderNumber = generateMonthlyOrderNumber();
+        order.setOrderNumber(orderNumber);
+        
+        order = orderRepository.save(order);
+        
+        System.out.println("=== ORDER CREATED ===");
+        System.out.println("Order ID: " + order.getId());
+        System.out.println("Order Number: " + order.getOrderNumber());
+        System.out.println("User ID: " + order.getUserId());
+        System.out.println("Customer Name: " + order.getCustomerName());
+        System.out.println("Customer Phone: " + order.getCustomerPhone());
+        System.out.println("Items Count: " + order.getItems().size());
+        System.out.println("=====================");
+        
+        // Send notifications
+        sendOrderNotification(order);
+        sendOrderConfirmationEmail(order);
+        // Send WhatsApp notification to admin
+        whatsAppService.sendOrderNotification(order);
+        
+        return order;
+    }
+    
+    @Transactional
+    public void deleteOrder(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        orderRepository.delete(order);
+    }
+    
+    @Transactional
+    public Order updateOrderStatus(Long orderId, String status, String trackingNumber) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        
+        order.setStatus(status);
+        
+        if (trackingNumber != null && !trackingNumber.trim().isEmpty()) {
+            order.setTrackingNumber(trackingNumber.trim());
+        }
+        
+        if ("SHIPPED".equals(status)) {
+            order.setShippedAt(LocalDateTime.now());
+            sendShippingNotification(order);
+        } else if ("DELIVERED".equals(status)) {
+            order.setDeliveredAt(LocalDateTime.now());
+            sendDeliveryNotification(order);
+        }
+        
+        return orderRepository.save(order);
+    }
+    
+    private void sendOrderNotification(Order order) {
+        try {
+            if (mailSender != null && adminEmail != null && !adminEmail.isEmpty()) {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(adminEmail);
+                message.setTo(adminEmail);
+                message.setSubject("🧵 New Order #" + order.getId() + " - " + order.getCustomerName());
+                
+                // Build detailed email content
+                StringBuilder emailContent = new StringBuilder();
+                emailContent.append("🧵 NEW ORDER RECEIVED\n\n");
+                emailContent.append("Order ID: #").append(order.getId()).append("\n");
+                emailContent.append("Customer Name: ").append(order.getCustomerName() != null ? order.getCustomerName() : "Guest").append("\n");
+                emailContent.append("Phone: ").append(order.getCustomerPhone()).append("\n");
+                emailContent.append("Channel: ").append(order.getChannel() != null ? order.getChannel() : "Store").append("\n");
+                emailContent.append("Order Date: ").append(order.getCreatedAt() != null ? order.getCreatedAt().toString() : "Now").append("\n\n");
+                
+                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("ORDER ITEMS:\n");
+                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+                
+                // Get product details for each item
+                for (OrderItem item : order.getItems()) {
+                    String productName = "Product ID: " + item.getProductId();
+                    try {
+                        Optional<Product> productOpt = productRepository.findById(item.getProductId());
+                        if (productOpt.isPresent()) {
+                            Product product = productOpt.get();
+                            productName = product.getName();
+                        }
+                    } catch (Exception e) {
+                        // Use product ID if fetch fails
+                    }
+                    
+                    emailContent.append("• ").append(productName).append("\n");
+                    emailContent.append("  Quantity: ").append(item.getQuantity()).append("\n");
+                    emailContent.append("  Unit Price: ").append(item.getUnitPrice()).append(" RWF\n");
+                    emailContent.append("  Subtotal: ").append(item.getQuantity() * item.getUnitPrice()).append(" RWF\n\n");
+                }
+                
+                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("ORDER SUMMARY:\n");
+                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("Subtotal: ").append(order.getSubtotal()).append(" RWF\n");
+                
+                if (order.getDeliveryOption() != null && !order.getDeliveryOption().isEmpty()) {
+                    emailContent.append("Delivery Option: ").append(order.getDeliveryOption()).append("\n");
+                }
+                if (order.getDeliveryFee() != null && order.getDeliveryFee() > 0) {
+                    emailContent.append("Delivery Fee: ").append(order.getDeliveryFee()).append(" RWF\n");
+                }
+                if (order.getDeliveryLocation() != null && !order.getDeliveryLocation().trim().isEmpty()) {
+                    emailContent.append("Delivery Location: ").append(order.getDeliveryLocation()).append("\n");
+                }
+                
+                int total = order.getSubtotal() + (order.getDeliveryFee() != null ? order.getDeliveryFee() : 0);
+                emailContent.append("TOTAL: ").append(total).append(" RWF\n\n");
+                
+                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("Please process this order promptly.\n");
+                emailContent.append("WhatsApp: ").append(adminWhatsApp).append("\n");
+                
+                message.setText(emailContent.toString());
+                mailSender.send(message);
+                System.out.println("Admin notification email sent for order #" + order.getId());
+            }
+        } catch (Exception e) {
+            // Log error but don't fail the order
+            System.err.println("Failed to send email notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void sendOrderConfirmationEmail(Order order) {
+        try {
+            if (mailSender == null) {
+                System.out.println("Email not configured - order confirmation email not sent for order #" + order.getId());
+                return;
+            }
+            
+            if (order.getCustomerName() != null) {
+                // Try to get user email if order is linked to a user
+                String customerEmail = null;
+                if (order.getUserId() != null) {
+                    // Fetch user email from user repository
+                    try {
+                        User user = userRepository.findById(order.getUserId()).orElse(null);
+                        if (user != null) {
+                            customerEmail = user.getEmail();
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Failed to fetch user email: " + e.getMessage());
+                    }
+                }
+                
+                // Fallback: check if customer name is an email
+                if (customerEmail == null && order.getCustomerName() != null && order.getCustomerName().contains("@")) {
+                    customerEmail = order.getCustomerName();
+                }
+                
+                if (customerEmail != null && customerEmail.contains("@")) {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(adminEmail != null ? adminEmail : "noreply@kitengebora.com");
+                    message.setTo(customerEmail);
+                    message.setSubject("Order Confirmation - Kitenge Bora #" + order.getId());
+                    StringBuilder emailBody = new StringBuilder();
+                    emailBody.append("Hello ").append(order.getCustomerName()).append(",\n\n");
+                    emailBody.append("Thank you for your order!\n\n");
+                    emailBody.append("Order #").append(order.getId()).append("\n");
+                    emailBody.append("Subtotal: ").append(order.getSubtotal()).append(" RWF\n");
+                    emailBody.append("Delivery Fee: ").append(order.getDeliveryFee() != null ? order.getDeliveryFee() : 0).append(" RWF\n");
+                    if (order.getDeliveryLocation() != null && !order.getDeliveryLocation().trim().isEmpty()) {
+                        emailBody.append("Delivery Location: ").append(order.getDeliveryLocation()).append("\n");
+                    }
+                    emailBody.append("Total: ").append((order.getSubtotal() != null ? order.getSubtotal() : 0) + 
+                                    (order.getDeliveryFee() != null ? order.getDeliveryFee() : 0)).append(" RWF\n\n");
+                    emailBody.append("We'll send you updates on your order status.\n\n");
+                    emailBody.append("Best regards,\n");
+                    emailBody.append("Kitenge Bora Team");
+                    message.setText(emailBody.toString());
+                    mailSender.send(message);
+                    System.out.println("Order confirmation email sent to: " + customerEmail);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send order confirmation email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void sendShippingNotification(Order order) {
+        try {
+            if (mailSender == null) {
+                System.out.println("Email not configured - shipping notification not sent for order #" + order.getId());
+                return;
+            }
+            
+            if (order.getCustomerName() != null) {
+                String customerEmail = null;
+                if (order.getUserId() != null) {
+                    try {
+                        User user = userRepository.findById(order.getUserId()).orElse(null);
+                        if (user != null) {
+                            customerEmail = user.getEmail();
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Failed to fetch user email: " + e.getMessage());
+                    }
+                }
+                
+                if (customerEmail == null && order.getCustomerName() != null && order.getCustomerName().contains("@")) {
+                    customerEmail = order.getCustomerName();
+                }
+                
+                if (customerEmail != null && customerEmail.contains("@")) {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(adminEmail != null ? adminEmail : "noreply@kitengebora.com");
+                    message.setTo(customerEmail);
+                    message.setSubject("Your Order Has Been Shipped - Kitenge Bora #" + order.getId());
+                    message.setText(
+                        "Hello " + order.getCustomerName() + ",\n\n" +
+                        "Great news! Your order #" + order.getId() + " has been shipped.\n\n" +
+                        (order.getTrackingNumber() != null ? 
+                            "Tracking Number: " + order.getTrackingNumber() + "\n\n" : "") +
+                        "You can track your order status in your account.\n\n" +
+                        "Best regards,\n" +
+                        "Kitenge Bora Team"
+                    );
+                    mailSender.send(message);
+                    System.out.println("Shipping notification sent to: " + customerEmail);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send shipping notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void sendDeliveryNotification(Order order) {
+        try {
+            if (mailSender == null) {
+                System.out.println("Email not configured - delivery notification not sent for order #" + order.getId());
+                return;
+            }
+            
+            if (order.getCustomerName() != null) {
+                String customerEmail = null;
+                if (order.getUserId() != null) {
+                    try {
+                        User user = userRepository.findById(order.getUserId()).orElse(null);
+                        if (user != null) {
+                            customerEmail = user.getEmail();
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Failed to fetch user email: " + e.getMessage());
+                    }
+                }
+                
+                if (customerEmail == null && order.getCustomerName() != null && order.getCustomerName().contains("@")) {
+                    customerEmail = order.getCustomerName();
+                }
+                
+                if (customerEmail != null && customerEmail.contains("@")) {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(adminEmail != null ? adminEmail : "noreply@kitengebora.com");
+                    message.setTo(customerEmail);
+                    message.setSubject("Order Delivered - Kitenge Bora #" + order.getId());
+                    message.setText(
+                        "Hello " + order.getCustomerName() + ",\n\n" +
+                        "Your order #" + order.getId() + " has been delivered!\n\n" +
+                        "We hope you love your purchase. If you have any questions, please don't hesitate to contact us.\n\n" +
+                        "Thank you for shopping with Kitenge Bora!\n\n" +
+                        "Best regards,\n" +
+                        "Kitenge Bora Team"
+                    );
+                    mailSender.send(message);
+                    System.out.println("Delivery notification sent to: " + customerEmail);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send delivery notification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+

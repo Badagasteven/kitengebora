@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login – Kitenge Bora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body class="auth-body">
+
+  <!-- SVG icons for password show/hide -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <!-- Eye Open -->
+    <symbol id="icon-eye" viewBox="0 0 24 24">
+      <path d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 110-10 5 5 0 010 10z"/>
+    </symbol>
+
+    <!-- Eye Closed -->
+    <symbol id="icon-eye-off" viewBox="0 0 24 24">
+      <path d="M1 1l22 22M9.5 9.5a3 3 0 104.2 4.2M6.6 6.6C4 8 2 12 2 12s4 7 10 7c2 0 3.8-.6 5.4-1.6"/>
+    </symbol>
+  </svg>
+
+
+  <div class="auth-container">
+
+    <!-- LEFT FORM -->
+    <div class="auth-form-block">
+
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-sub">Sign in to view your wishlist and keep shopping.</p>
+
+      <div id="login-alert"></div>
+
+      <form id="login-form">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="you@example.com" required />
+
+        <label for="login-password">Password</label>
+<div class="password-wrapper">
+  <input type="password" id="login-password" placeholder="Enter password" required />
+  <span class="toggle-password" data-target="login-password">
+    <svg class="password-icon"><use href="#icon-eye"></use></svg>
+  </span>
+</div>
+
+
+        <button class="btn-primary auth-btn" type="submit">Sign In</button>
+      </form>
+
+      <p class="auth-switch">
+        Don't have an account?
+        <a href="/signup.html">Create one</a>
+      </p>
+    </div>
+
+    <!-- RIGHT ORANGE PANEL -->
+    <div class="auth-side-panel">
+      <div class="auth-side-content">
+        <h2>Hello Again 👋</h2>
+        <p>Your favourite kitenge pieces are waiting for you.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const alertBox = document.getElementById("login-alert");
+      alertBox.innerHTML = "";
+
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value;
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alertBox.innerHTML = `<div class="alert alert-error">${data.error || "Login failed"}</div>`;
+          return;
+        }
+
+        // For customers: go to store
+        window.location.href = "/";
+      } catch (err) {
+        alertBox.innerHTML = `<div class="alert alert-error">Unexpected error. Try again.</div>`;
+      }
+    });
+  </script>
+
+  <script>
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("toggle-password")) {
+    const inputId = e.target.getAttribute("data-target");
+    const input = document.getElementById(inputId);
+
+    if (input.type === "password") {
+      input.type = "text";
+      e.target.textContent = "🙈"; // switched icon
+    } else {
+      input.type = "password";
+      e.target.textContent = "👁️"; // default icon
+    }
+  }
+});
+</script>
+
+<script>
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".toggle-password");
+  if (!btn) return;
+
+  const targetId = btn.getAttribute("data-target");
+  const input = document.getElementById(targetId);
+  if (!input) return;
+
+  const useEl = btn.querySelector("use");
+  if (!useEl) return;
+
+  if (input.type === "password") {
+    input.type = "text";
+    useEl.setAttribute("href", "#icon-eye-off");
+  } else {
+    input.type = "password";
+    useEl.setAttribute("href", "#icon-eye");
+  }
+});
+</script>
+
+
+
+
+</body>
+</html>

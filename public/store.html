@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kitenge Bora – Storefront</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+
+</head>
+
+<body class="store-body kitenge-bg-page">
+  <!-- SVG icon sprite -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <symbol id="kb-icon-bag" viewBox="0 0 24 24">
+      <rect x="5" y="8" width="14" height="11" rx="1.8"></rect>
+      <path d="M9 8V7a3 3 0 0 1 6 0v1"></path>
+    </symbol>
+    <symbol id="kb-icon-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="5"></circle>
+      <line x1="15.5" y1="15.5" x2="19" y2="19"></line>
+    </symbol>
+    <symbol id="kb-icon-arrow-right" viewBox="0 0 24 24">
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+      <polyline points="13 7 18 12 13 17"></polyline>
+    </symbol>
+  </svg>
+
+  <!-- HEADER -->
+  <header class="store-header">
+    <div class="header-inner">
+
+      <!-- BRAND -->
+      <div class="brand">
+        <div>
+          <div class="brand-title">KITENGE BORA</div>
+          <div class="brand-tagline">Curated African fabrics & outfits</div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="header-actions">
+
+        <span class="header-link active">New in</span>
+        <span class="header-link">Best sellers</span>
+        <span class="header-link">Promo</span>
+
+        <span class="header-link" id="wishlist-link">
+          Wishlist (<span id="wishlist-count">0</span>)
+        </span>
+
+        <!-- ADMIN BUTTON (only shown for admin via JS) -->
+        <button
+          class="header-link"
+          id="admin-page-btn"
+          type="button"
+          style="display:none;"
+        >
+          Admin
+        </button>
+
+        <!-- LOGIN BUTTON (for guests / admin) -->
+        <button
+          class="header-link"
+          id="login-btn"
+          type="button"
+          onclick="location.href='/login.html'"
+        >
+          Login
+        </button>
+
+        <!-- ACCOUNT BOX (when logged in as CUSTOMER) -->
+        <div id="account-box" class="account-box" style="display:none;">
+          <span class="account-email" id="account-email"></span>
+          <button class="btn-outline btn-small" id="account-page-btn" type="button">
+            My account
+          </button>
+          <button class="btn-outline btn-small" id="logout-btn" type="button">
+            Logout
+          </button>
+        </div>
+
+        <!-- Theme toggle -->
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+
+        <!-- CART -->
+        <button class="cart-button" id="cart-toggle" type="button">
+          <span class="icon">
+            <svg class="kb-icon" aria-hidden="true">
+              <use href="#kb-icon-bag"></use>
+            </svg>
+          </span>
+          <span>Cart</span>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-banner">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span>New drop</span> · <span>Kitenge prints</span>
+        </div>
+        <h1 class="hero-title">Bold African prints for everyday wear.</h1>
+        <p class="hero-sub">
+          Carefully selected kitenge, ankara and wax fabrics ready to be tailored into your favourite looks.
+        </p>
+        <button class="hero-cta" id="hero-shop-btn" type="button">
+          <span class="icon">
+            <svg class="kb-icon" aria-hidden="true">
+              <use href="#kb-icon-arrow-right"></use>
+            </svg>
+          </span>
+          <span>Shop the collection</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section class="story-block">
+    <div class="story-inner">
+      <div class="story-text">
+        <h2>Our story</h2>
+        <p id="short-story">
+          Kitenge Bora celebrates African craftsmanship by connecting you to quality fabrics sourced with care.
+          Every fabric tells a story — of culture, identity, and beauty.
+        </p>
+      </div>
+      <div class="story-image">
+        <img src="/story-wall.jpeg" alt="Kitenge fabric wall display" />
+      </div>
+    </div>
+  </section>
+
+  <!-- COLLECTION -->
+  <main>
+    <div class="section-header">
+      <div>
+        <h2>Collection</h2>
+        <p>Browse fabrics and ready-made outfits.</p>
+      </div>
+      <div class="section-header-right">
+        Free delivery in Kigali on large orders.
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-row">
+      <div class="search-box">
+        <span class="icon">
+          <svg class="kb-icon" aria-hidden="true">
+            <use href="#kb-icon-search"></use>
+          </svg>
+        </span>
+        <input type="text" id="search-input" placeholder="Search by name, colour or style..." />
+      </div>
+
+      <div class="select-wrapper">
+        <span>Sort by</span>
+        <select id="sort-select">
+          <option value="newest">Newest</option>
+          <option value="price-low">Price: low to high</option>
+          <option value="price-high">Price: high to low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="categories-pills" id="category-pills"></div>
+
+    <div id="pagination">
+      <button id="prev-page" type="button">&larr; Prev</button>
+      <span id="page-info">Page 1</span>
+      <button id="next-page" type="button">Next &rarr;</button>
+    </div>
+
+    <!-- PRODUCTS GRID -->
+    <section class="products-grid" id="products-grid"></section>
+
+    <p class="empty" id="empty-state" style="display:none;">
+      No products match your filters yet.
+    </p>
+  </main>
+
+  <!-- CART -->
+  <div class="cart-drawer-backdrop" id="cart-backdrop"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="cart-drawer-header">
+      <h3>Your cart</h3>
+      <button id="cart-close" type="button" aria-label="Close cart">&times;</button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+
+    <div class="cart-footer">
+      <div class="cart-footer-row">
+        <span>Subtotal</span>
+        <span class="cart-total" id="cart-subtotal">RWF 0</span>
+      </div>
+
+      <div class="cart-footer-row">
+        <span class="cart-footer-info">Orders confirmed via WhatsApp.</span>
+      </div>
+
+      <input type="text" id="cart-name" placeholder="Your name (optional)" />
+      <input type="text" id="cart-phone" placeholder="WhatsApp number (required)" />
+
+      <div class="cart-footer-row delivery-row">
+        <label for="delivery-option">Delivery</label>
+        <select id="delivery-option">
+          <option value="pickup" selected>Pick up (0 RWF)</option>
+          <option value="kigali">Kigali (2,000 RWF)</option>
+          <option value="upcountry">Upcountry (3,500 RWF)</option>
+        </select>
+      </div>
+
+      <div class="cart-footer-row totals-row">
+        <span>Estimated total</span>
+        <span class="cart-total" id="cart-grandtotal">RWF 0</span>
+      </div>
+
+      <button class="btn btn-outline" id="clear-cart-btn" type="button">Clear cart</button>
+      <button class="btn btn-primary" id="checkout-btn" type="button">Checkout via WhatsApp</button>
+    </div>
+  </aside>
+
+  <!-- PRODUCT MODAL -->
+  <div class="detail-backdrop" id="detail-backdrop"></div>
+  <div class="detail-modal" id="product-modal">
+    <div class="detail-modal-header">
+      <h3 id="modal-title">Product details</h3>
+      <button id="modal-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="detail-modal-body">
+      <img id="modal-image" src="" alt="" />
+      <div class="detail-info">
+        <div class="detail-category" id="modal-category"></div>
+        <div class="detail-desc" id="modal-desc"></div>
+        <div class="detail-badges" id="modal-badges"></div>
+
+        <div class="price-row">
+          <span class="price" id="modal-price"></span>
+          <span class="price-original" id="modal-original"></span>
+          <span class="price-discount" id="modal-discount"></span>
+        </div>
+
+        <div class="detail-actions">
+          <button class="btn btn-primary" id="modal-add-cart" type="button">Add to cart</button>
+          <button class="btn btn-outline" id="modal-wishlist" type="button">♥ Wishlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="kb-promo-banner">
+  <div class="kb-footer-max">
+    <p>Free delivery in Kigali on orders over <strong>RWF 50,000</strong>. Cash on delivery available.</p>
+  </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <!-- Reusable footer -->
+  <footer class="kb-footer">
+  <div class="kb-footer-max">
+
+    <!-- MAIN LINKS -->
+    <section class="kb-footer-links">
+      <div class="kb-footer-group">
+        <h4>Company</h4>
+        <a href="/">Home</a>
+        <a href="/contact.html">Contact Us</a>
+        <a href="/how-to-buy.html">How To Buy</a>
+        <a href="/returns.html">Returns & Refunds Policy</a>
+      </div>
+
+      <div class="kb-footer-group">
+        <h4>Shop</h4>
+        <a href="/">Products</a>
+        <a href="/wishlist.html">Wishlist</a>
+      </div>
+
+      <div class="kb-footer-group">
+        <h4>Customer Service</h4>
+        <a href="/account.html">Profile</a>
+        <a href="/contact.html">Customer Support</a>
+      </div>
+    </section>
+
+    <!-- BOTTOM ROW with Social Icons -->
+    <section class="kb-footer-bottom">
+      <span>© <span id="year"></span> Badaga Steven. All rights reserved.</span>
+
+      <div class="footer-social">
+  <span>Follow us</span>
+
+  <a href="https://www.instagram.com/kitenge_bora" target="_blank" aria-label="Instagram">
+    <i class="fab fa-instagram"></i>
+  </a>
+
+  <a href="https://www.facebook.com/kitengebora" target="_blank" aria-label="Facebook">
+    <i class="fab fa-facebook-f"></i>
+  </a>
+
+  <a href="https://www.tiktok.com/@kitenge_bora" target="_blank" aria-label="TikTok">
+    <i class="fab fa-tiktok"></i>
+  </a>
+
+  <a href="https://wa.me/250788883986" target="_blank" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+</div>
+
+    </section>
+
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const y = document.getElementById('year');
+    if (y) y.textContent = new Date().getFullYear();
+  });
+</script>
+
+  <script src="/scripts/store.js" defer></script>
+
+  <!-- POPUP -->
+  <div id="kb-popup" class="kb-popup-backdrop">
+    <div class="kb-popup">
+      <h3 id="kb-popup-title">Notice</h3>
+      <p id="kb-popup-message"></p>
+      <button id="kb-popup-close" class="btn-primary" style="margin-top:12px;" type="button">OK</button>
+    </div>
+  </div>
+
+</body>
+</html>
