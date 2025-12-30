@@ -22,9 +22,18 @@ public class WebConfig implements WebMvcConfigurer {
     
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        // Get allowed origins from environment variable or use defaults
+        String allowedOriginsEnv = System.getenv("APP_CORS_ALLOWED_ORIGINS");
+        String[] allowedOrigins;
+        if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
+            allowedOrigins = allowedOriginsEnv.split(",");
+        } else {
+            allowedOrigins = new String[]{"http://localhost:8082", "http://localhost:4000", "http://localhost:3000"};
+        }
+        
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8082", "http://localhost:4000", "http://localhost:3000")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedOrigins(allowedOrigins)
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

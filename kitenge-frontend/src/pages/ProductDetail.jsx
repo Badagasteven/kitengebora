@@ -4,6 +4,9 @@ import { productsAPI } from '../services/api'
 import { useCart } from '../contexts/CartContext'
 import { useToast } from '../contexts/ToastContext'
 import ProductReviews from '../components/ProductReviews'
+import RelatedProducts from '../components/RelatedProducts'
+import SocialShare from '../components/SocialShare'
+import Breadcrumbs from '../components/Breadcrumbs'
 import { ShoppingCart, Heart, ArrowLeft, Plus, Minus, ZoomIn, X } from 'lucide-react'
 import { getImageUrl } from '../utils/imageUtils'
 import { LoadingSpinner } from '../components/SkeletonLoader'
@@ -29,7 +32,15 @@ const ProductDetail = () => {
   const loadProduct = async () => {
     try {
       const response = await productsAPI.getProduct(id)
-      setProduct(response.data)
+      const productData = response.data
+      setProduct(productData)
+      
+      // Track recently viewed product
+      if (productData && productData.id) {
+        const recentIds = JSON.parse(localStorage.getItem('kb_recently_viewed') || '[]')
+        const updated = [productData.id, ...recentIds.filter(pid => pid !== productData.id)].slice(0, 20)
+        localStorage.setItem('kb_recently_viewed', JSON.stringify(updated))
+      }
     } catch (error) {
       console.error('Failed to load product:', error)
       toast.error('Product not found')
@@ -97,6 +108,8 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumbs />
+        
         <Link
           to="/products"
           className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-accent mb-6 transition-colors"
@@ -105,14 +118,21 @@ const ProductDetail = () => {
           Back to Products
         </Link>
 
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
           {/* Product Images */}
           <div>
             <div 
-              className="relative aspect-square bg-white dark:bg-gray-800 rounded-2xl overflow-hidden mb-4 cursor-zoom-in group"
+              className="relative aspect-square bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl overflow-hidden mb-4 cursor-zoom-in group touch-none sm:touch-auto"
               onMouseMove={handleImageMouseMove}
               onMouseEnter={() => setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
+              onTouchStart={(e) => {
+                // Disable zoom on mobile - use tap to view fullscreen instead
+                if (window.innerWidth < 640) {
+                  e.preventDefault()
+                  handleImageClick()
+                }
+              }}
               onClick={handleImageClick}
               ref={imageRef}
             >
@@ -248,18 +268,23 @@ const ProductDetail = () => {
             </div>
 
             {/* Add to Cart Button */}
-            <div className="flex gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
               <button
                 onClick={handleAddToCart}
                 disabled={product.in_stock === false}
-                className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base py-3 sm:py-2.5"
               >
-                <ShoppingCart className="w-5 h-5" />
-                Add to Cart
+                <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5" />
+                <span>Add to Cart</span>
               </button>
-              <button className="btn-outline p-4">
-                <Heart className="w-5 h-5" />
+              <button className="btn-outline p-3 sm:p-4 min-w-[52px] sm:min-w-[56px] flex items-center justify-center">
+                <Heart className="w-5 h-5 sm:w-5 sm:h-5" />
               </button>
+            </div>
+
+            {/* Social Share */}
+            <div className="mb-6 pt-6 border-t border-gray-200 dark:border-gray-800">
+              <SocialShare product={product} />
             </div>
 
             {/* Product Details */}
@@ -287,6 +312,13 @@ const ProductDetail = () => {
 
         {/* Product Reviews */}
         <ProductReviews productId={product.id} />
+
+        {/* Related Products */}
+        <RelatedProducts
+          currentProductId={product.id}
+          category={product.category}
+          limit={4}
+        />
       </div>
     </div>
   )

@@ -29,6 +29,7 @@ const Wishlist = () => {
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState('recent') // recent, price-low, price-high, name
   const [viewMode, setViewMode] = useState('grid') // grid, list
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
 
   useEffect(() => {
     loadWishlist()
@@ -111,10 +112,6 @@ const Wishlist = () => {
   })
 
   const handleClearWishlist = async () => {
-    if (!confirm('Are you sure you want to clear your entire wishlist?')) {
-      return
-    }
-
     try {
       if (isAuthenticated) {
         // Remove all items from server wishlist
@@ -137,18 +134,34 @@ const Wishlist = () => {
   }
 
   const handleShareWishlist = () => {
+    const shareUrl = window.location.href
+    const shareText =
+      wishlistProducts.length > 0
+        ? `Check out my wishlist with ${wishlistProducts.length} item${wishlistProducts.length === 1 ? '' : 's'} at Kitenge Bora!`
+        : 'Check out my wishlist at Kitenge Bora!'
+
     if (navigator.share) {
-      navigator.share({
-        title: 'My Wishlist - Kitenge Bora',
-        text: `Check out my wishlist with ${wishlistProducts.length} items!`,
-        url: window.location.href
-      }).catch(() => {
-        // User cancelled or error occurred
-      })
+      navigator
+        .share({
+          title: 'My Wishlist - Kitenge Bora',
+          text: shareText,
+          url: shareUrl,
+        })
+        .catch(() => {
+          // User cancelled or share failed silently – no need to show error
+        })
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          toast.success('Wishlist link copied to clipboard!')
+        })
+        .catch(() => {
+          toast.error('Failed to copy link. Please try again.')
+        })
     } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href)
-      toast.success('Wishlist link copied to clipboard!')
+      // Last resort fallback
+      toast.error('Sharing is not supported on this device.')
     }
   }
 
@@ -194,20 +207,20 @@ const Wishlist = () => {
               </div>
             </div>
             {wishlistProducts.length > 0 && (
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <button
                   onClick={handleShareWishlist}
-                  className="px-4 py-2 bg-white/20 backdrop-blur-md text-white rounded-lg hover:bg-white/30 transition-all flex items-center gap-2 text-sm font-medium"
+                  className="px-3 py-2 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-md text-white rounded-lg hover:bg-white/30 transition-all flex items-center gap-2 text-xs sm:text-sm font-medium"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Share</span>
+                  <span>Share wishlist</span>
                 </button>
                 <button
-                  onClick={handleClearWishlist}
-                  className="px-4 py-2 bg-white/20 backdrop-blur-md text-white rounded-lg hover:bg-white/30 transition-all flex items-center gap-2 text-sm font-medium"
+                  onClick={() => setShowClearConfirm(true)}
+                  className="px-3 py-2 sm:px-4 sm:py-2 bg-white/10 border border-white/30 text-white rounded-lg hover:bg-white/20 transition-all flex items-center gap-2 text-xs sm:text-sm font-medium"
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Clear All</span>
+                  <span>Clear all</span>
                 </button>
               </div>
             )}
@@ -307,6 +320,42 @@ const Wishlist = () => {
           opacity: 0;
         }
       `}</style>
+
+      {/* Clear Wishlist Confirmation Modal */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-2">
+                <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                Clear your wishlist?
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                This will remove all items from your wishlist. You can add them again later if you change your mind.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 w-full mt-4">
+                <button
+                  onClick={() => setShowClearConfirm(false)}
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowClearConfirm(false)
+                    await handleClearWishlist()
+                  }}
+                  className="flex-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all"
+                >
+                  Yes, clear wishlist
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

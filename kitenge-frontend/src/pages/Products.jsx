@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { productsAPI } from '../services/api'
 import ProductCard from '../components/ProductCard'
-import { Search, Filter, Grid, List, X, SlidersHorizontal, Sparkles } from 'lucide-react'
+import Breadcrumbs from '../components/Breadcrumbs'
+import { Search, Filter, Grid, List, X, SlidersHorizontal, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
 import { ProductGridSkeleton, LoadingSpinner } from '../components/SkeletonLoader'
 import { EmptyProducts, EmptySearch } from '../components/EmptyState'
@@ -19,6 +20,8 @@ const Products = () => {
   const [viewMode, setViewMode] = useState('grid')
   const [showPromoOnly, setShowPromoOnly] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [productsPerPage] = useState(12)
   const toast = useToast()
 
   useEffect(() => {
@@ -27,6 +30,7 @@ const Products = () => {
 
   useEffect(() => {
     filterAndSortProducts()
+    setCurrentPage(1) // Reset to first page when filters change
   }, [products, searchQuery, selectedCategory, priceRange, sortBy, showPromoOnly])
 
   const loadProducts = async () => {
@@ -108,9 +112,22 @@ const Products = () => {
     setSortBy('newest')
   }
 
+  // Pagination logic
+  const indexOfLastProduct = currentPage * productsPerPage
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct)
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage)
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Breadcrumbs />
+        
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
@@ -197,10 +214,11 @@ const Products = () => {
               {/* Mobile Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden px-4 py-2 sm:px-6 sm:py-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 flex items-center gap-2"
+                className="lg:hidden px-4 py-2 sm:px-6 sm:py-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 border border-gray-200 dark:border-gray-700 flex items-center gap-2 touch-target transition-all"
+                aria-label="Toggle filters"
               >
                 <SlidersHorizontal className="w-4 h-4" />
-                Filters
+                <span className="hidden sm:inline">Filters</span>
               </button>
             </div>
           </div>
@@ -252,16 +270,44 @@ const Products = () => {
           )}
         </div>
 
-        {/* Filters Panel - Desktop Always Visible, Mobile Toggle */}
-        <div className={`card p-4 sm:p-6 mb-6 ${showFilters ? 'block' : 'hidden'} lg:block`}>
-          <div className="flex items-center justify-between mb-4">
+        {/* Mobile Filter Overlay */}
+        {showFilters && (
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setShowFilters(false)}
+            style={{
+              paddingTop: 'env(safe-area-inset-top)',
+              paddingBottom: 'env(safe-area-inset-bottom)',
+            }}
+          />
+        )}
+
+        {/* Filters Panel - Desktop Always Visible, Mobile Slide-in Drawer */}
+        <div className={`
+          ${showFilters ? 'fixed' : 'hidden'} lg:block
+          top-0 right-0 h-full w-full max-w-sm
+          lg:relative lg:max-w-none lg:h-auto lg:w-auto
+          bg-white dark:bg-gray-900 z-50 lg:z-auto
+          shadow-2xl lg:shadow-none
+          overflow-y-auto
+          card p-4 sm:p-6 mb-6
+          transform transition-transform duration-300 ease-in-out
+          ${showFilters ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+        `}
+        style={{
+          paddingTop: showFilters ? 'max(1rem, env(safe-area-inset-top))' : undefined,
+          paddingBottom: showFilters ? 'max(1rem, env(safe-area-inset-bottom))' : undefined,
+        }}
+        >
+          <div className="flex items-center justify-between mb-4 sticky top-0 bg-white dark:bg-gray-900 pb-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <Filter className="w-5 h-5 text-accent" />
               Filters
             </h3>
             <button
               onClick={() => setShowFilters(false)}
-              className="lg:hidden text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="lg:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 touch-target"
+              aria-label="Close filters"
             >
               <X className="w-5 h-5" />
             </button>
@@ -359,24 +405,89 @@ const Products = () => {
             <EmptyProducts />
           )
         ) : (
-          <div
-            className={
-              viewMode === 'grid'
-                ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
-                : 'space-y-4'
-            }
-          >
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onView={(product) => {
-                  // Navigate to product detail page
-                  window.location.href = `/products/${product.id}`
-                }}
-              />
-            ))}
-          </div>
+          <>
+            <div
+              className={
+                viewMode === 'grid'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
+                  : 'space-y-4'
+              }
+            >
+              {currentProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onView={(product) => {
+                    // Navigate to product detail page
+                    window.location.href = `/products/${product.id}`
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Showing {indexOfFirstProduct + 1} to {Math.min(indexOfLastProduct, filteredProducts.length)} of {filteredProducts.length} products
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        // Show first page, last page, current page, and pages around current
+                        return (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+                        )
+                      })
+                      .map((page, index, array) => {
+                        // Add ellipsis if there's a gap
+                        const showEllipsisBefore = index > 0 && array[index] - array[index - 1] > 1
+                        return (
+                          <div key={page} className="flex items-center gap-1">
+                            {showEllipsisBefore && (
+                              <span className="px-2 text-gray-500">...</span>
+                            )}
+                            <button
+                              onClick={() => paginate(page)}
+                              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                currentPage === page
+                                  ? 'bg-accent text-white'
+                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                              }`}
+                              aria-label={`Page ${page}`}
+                              aria-current={currentPage === page ? 'page' : undefined}
+                            >
+                              {page}
+                            </button>
+                          </div>
+                        )
+                      })}
+                  </div>
+
+                  <button
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Next page"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

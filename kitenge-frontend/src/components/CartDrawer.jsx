@@ -266,6 +266,10 @@ const CartDrawer = () => {
       />
       <div
         className="fixed right-0 top-0 h-full w-full sm:max-w-md bg-white dark:bg-gray-900 z-50 shadow-2xl overflow-y-auto transform transition-transform"
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col h-full">

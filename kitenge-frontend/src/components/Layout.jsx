@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 import CartDrawer from './CartDrawer'
+import BackToTop from './BackToTop'
 import ErrorBoundary from './ErrorBoundary'
 
 const Layout = () => {
@@ -21,6 +22,7 @@ const Layout = () => {
       <ErrorBoundary>
         <CartDrawer />
       </ErrorBoundary>
+      <BackToTop />
     </div>
   )
 }

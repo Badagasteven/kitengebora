@@ -192,9 +192,6 @@ const Products = () => {
       toast.error(errorMessage)
     }
   }
-    // Otherwise return as is (might be external URL or placeholder)
-    return imagePath
-  }
 
   const resetForm = () => {
     setFormData({
@@ -226,432 +223,428 @@ const Products = () => {
       <AdminSidebar />
       <div className="flex-1">
         <div className="p-4 sm:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Products
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Manage your product catalog
-            </p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Products
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Manage your product catalog
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                resetForm()
+                setShowForm(true)
+              }}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Add Product
+            </button>
           </div>
-          <button
-            onClick={() => {
-              resetForm()
-              setShowForm(true)
-            }}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Add Product
-          </button>
-        </div>
 
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input-field pl-10"
-            />
-          </div>
-        </div>
-
-        {/* Product Form Modal */}
-        {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
-            <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                </button>
-              </div>
-              <div className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                      Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      className="input-field"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                      Category
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.category}
-                      onChange={(e) =>
-                        setFormData({ ...formData, category: e.target.value })
-                      }
-                      className="input-field"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    className="input-field"
-                    rows={3}
-                  />
-                </div>
-
-                {formData.is_promo ? (
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                        Original Price (RWF) *
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.original_price}
-                        onChange={(e) => {
-                          const originalPrice = e.target.value
-                          setFormData({
-                            ...formData,
-                            original_price: originalPrice,
-                          })
-                          // Auto-calculate price from original_price and discount
-                          if (originalPrice && formData.discount) {
-                            const calculatedPrice = Math.round(
-                              parseFloat(originalPrice) * (1 - parseFloat(formData.discount) / 100)
-                            )
-                            setFormData(prev => ({ 
-                              ...prev, 
-                              original_price: originalPrice, 
-                              price: calculatedPrice.toString() 
-                            }))
-                          }
-                        }}
-                        className="input-field"
-                        placeholder="Enter original price"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                        Discount (%) *
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.discount}
-                        onChange={(e) => {
-                          const discount = e.target.value
-                          setFormData({ ...formData, discount })
-                          // Auto-calculate price from original_price and discount
-                          if (formData.original_price && discount) {
-                            const calculatedPrice = Math.round(
-                              parseFloat(formData.original_price) * (1 - parseFloat(discount) / 100)
-                            )
-                            setFormData(prev => ({ 
-                              ...prev, 
-                              discount, 
-                              price: calculatedPrice.toString() 
-                            }))
-                          }
-                        }}
-                        className="input-field"
-                        placeholder="Enter discount percentage"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                        Sale Price (RWF) *
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.price}
-                        className="input-field bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
-                        readOnly
-                        required
-                      />
-                      {formData.original_price && formData.discount && (
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
-                          ✓ Calculated: {Math.round(parseFloat(formData.original_price) * (1 - parseFloat(formData.discount) / 100)).toLocaleString()} RWF
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                      Price (RWF) *
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) =>
-                        setFormData({ ...formData, price: e.target.value })
-                      }
-                      className="input-field"
-                      required
-                    />
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-                    Product Image
-                  </label>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={formData.image}
-                        onChange={(e) =>
-                          setFormData({ ...formData, image: e.target.value })
-                        }
-                        className="input-field flex-1"
-                        placeholder="Enter image URL or upload file"
-                      />
-                      <label className="btn-outline cursor-pointer flex items-center gap-2 whitespace-nowrap">
-                        <Upload className="w-4 h-4" />
-                        Upload
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                    {formData.image && (
-                      <div className="mt-2">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview:</p>
-                        <img
-                          src={getImageUrl(formData.image)}
-                          alt="Product preview"
-                          className="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                          onError={(e) => {
-                            e.target.src = '/placeholder.png'
-                            // Don't show toast on every error - only log it
-                            console.error('Failed to load image:', formData.image)
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.in_stock}
-                      onChange={(e) =>
-                        setFormData({ ...formData, in_stock: e.target.checked })
-                      }
-                      className="rounded"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      In Stock
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_promo}
-                      onChange={(e) => {
-                        const isPromo = e.target.checked
-                        setFormData({ 
-                          ...formData, 
-                          is_promo: isPromo,
-                          // Clear promo fields if unchecking
-                          ...(isPromo ? {} : { original_price: '', discount: '' })
-                        })
-                      }}
-                      className="rounded"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      Promo
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.active}
-                      onChange={(e) =>
-                        setFormData({ ...formData, active: e.target.checked })
-                      }
-                      className="rounded"
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      Active (Product will appear in store)
-                    </span>
-                  </label>
-                </div>
-
-                <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
-                  <button 
-                    type="submit" 
-                    className="btn-primary flex-1 flex items-center justify-center gap-2"
-                    disabled={submitting}
-                  >
-                    {submitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        {editingProduct ? 'Updating...' : 'Creating...'}
-                      </>
-                    ) : (
-                      <>
-                        <Check className="w-4 h-4" />
-                        {editingProduct ? 'Update Product' : 'Create Product'}
-                      </>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="btn-outline"
-                    disabled={submitting}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-              </div>
+          {/* Search */}
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input-field pl-10"
+              />
             </div>
           </div>
-        )}
 
-        {/* Products Table */}
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={getImageUrl(product.image)}
-                          alt={product.name}
-                          className="w-12 h-12 object-cover rounded"
-                          onError={(e) => {
-                            e.target.src = '/placeholder.png'
-                          }}
+          {/* Product Form Modal */}
+          {showForm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {editingProduct ? 'Edit Product' : 'Add New Product'}
+                  </h2>
+                  <button
+                    onClick={resetForm}
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    aria-label="Close"
+                  >
+                    <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  </button>
+                </div>
+                <div className="p-6">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) =>
+                            setFormData({ ...formData, name: e.target.value })
+                          }
+                          className="input-field"
+                          required
                         />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                          Category
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.category}
+                          onChange={(e) =>
+                            setFormData({ ...formData, category: e.target.value })
+                          }
+                          className="input-field"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        Description
+                      </label>
+                      <textarea
+                        value={formData.description}
+                        onChange={(e) =>
+                          setFormData({ ...formData, description: e.target.value })
+                        }
+                        className="input-field"
+                        rows={3}
+                      />
+                    </div>
+
+                    {formData.is_promo ? (
+                      <div className="grid md:grid-cols-3 gap-4">
                         <div>
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {product.name}
-                          </div>
-                          {product.active === false && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400">Archived</span>
+                          <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                            Original Price (RWF) *
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.original_price}
+                            onChange={(e) => {
+                              const originalPrice = e.target.value
+                              setFormData({
+                                ...formData,
+                                original_price: originalPrice,
+                              })
+                              if (originalPrice && formData.discount) {
+                                const calculatedPrice = Math.round(
+                                  parseFloat(originalPrice) * (1 - parseFloat(formData.discount) / 100)
+                                )
+                                setFormData(prev => ({ 
+                                  ...prev, 
+                                  original_price: originalPrice, 
+                                  price: calculatedPrice.toString() 
+                                }))
+                              }
+                            }}
+                            className="input-field"
+                            placeholder="Enter original price"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                            Discount (%) *
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={formData.discount}
+                            onChange={(e) => {
+                              const discount = e.target.value
+                              setFormData({ ...formData, discount })
+                              if (formData.original_price && discount) {
+                                const calculatedPrice = Math.round(
+                                  parseFloat(formData.original_price) * (1 - parseFloat(discount) / 100)
+                                )
+                                setFormData(prev => ({ 
+                                  ...prev, 
+                                  discount, 
+                                  price: calculatedPrice.toString() 
+                                }))
+                              }
+                            }}
+                            className="input-field"
+                            placeholder="Enter discount percentage"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                            Sale Price (RWF) *
+                          </label>
+                          <input
+                            type="number"
+                            value={formData.price}
+                            className="input-field bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
+                            readOnly
+                            required
+                          />
+                          {formData.original_price && formData.discount && (
+                            <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
+                              ✓ Calculated: {Math.round(parseFloat(formData.original_price) * (1 - parseFloat(formData.discount) / 100)).toLocaleString()} RWF
+                            </p>
                           )}
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {product.category || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                      {product.price.toLocaleString()} RWF
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-1">
-                        {product.active !== false ? (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                            Archived
-                          </span>
-                        )}
-                        {product.in_stock ? (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                            In Stock
-                          </span>
-                        ) : (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                            Out of Stock
-                          </span>
-                        )}
-                        {product.is_promo && (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                            Promo
-                          </span>
+                    ) : (
+                      <div>
+                        <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                          Price (RWF) *
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.price}
+                          onChange={(e) =>
+                            setFormData({ ...formData, price: e.target.value })
+                          }
+                          className="input-field"
+                          required
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                        Product Image
+                      </label>
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={formData.image}
+                            onChange={(e) =>
+                              setFormData({ ...formData, image: e.target.value })
+                            }
+                            className="input-field flex-1"
+                            placeholder="Enter image URL or upload file"
+                          />
+                          <label className="btn-outline cursor-pointer flex items-center gap-2 whitespace-nowrap">
+                            <Upload className="w-4 h-4" />
+                            Upload
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                        {formData.image && (
+                          <div className="mt-2">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Preview:</p>
+                            <img
+                              src={getImageUrl(formData.image)}
+                              alt="Product preview"
+                              className="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                              onError={(e) => {
+                                e.target.src = '/placeholder.png'
+                                console.error('Failed to load image:', formData.image)
+                              }}
+                            />
+                          </div>
                         )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleToggleActive(product)}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                          title={product.active ? 'Archive' : 'Activate'}
-                        >
-                          {product.active ? 'Archive' : 'Activate'}
-                        </button>
-                        <button
-                          onClick={() => handleEdit(product)}
-                          className="text-accent hover:text-accent-darker"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formData.in_stock}
+                          onChange={(e) =>
+                            setFormData({ ...formData, in_stock: e.target.checked })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          In Stock
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formData.is_promo}
+                          onChange={(e) => {
+                            const isPromo = e.target.checked
+                            setFormData({ 
+                              ...formData, 
+                              is_promo: isPromo,
+                              ...(isPromo ? {} : { original_price: '', discount: '' })
+                            })
+                          }}
+                          className="rounded"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          Promo
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={formData.active}
+                          onChange={(e) =>
+                            setFormData({ ...formData, active: e.target.checked })
+                          }
+                          className="rounded"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          Active (Product will appear in store)
+                        </span>
+                      </label>
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                      <button 
+                        type="submit" 
+                        className="btn-primary flex-1 flex items-center justify-center gap-2"
+                        disabled={submitting}
+                      >
+                        {submitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            {editingProduct ? 'Updating...' : 'Creating...'}
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            {editingProduct ? 'Update Product' : 'Create Product'}
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetForm}
+                        className="btn-outline"
+                        disabled={submitting}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Products Table */}
+          <div className="card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Product
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Category
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Price
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                  {filteredProducts.map((product) => (
+                    <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={getImageUrl(product.image)}
+                            alt={product.name}
+                            className="w-12 h-12 object-cover rounded"
+                            onError={(e) => {
+                              e.target.src = '/placeholder.png'
+                            }}
+                          />
+                          <div>
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {product.name}
+                            </div>
+                            {product.active === false && (
+                              <span className="text-xs text-gray-500 dark:text-gray-400">Archived</span>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {product.category || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                        {product.price.toLocaleString()} RWF
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          {product.active !== false ? (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                              Active
+                            </span>
+                          ) : (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                              Archived
+                            </span>
+                          )}
+                          {product.in_stock ? (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                              In Stock
+                            </span>
+                          ) : (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                              Out of Stock
+                            </span>
+                          )}
+                          {product.is_promo && (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                              Promo
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleToggleActive(product)}
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                            title={product.active ? 'Archive' : 'Activate'}
+                          >
+                            {product.active ? 'Archive' : 'Activate'}
+                          </button>
+                          <button
+                            onClick={() => handleEdit(product)}
+                            className="text-accent hover:text-accent-darker"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
@@ -659,4 +652,3 @@ const Products = () => {
 }
 
 export default Products
-

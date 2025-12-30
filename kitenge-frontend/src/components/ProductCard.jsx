@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { wishlistAPI } from '../services/api'
+import LazyImage from './LazyImage'
 
 const ProductCard = ({ product, onView }) => {
   const { addToCart } = useCart()
@@ -75,11 +76,13 @@ const ProductCard = ({ product, onView }) => {
       if (isWishlisted) {
         const updated = localWishlist.filter((id) => id !== product.id)
         localStorage.setItem('kb_wishlist', JSON.stringify(updated))
+        toast.success(`${product.name} removed from wishlist`)
       } else {
         localStorage.setItem(
           'kb_wishlist',
           JSON.stringify([...localWishlist, product.id])
         )
+        toast.success(`${product.name} added to wishlist`)
       }
       setIsWishlisted(!isWishlisted)
       // Dispatch event for wishlist page to refresh
@@ -94,10 +97,19 @@ const ProductCard = ({ product, onView }) => {
         isWishlisted ? 'remove' : 'add'
       )
       setIsWishlisted(!isWishlisted)
+      toast.success(
+        isWishlisted 
+          ? `${product.name} removed from wishlist`
+          : `${product.name} added to wishlist`
+      )
       // Dispatch event for wishlist page to refresh
       window.dispatchEvent(new Event('wishlist:changed'))
     } catch (error) {
       console.error('Wishlist toggle failed:', error)
+      toast.error(
+        error.response?.data?.error || 
+        `Failed to ${isWishlisted ? 'remove from' : 'add to'} wishlist`
+      )
     } finally {
       setIsLoading(false)
     }
@@ -132,12 +144,13 @@ const ProductCard = ({ product, onView }) => {
   const discountPercent = product.is_promo ? calculateDiscount() : 0
 
   return (
-    <div className="card group h-full flex flex-col">
+    <article className="card group h-full flex flex-col" role="article" aria-label={`Product: ${product.name}`}>
       <div className="relative overflow-hidden rounded-t-2xl">
-        <img
-          src={product.image || '/placeholder.png'}
+        <LazyImage
+          src={product.image}
           alt={product.name}
           className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
         />
         <div className="absolute top-2 sm:top-3 right-2 sm:right-3 flex flex-col gap-1.5 sm:gap-2">
           {product.is_promo && discountPercent > 0 && (
@@ -154,6 +167,7 @@ const ProductCard = ({ product, onView }) => {
         <button
           onClick={handleWishlist}
           disabled={isLoading}
+          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           className={`absolute top-2 sm:top-3 left-2 sm:left-3 p-1.5 sm:p-2 rounded-full backdrop-blur-sm transition-all ${
             isWishlisted
               ? 'bg-red-500 text-white'
@@ -208,21 +222,23 @@ const ProductCard = ({ product, onView }) => {
           <button
             onClick={handleAddToCart}
             disabled={product.in_stock === false}
+            aria-label={`Add ${product.name} to cart`}
             className="btn-primary flex-1 flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-2 sm:py-2.5"
           >
-            <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" aria-hidden="true" />
             <span className="hidden sm:inline">Add to cart</span>
             <span className="sm:hidden">Add</span>
           </button>
           <button
             onClick={() => onView && onView(product)}
+            aria-label={`View details for ${product.name}`}
             className="btn-outline px-3 sm:px-4 py-2 sm:py-2.5"
           >
-            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" aria-hidden="true" />
           </button>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
 

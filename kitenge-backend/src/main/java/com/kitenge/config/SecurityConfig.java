@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/contact").permitAll() // Contact form (public)
                 .requestMatchers("/api/orders").permitAll() // POST orders (customers can place orders, but userId will be set if authenticated)
                 .requestMatchers("/api/orders/my-orders").authenticated() // Users can get their own orders
+                .requestMatchers("/api/orders/*/track").authenticated() // Allow authenticated users to track their own orders
                 .requestMatchers("/api/products/**", "/api/upload-image").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 .requestMatchers("/api/orders/**").hasAnyRole("ADMIN", "MANAGER", "STAFF") // Order management
                 .requestMatchers("/api/stats/**").hasAnyRole("ADMIN", "MANAGER") // Business stats (admin/manager only)
@@ -63,12 +64,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-            "http://localhost:8082", 
-            "http://localhost:4000", 
-            "http://localhost:3000"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // Get allowed origins from environment variable or use defaults
+        String allowedOriginsEnv = System.getenv("APP_CORS_ALLOWED_ORIGINS");
+        if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
+            configuration.setAllowedOrigins(Arrays.asList(allowedOriginsEnv.split(",")));
+        } else {
+            configuration.setAllowedOrigins(List.of(
+                "http://localhost:8082", 
+                "http://localhost:4000", 
+                "http://localhost:3000"
+            ));
+        }
+        
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setExposedHeaders(List.of("Authorization"));

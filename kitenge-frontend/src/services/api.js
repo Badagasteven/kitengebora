@@ -104,7 +104,7 @@ export const reviewsAPI = {
 export const wishlistAPI = {
   getWishlist: () => api.get('/wishlist'),
   toggleWishlist: (productId, action) =>
-    api.post('/wishlist', { product_id: productId, action }),
+    api.post('/wishlist', { productId: productId, action }),
 }
 
 // Contact API

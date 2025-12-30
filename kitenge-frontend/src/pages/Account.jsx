@@ -142,7 +142,25 @@ const Account = () => {
   }
 
 
-  // Filter and sort orders
+  // Map internal order IDs to per-customer sequential numbers (1, 2, 3, ...)
+  const orderDisplayNumbers = useMemo(() => {
+    if (!orders || orders.length === 0) return {}
+    // Sort by created_at ascending so the earliest order is #1
+    const sorted = [...orders].sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at) : new Date(0)
+      const dateB = b.created_at ? new Date(b.created_at) : new Date(0)
+      return dateA - dateB
+    })
+    const map = {}
+    sorted.forEach((order, index) => {
+      if (order && order.id != null) {
+        map[order.id] = index + 1
+      }
+    })
+    return map
+  }, [orders])
+
+  // Filter and sort orders for display
   const filteredAndSortedOrders = useMemo(() => {
     let filtered = [...orders]
 
@@ -198,17 +216,13 @@ const Account = () => {
   const formatDate = (dateString) => {
     if (!dateString) return 'Date unknown'
     const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now - date)
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    
-    if (diffDays === 0) return 'Today'
-    if (diffDays === 1) return 'Yesterday'
-    if (diffDays < 7) return `${diffDays} days ago`
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    // Show full date and time so customer sees exactly when order was made
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     })
   }
 
@@ -446,6 +460,7 @@ const Account = () => {
               {filteredAndSortedOrders.map((order) => {
                 const total = (order.subtotal || 0) + (order.delivery_fee || 0)
                 const itemCount = order.items?.reduce((sum, item) => sum + (item.quantity || 0), 0) || 0
+                const displayNumber = orderDisplayNumbers[order.id] || order.id
                 return (
                   <div
                     key={order.id}
@@ -455,7 +470,7 @@ const Account = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <p className="font-bold text-lg text-gray-900 dark:text-white">
-                            Order #{order.id}
+                            Order #{displayNumber}
                           </p>
                           <span className="px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full">
                             Completed
@@ -542,7 +557,7 @@ const Account = () => {
             <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Order #{selectedOrder.id}
+                  Order #{orderDisplayNumbers[selectedOrder.id] || selectedOrder.id}
                 </h2>
                 <button
                   onClick={() => setSelectedOrder(null)}

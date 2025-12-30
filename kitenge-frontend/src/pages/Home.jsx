@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { productsAPI } from '../services/api'
 import ProductCard from '../components/ProductCard'
+import RecentlyViewed from '../components/RecentlyViewed'
+import Newsletter from '../components/Newsletter'
+import QuickViewModal from '../components/QuickViewModal'
 import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react'
 import { ProductGridSkeleton, LoadingSpinner } from '../components/SkeletonLoader'
 import { EmptyProducts } from '../components/EmptyState'
 import { getImageUrl } from '../utils/imageUtils'
 
 const Home = () => {
+  const navigate = useNavigate()
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -401,53 +406,18 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Product Modal */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <img
-                  src={selectedProduct.image || '/placeholder.png'}
-                  alt={selectedProduct.name}
-                  className="w-full h-96 object-cover rounded-lg"
-                />
-                <div>
-                  <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-                    {selectedProduct.name}
-                  </h2>
-                  {selectedProduct.category && (
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">
-                      {selectedProduct.category}
-                    </p>
-                  )}
-                  {selectedProduct.description && (
-                    <p className="text-gray-600 dark:text-gray-300 mb-6">
-                      {selectedProduct.description}
-                    </p>
-                  )}
-                  <div className="mb-6">
-                    <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                      {selectedProduct.price.toLocaleString()} RWF
-                    </span>
-                    {selectedProduct.original_price && (
-                      <span className="ml-2 text-lg text-gray-400 line-through">
-                        {selectedProduct.original_price.toLocaleString()} RWF
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setSelectedProduct(null)}
-                    className="btn-outline w-full mb-2"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Recently Viewed Section */}
+      <RecentlyViewed />
+
+      {/* Newsletter Section */}
+      <Newsletter />
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </div>
   )
 }

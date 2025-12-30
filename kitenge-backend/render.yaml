@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: kitenge-backend
+    env: java
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: kitenge-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: kitenge-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: kitenge-db
+          property: password
+      - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+        value: org.postgresql.Driver
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 8082
+      - key: SPRING_PROFILES_ACTIVE
+        value: production
+      - key: APP_CORS_ALLOWED_ORIGINS
+        sync: false
+        # Set this in Render dashboard after Netlify deployment
+        # Format: https://your-site.netlify.app,https://www.your-site.netlify.app
+
+databases:
+  - name: kitenge-db
+    databaseName: kitenge
+    user: kitenge_user
+    plan: free
+

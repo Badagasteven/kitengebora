@@ -198,7 +198,12 @@ const Header = () => {
               </button>
 
               {showSearch && (
-                <div className="absolute right-0 top-full mt-2 w-[90vw] sm:w-96 max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50">
+                <div 
+                  className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50"
+                  style={{
+                    maxWidth: 'calc(100vw - 2rem)',
+                  }}
+                >
                   <form onSubmit={handleSearchSubmit} className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-800">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -226,7 +231,7 @@ const Header = () => {
                   </form>
 
                   {/* Search Results */}
-                  <div className="max-h-[60vh] sm:max-h-96 overflow-y-auto">
+                  <div className="max-h-[calc(100vh-200px)] sm:max-h-96 overflow-y-auto -webkit-overflow-scrolling-touch">
                     {searchLoading ? (
                       <div className="p-6 sm:p-8 text-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent mx-auto"></div>
