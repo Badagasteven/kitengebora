@@ -1,11 +1,19 @@
-FROM eclipse-temurin:17-jdk
-
+# ---------- Build stage (has Maven) ----------
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
-COPY . .
+COPY pom.xml .
+COPY src ./src
 
-RUN ./mvnw clean package -DskipTests || mvn clean package -DskipTests
+RUN mvn -q -DskipTests package
 
+# ---------- Run stage (small JRE) ----------
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+
+# Render uses PORT env var
 EXPOSE 10000
 
-CMD ["java", "-jar", "target/*.jar"]
+COPY --from=build /app/target/*.jar app.jar
+
+CMD ["sh", "-c", "java -jar app.jar"]
