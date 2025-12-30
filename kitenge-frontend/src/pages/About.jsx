@@ -64,9 +64,16 @@ const About = () => {
               </p>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-lg order-1 md:order-2">
-              <div className="w-full h-48 sm:h-64 md:h-80 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">Image placeholder</span>
-              </div>
+              <img
+                src="/kitenge-fabrics-display.jpeg"
+                alt="Colorful display of Kitenge fabrics arranged on shelves showcasing vibrant African patterns"
+                className="w-full h-48 sm:h-64 md:h-80 object-cover"
+                loading="lazy"
+                onError={(e) => {
+                  e.target.src = '/placeholder.png'
+                  e.target.alt = 'Kitenge fabrics display'
+                }}
+              />
             </div>
           </div>
         </div>

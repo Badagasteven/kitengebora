@@ -224,10 +224,12 @@ If you see CORS errors in browser console:
    - Never commit `.env` files with real credentials
    - Always use environment variables in production
 
-4. **Updates:**
-   - Push to GitHub → Both Netlify and Render auto-deploy
-   - Netlify rebuilds frontend automatically
-   - Render rebuilds backend automatically
+4. **Automatic Updates (FREE!):**
+   - ✅ **Push to GitHub → Both Netlify and Render auto-deploy**
+   - ✅ **Netlify rebuilds frontend automatically** (2-3 minutes)
+   - ✅ **Render rebuilds backend automatically** (5-10 minutes)
+   - ✅ **No manual steps needed!** Just commit and push.
+   - 📖 **See `AUTOMATIC_DEPLOYMENTS.md` for detailed workflow**
 
 ---
 

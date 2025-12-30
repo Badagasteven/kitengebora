@@ -107,3 +107,17 @@ Open your Netlify URL and test!
 
 For detailed instructions, see `DEPLOYMENT_GUIDE.md`
 
+---
+
+## 🔄 Automatic Deployments (FREE!)
+
+**Both Netlify and Render support automatic deployments!**
+
+After initial setup:
+1. Make code changes locally
+2. Push to GitHub: `git push origin main`
+3. Wait 2-10 minutes
+4. Changes are live automatically! 🎉
+
+**No manual deployment needed!** See `AUTOMATIC_DEPLOYMENTS.md` for details.
+
