@@ -200,7 +200,7 @@ const CartDrawer = () => {
       let errorMessage = 'Failed to process order'
       
       if (error.code === 'ERR_NETWORK' || error.message === 'Network Error' || error.message?.includes('Network Error')) {
-        errorMessage = 'Cannot connect to server. Please check if the backend is running on port 8082'
+        errorMessage = 'Cannot connect to server. Please check if the backend is running on port 8080'
       } else if (error.code === 'ECONNREFUSED') {
         errorMessage = 'Connection refused. The backend server may not be running'
       } else if (error.response?.status === 400) {

@@ -5,7 +5,7 @@
 
 const getImageBaseUrl = () => {
   // Get API base URL from environment or default
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8082/api'
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
   
   // Remove /api suffix if present to get base server URL
   const baseUrl = apiUrl.replace('/api', '')
@@ -19,7 +19,7 @@ const getImageBaseUrl = () => {
  * @returns {string} - Full image URL
  */
 export const getImageUrl = (imagePath) => {
-  if (!imagePath) {
+  if (!imagePath || imagePath.trim() === '') {
     return '/placeholder.png'
   }
 
@@ -30,7 +30,12 @@ export const getImageUrl = (imagePath) => {
 
   // If starts with /, it's an absolute path from server root
   if (imagePath.startsWith('/')) {
-    return `${getImageBaseUrl()}${imagePath}`
+    const baseUrl = getImageBaseUrl()
+    // If baseUrl is localhost and we're likely on a deployed site, try to detect
+    if (baseUrl.includes('localhost') && window.location.hostname !== 'localhost') {
+      console.warn('Image URL uses localhost but site is deployed. Set VITE_API_URL environment variable.')
+    }
+    return `${baseUrl}${imagePath}`
   }
 
   // Otherwise, it's a relative path

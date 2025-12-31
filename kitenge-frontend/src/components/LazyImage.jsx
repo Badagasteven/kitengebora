@@ -70,6 +70,10 @@ const LazyImage = ({
   const handleError = (e) => {
     setHasError(true)
     setImageSrc(placeholder)
+    // Log error for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Image failed to load:', src, 'Error:', e)
+    }
     if (onError) {
       onError(e)
     }

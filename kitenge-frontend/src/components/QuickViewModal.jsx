@@ -9,9 +9,23 @@ import SocialShare from './SocialShare'
 import { useState, useEffect, useRef } from 'react'
 import { useKeyboardNavigation, useFocusTrap } from '../hooks/useKeyboardNavigation'
 
+// Safe auth hook that doesn't throw
+const useSafeAuth = () => {
+  try {
+    return useAuth()
+  } catch (error) {
+    // If auth context is not available, return default values
+    return {
+      isAuthenticated: !!localStorage.getItem('kb_jwt_token'),
+      user: null,
+      isAdmin: false,
+    }
+  }
+}
+
 const QuickViewModal = ({ product, isOpen, onClose }) => {
   const { addToCart } = useCart()
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated } = useSafeAuth()
   const toast = useToast()
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)

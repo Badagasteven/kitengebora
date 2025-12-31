@@ -28,7 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
         if (allowedOriginsEnv != null && !allowedOriginsEnv.isEmpty()) {
             allowedOrigins = allowedOriginsEnv.split(",");
         } else {
-            allowedOrigins = new String[]{"http://localhost:8082", "http://localhost:4000", "http://localhost:3000"};
+            allowedOrigins = new String[]{"http://localhost:8080", "http://localhost:4000", "http://localhost:3000"};
         }
         
         registry.addMapping("/**")
