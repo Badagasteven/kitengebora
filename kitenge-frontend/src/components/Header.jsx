@@ -124,15 +124,15 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white/98 dark:bg-gray-900/98 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-20">
           {/* Brand */}
-          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group">
-            <div>
-              <div className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-accent transition-colors">
+          <Link to="/" className="flex items-center space-x-1.5 sm:space-x-3 group flex-shrink-0 min-w-0">
+            <div className="min-w-0">
+              <div className="text-sm sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-accent transition-colors leading-tight">
                 KITENGE BORA
               </div>
-              <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+              <div className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
                 Curated African fabrics & outfits
               </div>
             </div>
@@ -174,45 +174,45 @@ const Header = () => {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex items-center space-x-1 sm:space-x-3 flex-shrink-0">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="lg:hidden p-2.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors touch-target"
+              className="lg:hidden p-2 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors touch-target"
               aria-label="Menu"
             >
               {showMobileMenu ? (
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
               ) : (
-                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
               )}
             </button>
             {/* Global Search */}
             <div className="relative" ref={searchRef}>
               <button
                 onClick={() => setShowSearch(!showSearch)}
-                className="p-2.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors touch-target"
+                className="p-2 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors touch-target"
                 aria-label="Search"
               >
-                <Search className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
               </button>
 
               {showSearch && (
                 <div 
-                  className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50"
+                  className="absolute right-0 top-full mt-1.5 sm:mt-2 w-[calc(100vw-1.5rem)] sm:w-96 max-w-md bg-white dark:bg-gray-900 rounded-lg sm:rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50"
                   style={{
-                    maxWidth: 'calc(100vw - 2rem)',
+                    maxWidth: 'calc(100vw - 1.5rem)',
                   }}
                 >
-                  <form onSubmit={handleSearchSubmit} className="p-3 sm:p-4 border-b border-gray-200 dark:border-gray-800">
+                  <form onSubmit={handleSearchSubmit} className="p-2.5 sm:p-4 border-b border-gray-200 dark:border-gray-800">
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search products..."
-                        className="input-field pl-10 pr-10 w-full"
+                        className="input-field pl-9 sm:pl-10 pr-8 sm:pr-10 w-full text-sm sm:text-base py-2 sm:py-2.5"
                         autoFocus
                       />
                       {searchQuery && (
@@ -311,19 +311,19 @@ const Header = () => {
             {isAdmin && (
               <Link
                 to="/admin"
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 sm:gap-2 border-0"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold text-[10px] sm:text-sm px-2 sm:px-4 py-1 sm:py-2 rounded-md sm:rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1 sm:gap-2 border-0"
               >
-                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 <span className="hidden sm:inline">Admin</span>
-                <span className="sm:hidden">Admin</span>
+                <span className="sm:hidden">A</span>
               </Link>
             )}
 
             {/* Auth Buttons */}
             {!isAuthenticated ? (
-              <Link to="/login" className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2">
+              <Link to="/login" className="btn-outline text-[10px] sm:text-sm px-2 sm:px-4 py-1 sm:py-2 whitespace-nowrap">
                 <span className="hidden sm:inline">Login</span>
                 <span className="sm:hidden">Login</span>
               </Link>
@@ -331,9 +331,9 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center space-x-1.5 sm:space-x-2 btn-outline text-xs sm:text-sm px-2 sm:px-4 py-1.5 sm:py-2"
+                  className="flex items-center space-x-1 sm:space-x-2 btn-outline text-[10px] sm:text-sm px-1.5 sm:px-4 py-1 sm:py-2"
                 >
-                  <User className="w-4 h-4" />
+                  <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="hidden lg:inline truncate max-w-[120px]">{user?.name || user?.email}</span>
                 </button>
                 {showMenu && (
@@ -379,15 +379,15 @@ const Header = () => {
             <div className="relative" ref={themeMenuRef}>
               <button
                 onClick={() => setShowThemeMenu(!showThemeMenu)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors touch-target"
                 aria-label="Theme options"
               >
                 {theme === 'system' ? (
-                  <Monitor className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
                 ) : isDark ? (
-                  <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
                 ) : (
-                  <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
                 )}
               </button>
 
@@ -448,11 +448,11 @@ const Header = () => {
             {/* Cart */}
             <button
               onClick={() => window.dispatchEvent(new Event('cart:open'))}
-              className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="relative p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors touch-target"
             >
-              <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] sm:text-xs font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-accent text-white text-[9px] sm:text-xs font-bold rounded-full w-3.5 h-3.5 sm:w-5 sm:h-5 flex items-center justify-center leading-none">
                   {cartCount > 9 ? '9+' : cartCount}
                 </span>
               )}
@@ -462,49 +462,49 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {showMobileMenu && (
-          <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 max-h-[calc(100vh-5rem)] overflow-y-auto">
-            <nav className="px-4 py-3 sm:py-4 space-y-1">
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-5rem)] overflow-y-auto">
+            <nav className="px-3 sm:px-4 py-2.5 sm:py-4 space-y-0.5 sm:space-y-1">
               <Link
                 to="/"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
+                className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
               >
                 Home
               </Link>
               <Link
                 to="/products"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
+                className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
               >
                 Products
               </Link>
               <Link
                 to="/about"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
+                className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
               >
                 About
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
+                className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
               >
                 Contact
               </Link>
               <Link
                 to="/wishlist"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700 flex items-center gap-2"
+                className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700 flex items-center gap-2"
               >
-                <Heart className="w-5 h-5" />
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                 Wishlist
               </Link>
               {isAdmin && (
                 <Link
                   to="/admin"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
+                  className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
                 >
                   Admin Dashboard
                 </Link>
@@ -514,16 +514,16 @@ const Header = () => {
                   <Link
                     to="/account"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
+                    className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
                   >
                     My Account
                   </Link>
                   <Link
                     to="/profile"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700 flex items-center gap-2"
+                    className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700 flex items-center gap-2"
                   >
-                    <Settings className="w-5 h-5" />
+                    <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
                     Profile Settings
                   </Link>
                   <button
@@ -531,9 +531,9 @@ const Header = () => {
                       handleLogout()
                       setShowMobileMenu(false)
                     }}
-                    className="w-full text-left px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700 flex items-center gap-2"
+                    className="w-full text-left px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700 flex items-center gap-2"
                   >
-                    <LogOut className="w-5 h-5" />
+                    <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
                     Logout
                   </button>
                 </>
@@ -542,7 +542,7 @@ const Header = () => {
                 <Link
                   to="/login"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
+                  className="block px-3 sm:px-4 py-2.5 sm:py-3.5 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all active:bg-gray-200 dark:active:bg-gray-700"
                 >
                   Login
                 </Link>
