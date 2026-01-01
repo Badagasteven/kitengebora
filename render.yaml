@@ -1,10 +1,9 @@
 services:
   - type: web
     name: kitenge-backend
-    env: java
+    env: docker
     rootDir: kitenge-backend
-    buildCommand: mvn clean package -DskipTests
-    startCommand: java -jar target/*.jar
+    dockerfilePath: Dockerfile
     envVars:
       - key: SPRING_DATASOURCE_URL
         fromDatabase:
