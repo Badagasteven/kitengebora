@@ -2,6 +2,7 @@ services:
   - type: web
     name: kitenge-backend
     env: java
+    rootDir: kitenge-backend
     buildCommand: mvn clean package -DskipTests
     startCommand: java -jar target/*.jar
     envVars:
@@ -41,4 +42,3 @@ databases:
     databaseName: kitenge
     user: kitenge_user
     plan: free
-
