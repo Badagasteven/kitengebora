@@ -140,17 +140,19 @@ const Login = () => {
         </div>
       )}
 
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
-        <div className="w-full max-w-md">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900 dark:text-white">
-            Welcome back
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8">
-            Sign in to view your wishlist and keep shopping.
-          </p>
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="w-full max-w-md animate-fade-in-up">
+          <div className="mb-6">
+            <h1 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white">
+              Welcome back
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 font-medium">
+              Sign in to view your wishlist and keep shopping.
+            </p>
+          </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+            <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 border-2 border-red-300 dark:border-red-700 rounded-xl text-red-700 dark:text-red-400 text-sm font-semibold shadow-md">
               {error}
             </div>
           )}

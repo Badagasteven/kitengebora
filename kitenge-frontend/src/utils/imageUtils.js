@@ -28,18 +28,39 @@ export const getImageUrl = (imagePath) => {
     return imagePath
   }
 
-  // If starts with /, it's an absolute path from server root
+  const baseUrl = getImageBaseUrl()
+  
+  // If starts with /, it's an absolute path from server root (e.g., /uploads/image.jpg)
   if (imagePath.startsWith('/')) {
-    const baseUrl = getImageBaseUrl()
     // If baseUrl is localhost and we're likely on a deployed site, try to detect
     if (baseUrl.includes('localhost') && window.location.hostname !== 'localhost') {
       console.warn('Image URL uses localhost but site is deployed. Set VITE_API_URL environment variable.')
     }
-    return `${baseUrl}${imagePath}`
+    const fullUrl = `${baseUrl}${imagePath}`
+    
+    // Debug logging in development
+    if (import.meta.env.DEV) {
+      console.log('🖼️ Image URL:', fullUrl, 'from path:', imagePath)
+    }
+    
+    return fullUrl
   }
 
-  // Otherwise, it's a relative path
-  return `${getImageBaseUrl()}/${imagePath}`
+  // Otherwise, it's a relative path (e.g., uploads/image.jpg or image.jpg)
+  // Backend serves from /uploads/, so if it doesn't start with /uploads/, add it
+  let relativePath = imagePath
+  if (!relativePath.startsWith('uploads/')) {
+    relativePath = `uploads/${relativePath}`
+  }
+  
+  const fullUrl = `${baseUrl}/${relativePath}`
+  
+  // Debug logging in development
+  if (import.meta.env.DEV) {
+    console.log('🖼️ Image URL:', fullUrl, 'from path:', imagePath)
+  }
+  
+  return fullUrl
 }
 
 /**

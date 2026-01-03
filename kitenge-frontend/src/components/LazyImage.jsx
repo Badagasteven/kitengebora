@@ -71,8 +71,14 @@ const LazyImage = ({
     setHasError(true)
     setImageSrc(placeholder)
     // Log error for debugging
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Image failed to load:', src, 'Error:', e)
+    if (import.meta.env.DEV) {
+      const fullUrl = getImageUrl(src)
+      console.error('❌ Image failed to load:', {
+        originalPath: src,
+        fullUrl: fullUrl,
+        error: e,
+        hint: 'Check if backend is running and image exists at this URL'
+      })
     }
     if (onError) {
       onError(e)

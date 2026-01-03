@@ -2,11 +2,17 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
+// Log API URL for debugging (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔗 API Base URL:', API_BASE_URL)
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout
 })
 
 // Add token to requests
@@ -23,10 +29,23 @@ api.interceptors.request.use(
   }
 )
 
-// Handle auth errors
+// Handle auth errors and log API errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Log API errors for debugging
+    if (import.meta.env.DEV) {
+      if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+        console.error('❌ Network Error - Backend not reachable at:', API_BASE_URL)
+        console.error('💡 Make sure backend is running on the correct port')
+      } else if (error.response) {
+        console.error('❌ API Error:', error.response.status, error.response.statusText)
+        console.error('📍 URL:', error.config?.url)
+      } else {
+        console.error('❌ Request Error:', error.message)
+      }
+    }
+    
     if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem('kb_jwt_token')
       window.location.href = '/login'

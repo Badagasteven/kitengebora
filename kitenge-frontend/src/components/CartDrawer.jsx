@@ -274,17 +274,17 @@ const CartDrawer = () => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="p-2 sm:p-2.5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg">
+          <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex items-center justify-between p-5 sm:p-6 border-b-2 border-gray-200 dark:border-gray-800 shadow-lg">
+            <div className="flex items-center gap-4">
+              <div className="p-3 sm:p-3.5 bg-gradient-accent rounded-xl shadow-accent">
                 <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
                   Shopping Cart
                 </h2>
                 {cart.length > 0 && (
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium">
                     {cart.length} {cart.length === 1 ? 'item' : 'items'}
                   </p>
                 )}
@@ -310,7 +310,7 @@ const CartDrawer = () => {
                   return (
                     <div
                       key={item.id}
-                      className="group flex gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-accent/30 transition-all"
+                      className="group flex gap-3 sm:gap-4 p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl border-2 border-gray-200 dark:border-gray-700 hover:border-accent/50 hover:shadow-lg transition-all duration-300"
                     >
                       <div className="relative flex-shrink-0">
                         <img
@@ -380,9 +380,9 @@ const CartDrawer = () => {
 
           {/* Footer */}
           {cart.length > 0 && (
-            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 sm:p-6 space-y-4 shadow-lg">
+            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-800 p-5 sm:p-6 space-y-5 shadow-2xl">
               {/* Order Summary */}
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 space-y-3">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl p-5 sm:p-6 space-y-4 border-2 border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
                     Subtotal
@@ -428,9 +428,9 @@ const CartDrawer = () => {
                     />
                   </div>
                 )}
-                <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-                  <span className="font-bold text-lg text-gray-900 dark:text-white">Total</span>
-                  <span className="font-bold text-xl text-accent">
+                <div className="flex justify-between items-center pt-3 border-t-2 border-gray-300 dark:border-gray-600">
+                  <span className="font-black text-xl text-gray-900 dark:text-white">Total</span>
+                  <span className="font-black text-2xl bg-gradient-to-r from-accent to-accent-600 bg-clip-text text-transparent">
                     {grandTotal.toLocaleString()} RWF
                   </span>
                 </div>

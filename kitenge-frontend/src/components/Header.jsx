@@ -123,16 +123,16 @@ const Header = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/98 dark:bg-gray-900/98 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-800/60 shadow-lg shadow-gray-900/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Brand */}
           <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0 min-w-0">
             <div className="min-w-0">
-              <div className="text-base sm:text-xl font-bold text-gray-900 dark:text-white group-hover:text-accent transition-colors leading-tight tracking-tight">
+              <div className="text-base sm:text-xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent group-hover:from-accent group-hover:via-accent-600 group-hover:to-accent transition-all duration-300 leading-tight tracking-tight">
                 KITENGE BORA
               </div>
-              <div className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+              <div className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 hidden sm:block font-medium">
                 Curated African fabrics & outfits
               </div>
             </div>
@@ -142,34 +142,39 @@ const Header = () => {
           <nav className="hidden lg:flex items-center space-x-1">
             <Link
               to="/"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 relative group"
             >
               Home
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
             <Link
               to="/products"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 relative group"
             >
               Products
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
             <Link
               to="/about"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 relative group"
             >
               About
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
             <Link
               to="/contact"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 relative group"
             >
               Contact
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
             <Link
               to="/wishlist"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all flex items-center gap-1.5"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 flex items-center gap-1.5 relative group"
             >
               <Heart className="w-4 h-4" />
               Wishlist
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
           </nav>
 
@@ -311,13 +316,14 @@ const Header = () => {
             {isAdmin && (
               <Link
                 to="/admin"
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-2 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-200 flex items-center gap-1.5 sm:gap-2 border-0"
+                className="bg-gradient-accent hover:bg-gradient-accent-dark text-white font-bold text-xs sm:text-sm px-4 sm:px-5 py-2.5 sm:py-3 rounded-full shadow-accent hover:shadow-accent-lg active:scale-95 transition-all duration-300 flex items-center gap-1.5 sm:gap-2 border-0 relative overflow-hidden group"
               >
-                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span className="hidden sm:inline">Admin</span>
-                <span className="sm:hidden">A</span>
+                <span className="hidden sm:inline relative z-10">Admin</span>
+                <span className="sm:hidden relative z-10">A</span>
               </Link>
             )}
 
@@ -325,7 +331,7 @@ const Header = () => {
             {!isAuthenticated ? (
               <Link 
                 to="/login" 
-                className="px-3.5 sm:px-4 py-2 sm:py-2 text-xs sm:text-sm font-semibold text-gray-900 dark:text-white bg-transparent border-2 border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 active:scale-95 transition-all duration-200 whitespace-nowrap"
+                className="px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-gray-900 dark:text-white bg-transparent border-2 border-gray-300 dark:border-gray-600 rounded-full hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:border-accent dark:hover:border-accent active:scale-95 transition-all duration-300 whitespace-nowrap shadow-sm hover:shadow-md"
               >
                 Login
               </Link>
@@ -333,7 +339,7 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-2 sm:py-2 text-xs sm:text-sm font-semibold text-gray-900 dark:text-white bg-transparent border-2 border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 active:scale-95 transition-all duration-200"
+                  className="flex items-center space-x-1.5 sm:space-x-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-gray-900 dark:text-white bg-transparent border-2 border-gray-300 dark:border-gray-600 rounded-full hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:border-accent dark:hover:border-accent active:scale-95 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
                   <User className="w-4 h-4 sm:w-4 sm:h-4" />
                   <span className="hidden lg:inline truncate max-w-[120px]">{user?.name || user?.email}</span>

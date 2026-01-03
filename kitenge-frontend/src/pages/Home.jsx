@@ -31,11 +31,23 @@ const Home = () => {
 
   const loadProducts = async () => {
     try {
+      console.log('🔄 Loading products...')
       const response = await productsAPI.getPublicProducts()
-      setProducts(response.data)
-      setFilteredProducts(response.data)
+      console.log('✅ Products loaded:', response.data?.length || 0, 'items')
+      setProducts(response.data || [])
+      setFilteredProducts(response.data || [])
+      
+      if (!response.data || response.data.length === 0) {
+        console.warn('⚠️ No products found. Check if:')
+        console.warn('   1. Backend is running')
+        console.warn('   2. Database has products with active=true')
+        console.warn('   3. API endpoint is correct')
+      }
     } catch (error) {
-      console.error('Failed to load products:', error)
+      console.error('❌ Failed to load products:', error)
+      console.error('💡 Check browser console Network tab for details')
+      setProducts([])
+      setFilteredProducts([])
     } finally {
       setLoading(false)
     }
@@ -159,16 +171,16 @@ const Home = () => {
         <div className="absolute inset-0 bg-black/15 sm:bg-black/10 z-10"></div>
 
         {/* Text Content - Enhanced visibility with stronger backdrop */}
-        <div className="relative z-20 text-center px-4 sm:px-6 max-w-3xl w-full">
+        <div className="relative z-20 text-center px-4 sm:px-6 max-w-4xl w-full animate-fade-in-up">
           {/* Text backdrop for better readability - stronger to ensure text is always visible */}
-          <div className="relative inline-block px-6 sm:px-8 py-4 sm:py-6 rounded-2xl backdrop-blur-lg bg-black/40 sm:bg-black/35 border border-white/20 shadow-2xl">
-            <div className="text-xs sm:text-sm font-medium mb-3 sm:mb-4 text-white font-semibold tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+          <div className="relative inline-block px-8 sm:px-10 py-6 sm:py-8 rounded-3xl backdrop-blur-xl bg-gradient-to-br from-black/60 via-black/50 to-black/60 border-2 border-white/30 shadow-2xl">
+            <div className="text-xs sm:text-sm font-bold mb-4 sm:mb-5 text-accent-300 uppercase tracking-widest drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               New drop · Kitenge prints
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] leading-tight sm:leading-normal">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-5 sm:mb-7 text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)] leading-tight sm:leading-tight bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
               Bold African prints for everyday wear.
             </h1>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white mb-6 sm:mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] leading-relaxed font-medium">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/95 mb-8 sm:mb-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] leading-relaxed font-semibold max-w-2xl mx-auto">
               Carefully selected kitenge, ankara and wax fabrics ready to be
               tailored into your favourite looks.
             </p>
@@ -178,7 +190,7 @@ const Home = () => {
                   .getElementById('collection')
                   ?.scrollIntoView({ behavior: 'smooth' })
               }
-              className="btn-primary bg-white text-orange-600 hover:bg-gray-100 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 font-semibold"
+              className="btn-primary bg-white text-accent hover:bg-gray-50 shadow-2xl hover:shadow-accent-lg hover:scale-110 transition-all duration-300 text-base sm:text-lg px-8 sm:px-10 py-4 sm:py-5 font-bold"
             >
               Shop the collection
             </button>
@@ -226,28 +238,38 @@ const Home = () => {
       </section>
 
       {/* Story Section */}
-      <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-900">
+      <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
-            <div className="order-2 md:order-1">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-gray-900 dark:text-white">
+          <div className="grid md:grid-cols-2 gap-10 sm:gap-16 items-center">
+            <div className="order-2 md:order-1 animate-fade-in-up">
+              <div className="inline-block mb-4">
+                <span className="text-accent font-bold text-sm uppercase tracking-widest">About Us</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-5 sm:mb-6 text-gray-900 dark:text-white leading-tight">
                 Our story
               </h2>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
                 Kitenge Bora celebrates African craftsmanship by connecting you
                 to quality fabrics sourced with care. Every fabric tells a
                 story — of culture, identity, and beauty.
               </p>
             </div>
-            <div className="rounded-2xl overflow-hidden shadow-soft order-1 md:order-2">
+            <div className="rounded-3xl overflow-hidden shadow-2xl hover:shadow-accent-lg transition-all duration-500 order-1 md:order-2 group bg-gray-200 dark:bg-gray-700">
               <img
                 src="/kitenge-fabrics-display.jpeg"
                 alt="Colorful display of Kitenge fabrics arranged on shelves"
-                className="w-full h-48 sm:h-64 md:h-80 object-cover"
-                loading="lazy"
+                className="w-full h-56 sm:h-72 md:h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+                loading="eager"
                 onError={(e) => {
-                  e.target.src = '/placeholder.png'
-                  e.target.alt = 'Kitenge fabrics display'
+                  console.error('Image failed to load:', '/kitenge-fabrics-display.jpeg')
+                  if (!e.target.src.includes('placeholder')) {
+                    e.target.src = '/placeholder.png'
+                  } else if (!e.target.src.includes('data:')) {
+                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmI5MjNjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+S2l0ZW5nZSBCb3JhPC90ZXh0Pjwvc3ZnPg=='
+                  }
+                }}
+                onLoad={() => {
+                  console.log('Image loaded successfully:', '/kitenge-fabrics-display.jpeg')
                 }}
               />
             </div>
@@ -309,13 +331,16 @@ const Home = () => {
       )}
 
       {/* Collection Section */}
-      <section id="collection" className="py-16">
+      <section id="collection" className="py-16 sm:py-20 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-white">
+          <div className="mb-10 sm:mb-12 text-center">
+            <div className="inline-block mb-4">
+              <span className="text-accent font-bold text-sm uppercase tracking-widest">Products</span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-black mb-4 text-gray-900 dark:text-white">
               Collection
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto">
               Browse our curated selection of premium African fabrics
             </p>
           </div>
