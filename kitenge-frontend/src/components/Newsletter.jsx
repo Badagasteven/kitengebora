@@ -44,17 +44,17 @@ const Newsletter = () => {
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-br from-orange-50 via-orange-100 to-yellow-50 dark:from-orange-900/20 dark:via-orange-800/20 dark:to-yellow-900/20">
+    <section className="py-10 sm:py-14 md:py-16 bg-gradient-to-br from-orange-50 via-orange-100 to-yellow-50 dark:from-orange-900/20 dark:via-orange-800/20 dark:to-yellow-900/20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="card p-6 sm:p-8 md:p-12 text-center">
-          <div className="mb-4 sm:mb-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-accent/10 rounded-full mb-4">
-              <Mail className="w-8 h-8 sm:w-10 sm:h-10 text-accent" />
+          <div className="mb-5 sm:mb-6 md:mb-8">
+            <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-900/30 dark:to-accent-800/30 rounded-full mb-4 sm:mb-5 shadow-lg">
+              <Mail className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-accent" />
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2 sm:mb-3 leading-tight">
               Stay Updated
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto font-medium px-2">
               Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and special promotions.
             </p>
           </div>
@@ -62,13 +62,13 @@ const Newsletter = () => {
           <form onSubmit={handleSubmit} className="max-w-md mx-auto">
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-2">
               <div className="relative flex-1">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
-                  className="input-field pl-12 pr-4 w-full"
+                  className="input-field pl-11 sm:pl-12 pr-4 w-full text-base sm:text-sm"
                   required
                   disabled={status === 'loading'}
                 />
@@ -76,12 +76,13 @@ const Newsletter = () => {
               <button
                 type="submit"
                 disabled={status === 'loading' || status === 'success'}
-                className="btn-primary whitespace-nowrap px-6 sm:px-8 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="btn-primary whitespace-nowrap px-6 sm:px-8 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-h-[48px] touch-manipulation"
               >
                 {status === 'loading' ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Subscribing...</span>
+                    <span className="hidden sm:inline">Subscribing...</span>
+                    <span className="sm:hidden">...</span>
                   </>
                 ) : status === 'success' ? (
                   <>

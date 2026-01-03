@@ -241,13 +241,19 @@
   border-radius: 4px;
 }
 
-/* Mobile-specific improvements */
+/* Mobile-specific improvements - Android & iOS optimized */
 @media (max-width: 640px) {
   /* Prevent text selection on buttons for better mobile UX */
   button {
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: rgba(234, 88, 12, 0.2);
     -webkit-touch-callout: none;
     user-select: none;
+    touch-action: manipulation;
+  }
+  
+  /* Better touch feedback */
+  button:active {
+    transform: scale(0.98);
   }
   
   /* Better scrolling on mobile */
