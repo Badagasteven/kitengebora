@@ -12,25 +12,28 @@ public class ContactService {
     
     private final JavaMailSender mailSender;
     
-    @Value("${app.admin.email:badagaclass@gmail.com}")
+    @Value("${app.admin.email:kitengeboraa@gmail.com}")
     private String adminEmail;
     
     public void sendContactMessage(String name, String email, String subject, String message) {
         try {
-            // Send email to admin
-            SimpleMailMessage adminMessage = new SimpleMailMessage();
-            adminMessage.setTo(adminEmail);
-            adminMessage.setSubject("New Contact Form Message: " + subject);
-            adminMessage.setText(
-                "You have received a new message from the contact form:\n\n" +
-                "Name: " + name + "\n" +
-                "Email: " + email + "\n" +
-                "Subject: " + subject + "\n\n" +
-                "Message:\n" + message + "\n\n" +
-                "---\n" +
-                "Reply to: " + email
-            );
-            mailSender.send(adminMessage);
+            // Send email to all admins
+            String[] adminEmails = adminEmail.split(",");
+            for (String admin : adminEmails) {
+                SimpleMailMessage adminMessage = new SimpleMailMessage();
+                adminMessage.setTo(admin.trim());
+                adminMessage.setSubject("New Contact Form Message: " + subject);
+                adminMessage.setText(
+                    "You have received a new message from the contact form:\n\n" +
+                    "Name: " + name + "\n" +
+                    "Email: " + email + "\n" +
+                    "Subject: " + subject + "\n\n" +
+                    "Message:\n" + message + "\n\n" +
+                    "---\n" +
+                    "Reply to: " + email
+                );
+                mailSender.send(adminMessage);
+            }
             
             // Send confirmation email to user
             SimpleMailMessage confirmationMessage = new SimpleMailMessage();

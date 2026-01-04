@@ -69,7 +69,19 @@ const Login = () => {
         }
       }
     } else {
-      setError(result.error)
+      // Format error message to be more user-friendly
+      let errorMessage = result.error || 'Login failed'
+      if (errorMessage.toLowerCase().includes('invalid credentials') || 
+          errorMessage.toLowerCase().includes('invalid') ||
+          errorMessage.toLowerCase().includes('credentials')) {
+        errorMessage = 'Invalid credentials'
+      } else if (errorMessage.toLowerCase().includes('user not found')) {
+        errorMessage = 'User not found'
+      } else if (errorMessage.toLowerCase().includes('network') || 
+                 errorMessage.toLowerCase().includes('connection')) {
+        errorMessage = 'Network error'
+      }
+      setError(errorMessage)
     }
   }
 
@@ -141,7 +153,7 @@ const Login = () => {
       )}
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="w-full max-w-md animate-fade-in-up">
+        <div className="w-full max-w-md">
           <div className="mb-6">
             <h1 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white">
               Welcome back
@@ -152,8 +164,42 @@ const Login = () => {
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 border-2 border-red-300 dark:border-red-700 rounded-xl text-red-700 dark:text-red-400 text-sm font-semibold shadow-md">
-              {error}
+            <div className="mb-6 p-4 sm:p-5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  <div className="w-5 h-5 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1.5 text-sm sm:text-base">Unable to Sign In</p>
+                      <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
+                        {error.toLowerCase().includes('invalid credentials') || error.toLowerCase().includes('invalid')
+                          ? 'The email or password you entered is incorrect. Please verify your credentials and try again.'
+                          : error.toLowerCase().includes('user not found')
+                          ? 'No account found with this email address. Please check your email or create a new account.'
+                          : error.toLowerCase().includes('network') || error.toLowerCase().includes('connection')
+                          ? 'Unable to connect to the server. Please check your internet connection and try again.'
+                          : error}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setError('')}
+                      className="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                      aria-label="Dismiss error"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -171,7 +217,6 @@ const Login = () => {
                     onChange={(e) => {
                       setEmail(e.target.value)
                       if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: '' })
-                      if (error) setError('')
                     }}
                     onBlur={() => {
                       setTouched({ ...touched, email: true })
@@ -204,7 +249,6 @@ const Login = () => {
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value)
-                      if (error) setError('')
                     }}
                     onBlur={() => setTouched({ ...touched, password: true })}
                     className="input-field pl-10 pr-10"

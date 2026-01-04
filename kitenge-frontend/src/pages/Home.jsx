@@ -20,6 +20,8 @@ const Home = () => {
   const [selectedView, setSelectedView] = useState('new')
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [storyImageError, setStoryImageError] = useState(false)
+  const [storyImageLoaded, setStoryImageLoaded] = useState(false)
 
   useEffect(() => {
     loadProducts()
@@ -239,50 +241,84 @@ const Home = () => {
 
       {/* Featured Promos Section - Moved before Products for better conversion */}
       {products.filter(p => p.is_promo).length > 0 && (
-        <section className="py-10 sm:py-14 md:py-16 bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 dark:from-red-900/30 dark:via-orange-900/20 dark:to-yellow-900/20 relative overflow-hidden">
-          {/* Decorative background elements */}
-          <div className="absolute inset-0 opacity-5 dark:opacity-10">
-            <div className="absolute top-0 left-0 w-64 h-64 bg-red-500 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-orange-500 rounded-full blur-3xl"></div>
+        <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 dark:from-red-900/30 dark:via-orange-900/20 dark:to-yellow-900/20 relative overflow-hidden border-y-4 border-orange-300 dark:border-orange-700">
+          {/* Enhanced decorative background elements */}
+          <div className="absolute inset-0 opacity-10 dark:opacity-15">
+            <div className="absolute top-0 left-0 w-72 h-72 bg-red-500 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-orange-500 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-yellow-400 rounded-full blur-3xl animate-pulse-slow opacity-30" style={{ animationDelay: '2s' }}></div>
           </div>
           
+          {/* Animated border gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-200/20 to-transparent animate-shimmer"></div>
+          
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="mb-6 sm:mb-8 md:mb-10 text-center">
-              <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
-                <span className="text-2xl sm:text-3xl md:text-4xl animate-pulse">🔥</span>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white">
+            <div className="mb-8 sm:mb-10 md:mb-12 text-center">
+              <div className="inline-flex items-center gap-2 sm:gap-3 mb-4 sm:mb-5 animate-fade-in-up">
+                <span className="text-4xl sm:text-5xl md:text-6xl animate-pulse filter drop-shadow-lg">🔥</span>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white leading-tight bg-gradient-to-r from-red-600 via-orange-600 to-red-600 bg-clip-text text-transparent animate-gradient">
                   Special Promotions
                 </h2>
               </div>
-              <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 font-medium max-w-2xl mx-auto px-4">
-                Limited time offers - Don't miss out on these amazing deals!
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-200 font-bold max-w-2xl mx-auto px-4 mb-4 sm:mb-5">
+                Limited time offers - Don't miss out on these amazing deals! ⚡
               </p>
+              {/* Enhanced promo count badge */}
+              <div className="mt-4 sm:mt-5 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                <span className="inline-block px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-red-500 via-orange-500 to-red-500 text-white text-sm sm:text-base md:text-lg font-black rounded-full shadow-2xl border-2 border-white/50 hover:scale-110 transition-transform duration-300 animate-pulse-slow">
+                  🎉 {products.filter(p => p.is_promo).length} Products on Sale 🎉
+                </span>
+              </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
               {products
                 .filter(p => p.is_promo)
                 .slice(0, 4)
-                .map((product) => (
-                  <div key={product.id} className="transform hover:scale-105 transition-transform duration-300">
-                    <ProductCard
-                      product={product}
-                      onView={setSelectedProduct}
-                    />
-                  </div>
-                ))}
+                .map((product, index) => {
+                  // Calculate discount for this product
+                  const getDiscount = () => {
+                    if (product.discount && product.discount > 0) return product.discount
+                    if (product.original_price && product.price && product.original_price > product.price) {
+                      return Math.round(((product.original_price - product.price) / product.original_price) * 100)
+                    }
+                    return 0
+                  }
+                  const discount = getDiscount()
+                  
+                  return (
+                    <div 
+                      key={product.id} 
+                      className="transform hover:scale-105 transition-all duration-500 relative animate-fade-in-up"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      {/* Extra prominent discount badge for promos section */}
+                      {discount > 0 && (
+                        <div className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 z-20">
+                          <div className="bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white text-xs sm:text-sm md:text-base font-black px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 rounded-full shadow-2xl border-2 border-white animate-bounce hover:scale-110 transition-transform duration-300">
+                            {discount}% OFF
+                          </div>
+                        </div>
+                      )}
+                      <ProductCard
+                        product={product}
+                        onView={setSelectedProduct}
+                      />
+                    </div>
+                  )
+                })}
             </div>
             
             {products.filter(p => p.is_promo).length > 4 && (
-              <div className="text-center mt-6 sm:mt-8 md:mt-10">
+              <div className="text-center mt-8 sm:mt-10 md:mt-12 animate-fade-in-up">
                 <button
                   onClick={() => {
                     setSelectedView('promo')
                     document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })
                   }}
-                  className="btn-primary px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all"
+                  className="btn-primary px-8 sm:px-10 md:px-12 py-4 sm:py-4.5 text-base sm:text-lg font-black shadow-2xl hover:shadow-accent-lg hover:scale-110 transition-all duration-300 min-h-[52px] touch-manipulation border-2 border-white/30"
                 >
-                  View All Promos ({products.filter(p => p.is_promo).length})
+                  View All Promos ({products.filter(p => p.is_promo).length}) →
                 </button>
               </div>
             )}
@@ -291,16 +327,16 @@ const Home = () => {
       )}
 
       {/* Collection Section - Main Products */}
-      <section id="collection" className="py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-900">
+      <section id="collection" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 sm:mb-10 md:mb-12 text-center">
+          <div className="mb-8 sm:mb-10 md:mb-12 text-center animate-fade-in-up">
             <div className="inline-block mb-3 sm:mb-4">
-              <span className="text-accent font-bold text-xs sm:text-sm uppercase tracking-widest">Products</span>
+              <span className="text-accent font-bold text-xs sm:text-sm uppercase tracking-widest bg-accent/10 px-4 py-2 rounded-full">Products</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-3 sm:mb-4 text-gray-900 dark:text-white leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-5 text-gray-900 dark:text-white leading-tight">
               Our Collection
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 font-medium max-w-2xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 font-semibold max-w-2xl mx-auto px-4">
               Browse our curated selection of premium African fabrics
             </p>
           </div>
@@ -459,24 +495,38 @@ const Home = () => {
                 story — of culture, identity, and beauty.
               </p>
             </div>
-            <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl hover:shadow-accent-lg transition-all duration-500 order-1 md:order-2 group bg-gray-200 dark:bg-gray-700">
-              <img
-                src="/kitenge-fabrics-display.jpeg"
-                alt="Colorful display of Kitenge fabrics arranged on shelves"
-                className="w-full h-48 sm:h-64 md:h-80 lg:h-96 object-cover group-hover:scale-110 transition-transform duration-700"
-                loading="lazy"
-                onError={(e) => {
-                  console.error('Image failed to load:', '/kitenge-fabrics-display.jpeg')
-                  if (!e.target.src.includes('placeholder')) {
-                    e.target.src = '/placeholder.png'
-                  } else if (!e.target.src.includes('data:')) {
-                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmI5MjNjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+S2l0ZW5nZSBCb3JhPC90ZXh0Pjwvc3ZnPg=='
-                  }
-                }}
-                onLoad={() => {
-                  console.log('Image loaded successfully:', '/kitenge-fabrics-display.jpeg')
-                }}
-              />
+            <div className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl sm:shadow-2xl hover:shadow-accent-lg transition-all duration-500 order-1 md:order-2 group bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/40 dark:to-orange-800/40 min-h-[192px] sm:min-h-[256px] md:min-h-[320px] lg:min-h-[384px] relative">
+              {!storyImageError ? (
+                <>
+                  <img
+                    src="/kitenge-fabrics-display.jpeg"
+                    alt="Colorful display of Kitenge fabrics arranged on shelves"
+                    className={`w-full h-full object-cover group-hover:scale-110 transition-all duration-700 ${storyImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    loading="eager"
+                    onError={(e) => {
+                      console.error('❌ Image failed to load:', e.target.src)
+                      setStoryImageError(true)
+                    }}
+                    onLoad={(e) => {
+                      console.log('✅ Image loaded successfully:', e.target.src)
+                      setStoryImageLoaded(true)
+                    }}
+                  />
+                  {!storyImageLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-200 to-orange-300 dark:from-orange-800/50 dark:to-orange-900/50">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 text-white absolute inset-0">
+                  <div className="text-center p-8">
+                    <div className="text-5xl sm:text-6xl mb-4">🧵</div>
+                    <div className="text-2xl sm:text-3xl font-black mb-2">Kitenge Bora</div>
+                    <div className="text-base sm:text-lg font-medium opacity-90">African Fabrics & Outfits</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

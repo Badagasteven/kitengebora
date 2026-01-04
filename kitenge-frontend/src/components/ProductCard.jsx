@@ -133,29 +133,56 @@ const ProductCard = ({ product, onView }) => {
     }, 100)
   }
 
-  // Calculate discount percentage
+  // Calculate discount percentage - Check multiple sources
   const calculateDiscount = () => {
-    if (product.original_price && product.price) {
-      return Math.round(((product.original_price - product.price) / product.original_price) * 100)
+    // Priority 1: Use discount field directly if available
+    if (product.discount && product.discount > 0) {
+      return product.discount
     }
-    return product.discount || 0
+    
+    // Priority 2: Calculate from original_price and price
+    if (product.original_price && product.price && product.original_price > product.price) {
+      const calculated = Math.round(((product.original_price - product.price) / product.original_price) * 100)
+      if (calculated > 0) {
+        return calculated
+      }
+    }
+    
+    return 0
   }
 
   const discountPercent = product.is_promo ? calculateDiscount() : 0
+  
+  // Debug logging in development
+  if (import.meta.env.DEV && product.is_promo) {
+    console.log('Product promo:', {
+      name: product.name,
+      is_promo: product.is_promo,
+      discount: product.discount,
+      original_price: product.original_price,
+      price: product.price,
+      calculated: discountPercent
+    })
+  }
 
   return (
-    <article className="card-hover group h-full flex flex-col" role="article" aria-label={`Product: ${product.name}`}>
+    <article className="card-hover group h-full flex flex-col relative" role="article" aria-label={`Product: ${product.name}`}>
       <div className="relative overflow-hidden rounded-t-2xl bg-gray-100 dark:bg-gray-800">
         <LazyImage
           src={product.image}
           alt={product.name}
-          className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+          className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        {/* Enhanced gradient overlay with shimmer effect */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        {/* Shimmer effect on hover */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+        </div>
         <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex flex-col gap-2 sm:gap-2.5 z-10">
           {product.is_promo && discountPercent > 0 && (
-            <span className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-xl shadow-red-500/50 animate-pulse-slow">
+            <span className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white text-[11px] sm:text-xs md:text-sm font-black px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-xl shadow-red-500/50 animate-pulse-slow border-2 border-white/30 transform group-hover:scale-110 transition-transform duration-300">
               -{discountPercent}% OFF
             </span>
           )}
@@ -181,14 +208,14 @@ const ProductCard = ({ product, onView }) => {
         </button>
       </div>
 
-      <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
+      <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col bg-white dark:bg-gray-900">
         <div className="flex items-start justify-between mb-2 sm:mb-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-1 sm:mb-1.5 truncate group-hover:text-accent transition-colors">
+            <h3 className="font-bold text-base sm:text-lg md:text-xl text-gray-900 dark:text-white mb-1 sm:mb-1.5 truncate group-hover:text-accent transition-colors duration-300">
               {product.name}
             </h3>
             {product.category && (
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate font-medium">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate font-semibold uppercase tracking-wide">
                 {product.category}
               </p>
             )}
@@ -203,18 +230,18 @@ const ProductCard = ({ product, onView }) => {
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <span className={`text-xl sm:text-2xl font-bold ${product.is_promo ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+            <span className={`text-xl sm:text-2xl md:text-3xl font-black ${product.is_promo ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'} transition-colors duration-300`}>
               {product.price.toLocaleString()} RWF
             </span>
             {product.original_price && product.original_price > product.price && (
-              <span className="text-sm sm:text-base text-gray-400 dark:text-gray-500 line-through font-medium">
+              <span className="text-sm sm:text-base md:text-lg text-gray-400 dark:text-gray-500 line-through font-semibold">
                 {product.original_price.toLocaleString()} RWF
               </span>
             )}
           </div>
-          {product.is_promo && discountPercent > 0 && (
-            <span className="text-xs sm:text-sm font-bold text-green-700 dark:text-green-400 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/40 px-3 py-1.5 rounded-lg inline-block w-fit border border-green-200 dark:border-green-800">
-              Save {((product.original_price - product.price) || 0).toLocaleString()} RWF
+          {product.is_promo && discountPercent > 0 && product.original_price && product.original_price > product.price && (
+            <span className="text-xs sm:text-sm font-bold text-green-700 dark:text-green-400 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/40 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg inline-block w-fit border-2 border-green-200 dark:border-green-800 shadow-sm group-hover:shadow-md transition-shadow duration-300">
+              Save {Math.max(0, product.original_price - product.price).toLocaleString()} RWF
             </span>
           )}
         </div>
@@ -224,18 +251,18 @@ const ProductCard = ({ product, onView }) => {
             onClick={handleAddToCart}
             disabled={product.in_stock === false}
             aria-label={`Add ${product.name} to cart`}
-            className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-3 sm:py-3.5"
+            className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-3 sm:py-3.5 group-hover:shadow-accent-lg transition-all duration-300"
           >
-            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-            <span className="hidden sm:inline">Add to cart</span>
-            <span className="sm:hidden">Add</span>
+            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
+            <span className="hidden sm:inline font-bold">Add to cart</span>
+            <span className="sm:hidden font-bold">Add</span>
           </button>
           <button
             onClick={() => onView && onView(product)}
             aria-label={`View details for ${product.name}`}
-            className="btn-outline px-4 sm:px-5 py-3 sm:py-3.5 hover:bg-accent hover:text-white hover:border-accent transition-all duration-300"
+            className="btn-outline px-4 sm:px-5 py-3 sm:py-3.5 hover:bg-accent hover:text-white hover:border-accent transition-all duration-300 group-hover:scale-105"
           >
-            <Eye className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
+            <Eye className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
           </button>
         </div>
       </div>

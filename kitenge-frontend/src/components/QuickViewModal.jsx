@@ -121,9 +121,25 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
     return null
   }
 
-  const discountPercent = product.is_promo && product.original_price
-    ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
-    : 0
+  // Calculate discount percentage - Check multiple sources (same logic as ProductCard)
+  const calculateDiscount = () => {
+    // Priority 1: Use discount field directly if available
+    if (product.discount && product.discount > 0) {
+      return product.discount
+    }
+    
+    // Priority 2: Calculate from original_price and price
+    if (product.original_price && product.price && product.original_price > product.price) {
+      const calculated = Math.round(((product.original_price - product.price) / product.original_price) * 100)
+      if (calculated > 0) {
+        return calculated
+      }
+    }
+    
+    return 0
+  }
+
+  const discountPercent = product.is_promo ? calculateDiscount() : 0
 
   return (
     <div
@@ -206,9 +222,9 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                     </span>
                   )}
                 </div>
-                {product.is_promo && (
+                {product.is_promo && discountPercent > 0 && product.original_price && product.original_price > product.price && (
                   <p className="text-green-600 dark:text-green-400 font-medium text-sm">
-                    You save {((product.original_price - product.price) || 0).toLocaleString()} RWF
+                    You save {Math.max(0, product.original_price - product.price).toLocaleString()} RWF
                   </p>
                 )}
               </div>

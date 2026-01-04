@@ -144,7 +144,7 @@ const Footer = () => {
             <ul className="space-y-4">
               <li>
                 <a
-                  href="mailto:badagaclass@gmail.com"
+                  href="mailto:kitengeboraa@gmail.com"
                   className="group flex items-start gap-3 text-gray-400 hover:text-accent transition-all"
                 >
                   <div className="p-2 bg-gray-800 rounded-lg group-hover:bg-accent/20 transition-colors mt-0.5">
@@ -152,7 +152,7 @@ const Footer = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 mb-0.5">Email</p>
-                    <p className="text-sm sm:text-base">badagaclass@gmail.com</p>
+                    <p className="text-sm sm:text-base">kitengeboraa@gmail.com</p>
                   </div>
                 </a>
               </li>

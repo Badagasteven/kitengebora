@@ -29,10 +29,22 @@ public class AuthService {
     @Value("${app.admin.email}")
     private String adminEmail;
     
+    // Helper method to check if email is admin
+    private boolean isAdminEmail(String email) {
+        if (email == null || adminEmail == null) return false;
+        String[] adminEmails = adminEmail.split(",");
+        for (String admin : adminEmails) {
+            if (email.equalsIgnoreCase(admin.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         // Prevent registration with admin email
-        if (request.getEmail().equalsIgnoreCase(adminEmail)) {
+        if (isAdminEmail(request.getEmail())) {
             throw new RuntimeException("This email is reserved for admin use only");
         }
         
@@ -99,11 +111,11 @@ public class AuthService {
         // Normal login without 2FA
         // Admin status: email must match admin email AND/OR role must be ADMIN
         // If email matches admin email, always set as admin regardless of role
-        boolean isAdmin = user.getEmail().equalsIgnoreCase(adminEmail) || "ADMIN".equals(user.getRole());
+        boolean isAdmin = isAdminEmail(user.getEmail()) || "ADMIN".equals(user.getRole());
         String role = user.getRole() != null ? user.getRole() : "CUSTOMER";
         
         // If email matches admin email, ensure role is ADMIN
-        if (user.getEmail().equalsIgnoreCase(adminEmail)) {
+        if (isAdminEmail(user.getEmail())) {
             isAdmin = true;
             role = "ADMIN";
             // Update user role in database if it's not already ADMIN
@@ -141,11 +153,11 @@ public class AuthService {
         }
         
         // Admin status: email must match admin email AND/OR role must be ADMIN
-        boolean isAdmin = user.getEmail().equalsIgnoreCase(adminEmail) || "ADMIN".equals(user.getRole());
+        boolean isAdmin = isAdminEmail(user.getEmail()) || "ADMIN".equals(user.getRole());
         String role = user.getRole() != null ? user.getRole() : "CUSTOMER";
         
         // If email matches admin email, ensure role is ADMIN
-        if (user.getEmail().equalsIgnoreCase(adminEmail)) {
+        if (isAdminEmail(user.getEmail())) {
             isAdmin = true;
             role = "ADMIN";
             // Update user role in database if it's not already ADMIN

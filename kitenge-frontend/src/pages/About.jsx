@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 const About = () => {
   const [imageError, setImageError] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
   const features = [
     {
       icon: ShoppingBag,
@@ -73,21 +74,29 @@ const About = () => {
             </div>
             <div className="rounded-3xl overflow-hidden shadow-2xl hover:shadow-accent-lg transition-all duration-500 order-1 md:order-2 group relative bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/40 dark:to-orange-800/40 min-h-[224px] sm:min-h-[288px] md:min-h-[384px]">
               {!imageError ? (
-                <img
-                  src="/kitenge-fabrics-display.jpeg"
-                  alt="Colorful display of Kitenge fabrics arranged on shelves showcasing vibrant African patterns"
-                  className="w-full h-56 sm:h-72 md:h-96 object-cover group-hover:scale-110 transition-transform duration-700"
-                  loading="eager"
-                  onError={() => {
-                    console.error('❌ Image failed to load:', '/kitenge-fabrics-display.jpeg')
-                    setImageError(true)
-                  }}
-                  onLoad={() => {
-                    console.log('✅ Image loaded successfully:', '/kitenge-fabrics-display.jpeg')
-                  }}
-                />
+                <>
+                  <img
+                    src="/kitenge-fabrics-display.jpeg"
+                    alt="Colorful display of Kitenge fabrics arranged on shelves showcasing vibrant African patterns"
+                    className={`w-full h-56 sm:h-72 md:h-96 object-cover group-hover:scale-110 transition-all duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    loading="eager"
+                    onError={(e) => {
+                      console.error('❌ Image failed to load:', e.target.src)
+                      setImageError(true)
+                    }}
+                    onLoad={(e) => {
+                      console.log('✅ Image loaded successfully:', e.target.src)
+                      setImageLoaded(true)
+                    }}
+                  />
+                  {!imageLoaded && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-200 to-orange-300 dark:from-orange-800/50 dark:to-orange-900/50">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+                    </div>
+                  )}
+                </>
               ) : (
-                <div className="w-full h-56 sm:h-72 md:h-96 flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 text-white">
+                <div className="w-full h-56 sm:h-72 md:h-96 flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 text-white absolute inset-0">
                   <div className="text-center p-8">
                     <div className="text-5xl sm:text-6xl mb-4">🧵</div>
                     <div className="text-2xl sm:text-3xl font-black mb-2">Kitenge Bora</div>

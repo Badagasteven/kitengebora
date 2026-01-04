@@ -20,6 +20,18 @@ public class AuthCheckController {
     @Value("${app.admin.email}")
     private String adminEmail;
     
+    // Helper method to check if email is admin
+    private boolean isAdminEmail(String email) {
+        if (email == null || adminEmail == null) return false;
+        String[] adminEmails = adminEmail.split(",");
+        for (String admin : adminEmails) {
+            if (email.equalsIgnoreCase(admin.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @GetMapping("/check-auth")
     public ResponseEntity<Map<String, Object>> checkAuth(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         Map<String, Object> response = new HashMap<>();
@@ -40,7 +52,7 @@ public class AuthCheckController {
             if (jwtUtil.validateToken(token, email)) {
                 // Double-check admin status: email match OR role is ADMIN
                 boolean adminStatus = (isAdmin != null && isAdmin) || 
-                                     email.equalsIgnoreCase(adminEmail) || 
+                                     isAdminEmail(email) || 
                                      "ADMIN".equals(role);
                 
                 response.put("isAuthenticated", true);

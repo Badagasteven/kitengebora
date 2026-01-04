@@ -15,7 +15,7 @@ const FAQ = () => {
         },
         {
           q: 'Do you offer custom tailoring?',
-          a: 'Yes! We offer custom tailoring services. Please contact us via WhatsApp (+250 788 883 986) or email (badagaclass@gmail.com) to discuss your requirements.'
+          a: 'Yes! We offer custom tailoring services. Please contact us via WhatsApp (+250 788 883 986) or email (kitengeboraa@gmail.com) to discuss your requirements.'
         },
         {
           q: 'What payment methods do you accept?',
@@ -190,7 +190,7 @@ const FAQ = () => {
           </p>
           <div className="space-y-2 text-gray-700 dark:text-gray-300">
             <p>📱 WhatsApp: +250 788 883 986</p>
-            <p>📧 Email: badagaclass@gmail.com</p>
+            <p>📧 Email: kitengeboraa@gmail.com</p>
             <p>📍 Visit us: Kigali, Rwanda</p>
           </div>
         </div>

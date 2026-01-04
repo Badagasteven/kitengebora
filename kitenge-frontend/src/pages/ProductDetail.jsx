@@ -50,6 +50,26 @@ const ProductDetail = () => {
     }
   }
 
+  // Calculate discount percentage - Check multiple sources (same logic as ProductCard)
+  const calculateDiscount = (prod) => {
+    if (!prod) return 0
+    
+    // Priority 1: Use discount field directly if available
+    if (prod.discount && prod.discount > 0) {
+      return prod.discount
+    }
+    
+    // Priority 2: Calculate from original_price and price
+    if (prod.original_price && prod.price && prod.original_price > prod.price) {
+      const calculated = Math.round(((prod.original_price - prod.price) / prod.original_price) * 100)
+      if (calculated > 0) {
+        return calculated
+      }
+    }
+    
+    return 0
+  }
+
   const handleAddToCart = () => {
     if (product.in_stock === false) {
       toast.warning('This product is out of stock')
@@ -196,9 +216,9 @@ const ProductDetail = () => {
                   {product.category}
                 </span>
               )}
-              {product.is_promo && (
-                <span className="inline-block px-3 py-1 bg-red-500 text-white rounded-full text-sm font-medium ml-2">
-                  -{product.discount}% OFF
+              {product.is_promo && calculateDiscount(product) > 0 && (
+                <span className="inline-block px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full text-sm sm:text-base font-bold ml-2 shadow-lg">
+                  -{calculateDiscount(product)}% OFF
                 </span>
               )}
             </div>
@@ -224,10 +244,10 @@ const ProductDetail = () => {
                   </span>
                 )}
               </div>
-              {product.is_promo && (
-                <p className="text-green-600 dark:text-green-400 font-medium">
+              {product.is_promo && calculateDiscount(product) > 0 && product.original_price && product.original_price > product.price && (
+                <p className="text-green-600 dark:text-green-400 font-semibold text-lg">
                   You save{' '}
-                  {((product.original_price - product.price) / product.original_price) * 100}%
+                  {Math.max(0, product.original_price - product.price).toLocaleString()} RWF
                 </p>
               )}
             </div>
