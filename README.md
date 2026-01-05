@@ -4,31 +4,63 @@ Modern React frontend + Spring Boot backend for a beautiful e-commerce experienc
 
 ## 🚀 Quick Start
 
-### 1. Fix PowerShell (One Time)
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+### Prerequisites
+- **Node.js** 18+ and npm
+- **Java** 17+
+- **Maven** 3.6+
+- **PostgreSQL** 12+
+
+### 1. Database Setup
+
+Create a PostgreSQL database:
+```sql
+CREATE DATABASE kitenge;
 ```
 
-### 2. Install Frontend Dependencies
+### 2. Backend Setup
+
+```bash
+cd kitenge-backend
+```
+
+Update `src/main/resources/application.properties` with your database credentials:
+```properties
+spring.datasource.username=postgres
+spring.datasource.password=your_password
+```
+
+Start the backend:
+```bash
+# Windows
+start-server.bat
+
+# Or manually
+mvn spring-boot:run
+```
+
+Backend will run on `http://localhost:8080`
+
+### 3. Frontend Setup
+
 ```bash
 cd kitenge-frontend
 npm install
 ```
 
-### 3. Start Backend
+Start the frontend:
 ```bash
-cd kitenge-backend
-mvn spring-boot:run
-```
+# Windows
+start-frontend.bat
 
-### 4. Start Frontend
-```bash
-cd kitenge-frontend
+# Or manually
 npm run dev
 ```
 
-### 5. Open Browser
-http://localhost:3000
+Frontend will run on `http://localhost:3000`
+
+### 4. Open Browser
+
+Visit: **http://localhost:3000**
 
 ---
 
@@ -36,13 +68,15 @@ http://localhost:3000
 
 ```
 kitengebora/
-├── kitenge-backend/      # Spring Boot Backend (Port 8082)
-│   ├── src/main/java/   # Java source code
-│   └── render.yaml       # Render deployment config
+├── kitenge-backend/      # Spring Boot Backend (Port 8080)
+│   ├── src/main/java/    # Java source code
+│   ├── src/main/resources/application.properties
+│   └── start-server.bat   # Windows start script
 │
 └── kitenge-frontend/     # React Frontend (Port 3000)
     ├── src/              # React source code
-    └── netlify.toml      # Netlify deployment config
+    ├── public/           # Static assets
+    └── start-frontend.bat # Windows start script
 ```
 
 ---
@@ -63,20 +97,7 @@ kitengebora/
 - Product management (CRUD)
 - Image uploads
 - Order management
-
----
-
-## 🚀 Deployment
-
-### Free Hosting Setup
-
-This project is configured for **free hosting** using:
-- **Frontend:** Netlify
-- **Backend + Database:** Render
-
-See **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** for detailed step-by-step instructions.
-
-**Quick Start:** See **[QUICK_START.md](./QUICK_START.md)** for a deployment checklist.
+- Customer management
 
 ---
 
@@ -97,6 +118,45 @@ See **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** for detailed step-by-step i
 
 ---
 
+## 🔧 Configuration
+
+### Backend Configuration
+
+Edit `kitenge-backend/src/main/resources/application.properties`:
+
+```properties
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/kitenge
+spring.datasource.username=postgres
+spring.datasource.password=your_password
+
+# JWT Secret (change in production!)
+jwt.secret=your-secret-key-change-this-in-production
+
+# Admin Email
+app.admin.email=kitengeboraa@gmail.com
+
+# Email (optional)
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-app-password
+```
+
+### Frontend Configuration
+
+Create `kitenge-frontend/.env` (optional):
+```env
+VITE_API_URL=http://localhost:8080/api
+```
+
+---
+
+## 📚 Documentation
+
+- **[kitenge-backend/README.md](./kitenge-backend/README.md)** - Backend documentation
+- **[kitenge-frontend/README.md](./kitenge-frontend/README.md)** - Frontend documentation
+
+---
+
 ## ✅ Status
 
 - ✅ Backend: Complete
@@ -105,17 +165,6 @@ See **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** for detailed step-by-step i
 - ✅ Authentication: JWT
 - ✅ All Features: Working
 - ✅ Mobile Optimized: Android & iOS
-- ✅ Deployment Ready: Netlify + Render
-
-**Ready to deploy!** 🚀
-
----
-
-## 📚 Documentation
-
-- **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Complete deployment instructions
-- **[QUICK_START.md](./QUICK_START.md)** - Quick deployment checklist
-- **[IMPROVEMENTS_SUMMARY.md](./IMPROVEMENTS_SUMMARY.md)** - All improvements made
 
 ---
 

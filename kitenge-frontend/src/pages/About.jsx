@@ -1,9 +1,47 @@
 import { Heart, Users, Award, ShoppingBag } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const About = () => {
   const [imageError, setImageError] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageSrc, setImageSrc] = useState('/kitenge-fabrics-display.jpeg')
+  
+  // Try multiple image paths
+  useEffect(() => {
+    const imagePaths = [
+      '/kitenge-fabrics-display.jpeg',
+      './kitenge-fabrics-display.jpeg',
+      'kitenge-fabrics-display.jpeg',
+      `${window.location.origin}/kitenge-fabrics-display.jpeg`
+    ]
+    
+    let currentIndex = 0
+    
+    const tryNextPath = () => {
+      if (currentIndex >= imagePaths.length) {
+        console.error('All image paths failed')
+        setImageError(true)
+        return
+      }
+      
+      const img = new Image()
+      img.src = imagePaths[currentIndex]
+      
+      img.onload = () => {
+        console.log('✅ Image loaded from:', imagePaths[currentIndex])
+        setImageSrc(imagePaths[currentIndex])
+        setImageLoaded(true)
+      }
+      
+      img.onerror = () => {
+        console.warn('⚠️ Failed to load from:', imagePaths[currentIndex])
+        currentIndex++
+        tryNextPath()
+      }
+    }
+    
+    tryNextPath()
+  }, [])
   const features = [
     {
       icon: ShoppingBag,
@@ -74,11 +112,12 @@ const About = () => {
             </div>
             <div className="rounded-3xl overflow-hidden shadow-2xl hover:shadow-accent-lg transition-all duration-500 order-1 md:order-2 group relative bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/40 dark:to-orange-800/40 min-h-[224px] sm:min-h-[288px] md:min-h-[384px]">
               {!imageError ? (
-                <>
+                <div className="relative w-full h-56 sm:h-72 md:h-96">
                   <img
-                    src="/kitenge-fabrics-display.jpeg"
+                    src={imageSrc}
                     alt="Colorful display of Kitenge fabrics arranged on shelves showcasing vibrant African patterns"
-                    className={`w-full h-56 sm:h-72 md:h-96 object-cover group-hover:scale-110 transition-all duration-700 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
+                    style={{ display: 'block', opacity: 1 }}
                     loading="eager"
                     onError={(e) => {
                       console.error('❌ Image failed to load:', e.target.src)
@@ -90,13 +129,13 @@ const About = () => {
                     }}
                   />
                   {!imageLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-200 to-orange-300 dark:from-orange-800/50 dark:to-orange-900/50">
+                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-200/60 to-orange-300/60 dark:from-orange-800/40 dark:to-orange-900/40 pointer-events-none">
                       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                     </div>
                   )}
-                </>
+                </div>
               ) : (
-                <div className="w-full h-56 sm:h-72 md:h-96 flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 text-white absolute inset-0">
+                <div className="w-full h-56 sm:h-72 md:h-96 flex items-center justify-center bg-gradient-to-br from-orange-400 to-orange-600 text-white">
                   <div className="text-center p-8">
                     <div className="text-5xl sm:text-6xl mb-4">🧵</div>
                     <div className="text-2xl sm:text-3xl font-black mb-2">Kitenge Bora</div>

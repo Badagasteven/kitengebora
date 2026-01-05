@@ -123,16 +123,164 @@ const Header = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/98 dark:bg-gray-900/98 backdrop-blur-2xl border-b-2 border-gray-200/80 dark:border-gray-800/80 shadow-xl shadow-gray-900/10">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16 md:h-20">
-          {/* Brand - Optimized for Mobile */}
-          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0 min-w-0 flex-1 sm:flex-none">
-            <div className="min-w-0">
-              <div className="text-sm sm:text-base md:text-xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent group-hover:from-accent group-hover:via-accent-600 group-hover:to-accent transition-all duration-300 leading-tight tracking-tight">
+    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="max-w-7xl mx-auto">
+        {/* Mobile Header - Shein Style */}
+        <div className="lg:hidden">
+          {/* Top Row: Logo, Search, Cart */}
+          <div className="flex items-center justify-between h-12 px-3 gap-2">
+            {/* Menu Button - Left */}
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="p-2 -ml-1 flex-shrink-0"
+              aria-label="Menu"
+            >
+              {showMobileMenu ? (
+                <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              ) : (
+                <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              )}
+            </button>
+
+            {/* Logo - Center */}
+            <Link to="/" className="flex-shrink-0 mx-2">
+              <div className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
                 KITENGE BORA
               </div>
-              <div className="text-[8px] sm:text-[9px] md:text-xs text-gray-500 dark:text-gray-400 hidden sm:block font-semibold">
+            </Link>
+
+            {/* Cart - Right */}
+            <button
+              onClick={() => window.dispatchEvent(new Event('cart:open'))}
+              className="relative p-2 -mr-1 flex-shrink-0"
+            >
+              <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Search Bar - Always Visible, Prominent */}
+          <div className="px-3 pb-2.5" ref={searchRef}>
+            <form 
+              onSubmit={handleSearchSubmit}
+              onClick={() => setShowSearch(true)}
+              className="relative flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg h-9 px-3 cursor-text"
+            >
+              <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowSearch(true)}
+                placeholder="Search for products..."
+                className="flex-1 bg-transparent border-0 outline-none text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSearchQuery('')
+                    setSearchResults([])
+                  }}
+                  className="ml-2 p-1 flex-shrink-0"
+                >
+                  <X className="w-4 h-4 text-gray-400" />
+                </button>
+              )}
+            </form>
+
+            {/* Search Results Dropdown */}
+            {showSearch && searchQuery && (
+              <div className="absolute left-0 right-0 mt-1 mx-3 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 z-50 max-h-[60vh] overflow-y-auto">
+                {searchLoading ? (
+                  <div className="p-6 text-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mx-auto"></div>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <div className="py-2">
+                    {searchResults.map((product) => (
+                      <Link
+                        key={product.id}
+                        to={`/products/${product.id}`}
+                        onClick={() => {
+                          setShowSearch(false)
+                          setSearchQuery('')
+                        }}
+                        className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        <img
+                          src={product.image || '/placeholder.png'}
+                          alt={product.name}
+                          className="w-12 h-12 object-cover rounded flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                            {product.name}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {product.price.toLocaleString()} RWF
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                    <div className="border-t border-gray-200 dark:border-gray-800">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handleSearchSubmit(e)
+                        }}
+                        className="w-full text-center text-sm text-orange-500 py-3 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      >
+                        View all results for "{searchQuery}"
+                      </button>
+                    </div>
+                  </div>
+                ) : searchQuery.trim().length >= 2 ? (
+                  <div className="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                    No products found
+                  </div>
+                ) : searchHistory.length > 0 ? (
+                  <div className="py-2">
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-800">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Recent</p>
+                      <button
+                        onClick={clearSearchHistory}
+                        className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    {searchHistory.map((item, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleSearchClick(item)}
+                        className="w-full text-left px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2"
+                      >
+                        <Search className="w-4 h-4 text-gray-400" />
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Header - Keep Original */}
+        <div className="hidden lg:flex items-center justify-between h-16 px-4 lg:px-8">
+          {/* Brand - Desktop */}
+          <Link to="/" className="flex items-center space-x-3 group flex-shrink-0">
+            <div>
+              <div className="text-xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent group-hover:from-accent group-hover:via-accent-600 group-hover:to-accent transition-all duration-300 leading-tight tracking-tight">
+                KITENGE BORA
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 font-semibold">
                 Curated African fabrics & outfits
               </div>
             </div>
@@ -178,46 +326,29 @@ const Header = () => {
             </Link>
           </nav>
 
-          {/* Actions - Optimized for Mobile */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 flex-shrink-0">
-            {/* Mobile Menu Button - Enhanced */}
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="lg:hidden p-2.5 sm:p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-all duration-200 touch-target relative"
-              aria-label="Menu"
-            >
-              {showMobileMenu ? (
-                <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
-              ) : (
-                <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
-              )}
-            </button>
-            {/* Global Search - Enhanced for Mobile */}
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
+            {/* Desktop Search */}
             <div className="relative" ref={searchRef}>
               <button
                 onClick={() => setShowSearch(!showSearch)}
-                className="p-2.5 sm:p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-all duration-200 touch-target"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 aria-label="Search"
               >
-                <Search className="w-5 h-5 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
+                <Search className="w-5 h-5 text-gray-700 dark:text-gray-300" />
               </button>
 
               {showSearch && (
-                <div 
-                  className="absolute right-0 top-full mt-2 sm:mt-2.5 w-[calc(100vw-2rem)] sm:w-96 max-w-md bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl shadow-2xl border-2 border-gray-200 dark:border-gray-800 z-50 backdrop-blur-xl"
-                  style={{
-                    maxWidth: 'calc(100vw - 2rem)',
-                  }}
-                >
-                  <form onSubmit={handleSearchSubmit} className="p-2.5 sm:p-4 border-b border-gray-200 dark:border-gray-800">
+                <div className="absolute right-0 top-full mt-2 w-96 max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 z-50">
+                  <form onSubmit={handleSearchSubmit} className="p-4 border-b border-gray-200 dark:border-gray-800">
                     <div className="relative">
-                      <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search products..."
-                        className="input-field pl-9 sm:pl-10 pr-8 sm:pr-10 w-full text-sm sm:text-base py-2 sm:py-2.5"
+                        className="input-field pl-10 pr-10 w-full text-base py-2.5"
                         autoFocus
                       />
                       {searchQuery && (
@@ -236,10 +367,10 @@ const Header = () => {
                   </form>
 
                   {/* Search Results */}
-                  <div className="max-h-[calc(100vh-200px)] sm:max-h-96 overflow-y-auto -webkit-overflow-scrolling-touch">
+                  <div className="max-h-96 overflow-y-auto">
                     {searchLoading ? (
-                      <div className="p-6 sm:p-8 text-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent mx-auto"></div>
+                      <div className="p-8 text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mx-auto"></div>
                       </div>
                     ) : searchResults.length > 0 ? (
                       <div className="p-2">
@@ -251,18 +382,18 @@ const Header = () => {
                               setShowSearch(false)
                               setSearchQuery('')
                             }}
-                            className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                           >
                             <img
                               src={product.image || '/placeholder.png'}
                               alt={product.name}
-                              className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg flex-shrink-0"
+                              className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
                             />
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm sm:text-base text-gray-900 dark:text-white truncate">
+                              <p className="font-medium text-base text-gray-900 dark:text-white truncate">
                                 {product.name}
                               </p>
-                              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                              <p className="text-sm text-gray-500 dark:text-gray-400">
                                 {product.price.toLocaleString()} RWF
                               </p>
                             </div>
@@ -271,14 +402,14 @@ const Header = () => {
                         <div className="p-2 border-t border-gray-200 dark:border-gray-800">
                           <button
                             onClick={handleSearchSubmit}
-                            className="w-full text-center text-xs sm:text-sm text-accent hover:underline py-2"
+                            className="w-full text-center text-sm text-orange-500 hover:underline py-2"
                           >
                             View all results for "{searchQuery}"
                           </button>
                         </div>
                       </div>
                     ) : searchQuery.trim().length >= 2 ? (
-                      <div className="p-6 sm:p-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <div className="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
                         No products found
                       </div>
                     ) : searchHistory.length > 0 ? (
@@ -304,7 +435,7 @@ const Header = () => {
                         ))}
                       </div>
                     ) : (
-                      <div className="p-6 sm:p-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                      <div className="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
                         Start typing to search...
                       </div>
                     )}
@@ -453,14 +584,14 @@ const Header = () => {
               )}
             </div>
 
-            {/* Cart - Mobile Optimized */}
+            {/* Desktop Cart */}
             <button
               onClick={() => window.dispatchEvent(new Event('cart:open'))}
-              className="relative p-2.5 sm:p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-all duration-200 touch-target"
+              className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              <ShoppingBag className="w-5 h-5 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
+              <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 sm:-top-1 sm:-right-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[9px] sm:text-[10px] md:text-xs font-black rounded-full w-[18px] h-[18px] sm:w-5 sm:h-5 flex items-center justify-center leading-none shadow-lg border-2 border-white dark:border-gray-900">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center leading-none">
                   {cartCount > 9 ? '9+' : cartCount}
                 </span>
               )}
@@ -468,54 +599,54 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Menu - Enhanced Professional Design */}
+        {/* Mobile Menu - Shein Style */}
         {showMobileMenu && (
-          <div className="lg:hidden border-t-2 border-gray-200/80 dark:border-gray-800/80 bg-white/98 dark:bg-gray-900/98 backdrop-blur-2xl max-h-[calc(100vh-3.5rem)] sm:max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] overflow-y-auto animate-fade-in-up shadow-inner">
-            <nav className="px-4 sm:px-5 py-3 sm:py-4 space-y-1 sm:space-y-1.5">
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 max-h-[calc(100vh-8rem)] overflow-y-auto">
+            <nav className="px-4 py-3 space-y-0.5">
               <Link
                 to="/"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-[0.98] border-l-4 border-transparent hover:border-accent"
+                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Home
               </Link>
               <Link
                 to="/products"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-[0.98] border-l-4 border-transparent hover:border-accent"
+                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Products
               </Link>
               <Link
                 to="/about"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-[0.98] border-l-4 border-transparent hover:border-accent"
+                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 About
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-[0.98] border-l-4 border-transparent hover:border-accent"
+                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 Contact
               </Link>
               <Link
                 to="/wishlist"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-98 border-l-4 border-transparent hover:border-accent flex items-center gap-3"
+                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
               >
-                <Heart className="w-5 h-5 sm:w-5 sm:h-5" />
+                <Heart className="w-4 h-4" />
                 Wishlist
               </Link>
               {/* Divider */}
-              <div className="border-t-2 border-gray-200 dark:border-gray-800 my-2 sm:my-3"></div>
+              <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
               
               {isAdmin && (
                 <Link
                   to="/admin"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-[0.98] border-l-4 border-transparent hover:border-accent"
+                  className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   Admin Dashboard
                 </Link>
@@ -525,16 +656,16 @@ const Header = () => {
                   <Link
                     to="/account"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-[0.98] border-l-4 border-transparent hover:border-accent"
+                    className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     My Account
                   </Link>
                   <Link
                     to="/profile"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-gray-900 dark:text-white hover:text-accent hover:bg-gradient-to-r hover:from-accent-50 hover:to-accent-100 dark:hover:from-accent-900/20 dark:hover:to-accent-800/20 rounded-xl transition-all duration-300 active:scale-98 border-l-4 border-transparent hover:border-accent flex items-center gap-3"
+                    className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
                   >
-                    <Settings className="w-5 h-5 sm:w-5 sm:h-5" />
+                    <Settings className="w-4 h-4" />
                     Profile Settings
                   </Link>
                   <button
@@ -542,9 +673,9 @@ const Header = () => {
                       handleLogout()
                       setShowMobileMenu(false)
                     }}
-                    className="w-full text-left px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/20 dark:hover:to-red-800/20 rounded-xl transition-all duration-300 active:scale-[0.98] border-l-4 border-transparent hover:border-red-500 flex items-center gap-3"
+                    className="w-full text-left px-4 py-3 text-base font-medium text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
                   >
-                    <LogOut className="w-5 h-5 sm:w-5 sm:h-5" />
+                    <LogOut className="w-4 h-4" />
                     Logout
                   </button>
                 </>
@@ -553,25 +684,25 @@ const Header = () => {
                 <Link
                   to="/login"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 sm:px-5 py-3 sm:py-3.5 text-base sm:text-lg font-bold text-white bg-gradient-accent hover:bg-gradient-accent-dark rounded-xl transition-all duration-300 active:scale-[0.98] text-center shadow-lg hover:shadow-accent-lg"
+                  className="block px-4 py-3 text-base font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors text-center"
                 >
                   Login
                 </Link>
               )}
               
               {/* Theme Toggle in Mobile Menu */}
-              <div className="border-t-2 border-gray-200 dark:border-gray-800 my-2 sm:my-3"></div>
-              <div className="px-4 sm:px-5 py-2">
-                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Theme</p>
+              <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
+              <div className="px-4 py-2">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-2">Theme</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
                       setThemeMode('light')
                       setShowMobileMenu(false)
                     }}
-                    className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       theme === 'light'
-                        ? 'bg-accent text-white shadow-lg'
+                        ? 'bg-orange-500 text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                     }`}
                   >
@@ -583,9 +714,9 @@ const Header = () => {
                       setThemeMode('dark')
                       setShowMobileMenu(false)
                     }}
-                    className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       theme === 'dark'
-                        ? 'bg-accent text-white shadow-lg'
+                        ? 'bg-orange-500 text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                     }`}
                   >
@@ -597,9 +728,9 @@ const Header = () => {
                       setThemeMode('system')
                       setShowMobileMenu(false)
                     }}
-                    className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       theme === 'system'
-                        ? 'bg-accent text-white shadow-lg'
+                        ? 'bg-orange-500 text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                     }`}
                   >
