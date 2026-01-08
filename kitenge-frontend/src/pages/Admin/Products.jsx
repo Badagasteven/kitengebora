@@ -14,6 +14,7 @@ const Products = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: '' })
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -125,16 +126,38 @@ const Products = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this product permanently? This action cannot be undone.')) return
+  const handleDeleteClick = (product) => {
+    setDeleteConfirm({
+      show: true,
+      productId: product.id,
+      productName: product.name || 'this product'
+    })
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm.productId) return
+    
     try {
-      await productsAPI.deleteProduct(id)
+      await productsAPI.deleteProduct(deleteConfirm.productId)
       toast.success('Product deleted successfully!')
+      setDeleteConfirm({ show: false, productId: null, productName: '' })
       loadProducts()
     } catch (error) {
       console.error('Failed to delete product:', error)
-      toast.error('Failed to delete product. Please try again.')
+      const errorMessage = error.response?.data?.error || 
+                          error.response?.data?.message || 
+                          error.message || 
+                          'Failed to delete product. Please try again.'
+      toast.error(errorMessage)
+      // Keep modal open if there's a specific error message so user can read it
+      if (!errorMessage.includes('referenced') && !errorMessage.includes('orders')) {
+        setDeleteConfirm({ show: false, productId: null, productName: '' })
+      }
     }
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirm({ show: false, productId: null, productName: '' })
   }
 
   const handleToggleActive = async (product) => {
@@ -223,26 +246,50 @@ const Products = () => {
       <AdminSidebar />
       <div className="flex-1">
         <div className="p-4 sm:p-6 lg:p-8">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 Products
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 Manage your product catalog
               </p>
             </div>
+            {/* Desktop Add Button */}
             <button
               onClick={() => {
                 resetForm()
                 setShowForm(true)
               }}
-              className="btn-primary flex items-center gap-2"
+              className="hidden sm:flex btn-primary items-center justify-center gap-2 min-h-[48px] text-base touch-manipulation"
             >
               <Plus className="w-5 h-5" />
-              Add Product
+              <span>Add Product</span>
+            </button>
+            {/* Mobile Add Button - Full Width */}
+            <button
+              onClick={() => {
+                resetForm()
+                setShowForm(true)
+              }}
+              className="sm:hidden btn-primary flex items-center justify-center gap-2 w-full min-h-[52px] text-base touch-manipulation font-semibold"
+            >
+              <Plus className="w-6 h-6" />
+              <span>Add New Product</span>
             </button>
           </div>
+          
+          {/* Floating Action Button for Mobile - Alternative Option */}
+          <button
+            onClick={() => {
+              resetForm()
+              setShowForm(true)
+            }}
+            className="sm:hidden fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-2xl hover:shadow-orange-500/50 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 touch-manipulation"
+            aria-label="Add Product"
+          >
+            <Plus className="w-7 h-7" strokeWidth={2.5} />
+          </button>
 
           {/* Search */}
           <div className="mb-6">
@@ -632,10 +679,11 @@ const Products = () => {
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(product.id)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                            onClick={() => handleDeleteClick(product)}
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                            aria-label="Delete product"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-5 h-5" />
                           </button>
                         </div>
                       </td>
@@ -647,6 +695,67 @@ const Products = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={handleDeleteCancel}
+        >
+          <div 
+            className="bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full shadow-2xl transform transition-all"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                  <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Delete Product
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    This action cannot be undone
+                  </p>
+                </div>
+                <button
+                  onClick={handleDeleteCancel}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-6 py-6">
+              <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+                Are you sure you want to permanently delete <span className="font-semibold text-gray-900 dark:text-white">"{deleteConfirm.productName}"</span>? 
+                This action cannot be undone and will remove the product from your catalog.
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-5 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row gap-3 sm:gap-3">
+              <button
+                onClick={handleDeleteCancel}
+                className="flex-1 sm:flex-initial sm:min-w-[120px] px-6 py-3.5 rounded-xl border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 active:bg-gray-100 dark:active:bg-gray-700 transition-all duration-200 min-h-[52px] touch-manipulation"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 sm:flex-initial sm:min-w-[120px] px-6 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold shadow-lg hover:shadow-xl active:scale-95 transition-all duration-200 min-h-[52px] touch-manipulation"
+              >
+                Delete Product
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

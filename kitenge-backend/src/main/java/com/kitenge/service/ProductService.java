@@ -2,6 +2,7 @@ package com.kitenge.service;
 
 import com.kitenge.model.Product;
 import com.kitenge.repository.ProductRepository;
+import com.kitenge.repository.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import java.util.List;
 public class ProductService {
     
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
     
     public List<Product> getAllPublicProducts() {
         return productRepository.findByActiveTrueOrderByIdDesc();
@@ -79,6 +81,12 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         Product product = getProductById(id);
+        
+        // Check if product is used in any orders
+        if (orderItemRepository.existsByProductId(id)) {
+            throw new RuntimeException("Cannot delete product: This product is referenced in existing orders. Archive it instead.");
+        }
+        
         productRepository.delete(product);
     }
 }

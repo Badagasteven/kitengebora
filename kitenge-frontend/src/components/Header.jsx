@@ -128,23 +128,34 @@ const Header = () => {
         {/* Mobile Header - Shein Style */}
         <div className="lg:hidden">
           {/* Top Row: Logo, Search, Cart */}
-          <div className="flex items-center justify-between h-12 px-3 gap-2">
+          <div className="flex items-center justify-between h-14 px-3 gap-2">
             {/* Menu Button - Left */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="p-2 -ml-1 flex-shrink-0"
+              className="p-3 -ml-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Menu"
             >
               {showMobileMenu ? (
-                <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               ) : (
-                <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               )}
             </button>
 
             {/* Logo - Center */}
-            <Link to="/" className="flex-shrink-0 mx-2">
-              <div className="text-base font-bold text-gray-900 dark:text-white tracking-tight">
+            <Link to="/" className="flex-shrink-0 mx-2 min-h-[44px] flex items-center justify-center gap-2 group">
+              <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
+                <img
+                  src="/kitenge-logo.png"
+                  alt="Kitenge Bora Logo"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to fabric display image if logo doesn't exist
+                    e.target.src = '/kitenge-fabrics-display.jpeg'
+                  }}
+                />
+              </div>
+              <div className="text-base font-bold text-gray-900 dark:text-white tracking-tight group-hover:text-accent transition-colors">
                 KITENGE BORA
               </div>
             </Link>
@@ -152,11 +163,11 @@ const Header = () => {
             {/* Cart - Right */}
             <button
               onClick={() => window.dispatchEvent(new Event('cart:open'))}
-              className="relative p-2 -mr-1 flex-shrink-0"
+              className="relative p-3 -mr-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
-              <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              <ShoppingBag className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
                   {cartCount > 9 ? '9+' : cartCount}
                 </span>
               )}
@@ -164,20 +175,21 @@ const Header = () => {
           </div>
 
           {/* Search Bar - Always Visible, Prominent */}
-          <div className="px-3 pb-2.5" ref={searchRef}>
+          <div className="px-3 pb-3" ref={searchRef}>
             <form 
               onSubmit={handleSearchSubmit}
               onClick={() => setShowSearch(true)}
-              className="relative flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg h-9 px-3 cursor-text"
+              className="relative flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg min-h-[44px] h-11 px-4 cursor-text"
             >
-              <Search className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+              <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setShowSearch(true)}
                 placeholder="Search for products..."
-                className="flex-1 bg-transparent border-0 outline-none text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400"
+                className="flex-1 bg-transparent border-0 outline-none text-base text-gray-700 dark:text-gray-300 placeholder-gray-400"
+                style={{ fontSize: '16px' }}
               />
               {searchQuery && (
                 <button
@@ -187,9 +199,10 @@ const Header = () => {
                     setSearchQuery('')
                     setSearchResults([])
                   }}
-                  className="ml-2 p-1 flex-shrink-0"
+                  className="ml-2 p-2 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label="Clear search"
                 >
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-5 h-5 text-gray-400" />
                 </button>
               )}
             </form>
@@ -211,18 +224,18 @@ const Header = () => {
                           setShowSearch(false)
                           setSearchQuery('')
                         }}
-                        className="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800"
+                        className="flex items-center gap-3 p-4 min-h-[64px] active:bg-gray-50 dark:active:bg-gray-800 touch-manipulation"
                       >
                         <img
                           src={product.image || '/placeholder.png'}
                           alt={product.name}
-                          className="w-12 h-12 object-cover rounded flex-shrink-0"
+                          className="w-14 h-14 object-cover rounded flex-shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                          <p className="font-medium text-base text-gray-900 dark:text-white truncate">
                             {product.name}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
                             {product.price.toLocaleString()} RWF
                           </p>
                         </div>
@@ -276,6 +289,17 @@ const Header = () => {
         <div className="hidden lg:flex items-center justify-between h-16 px-4 lg:px-8">
           {/* Brand - Desktop */}
           <Link to="/" className="flex items-center space-x-3 group flex-shrink-0">
+            <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 shadow-md group-hover:shadow-lg transition-all duration-300 ring-2 ring-transparent group-hover:ring-accent/20">
+              <img
+                src="/kitenge-logo.png"
+                alt="Kitenge Bora Logo"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to fabric display image if logo doesn't exist
+                  e.target.src = '/kitenge-fabrics-display.jpeg'
+                }}
+              />
+            </div>
             <div>
               <div className="text-xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent group-hover:from-accent group-hover:via-accent-600 group-hover:to-accent transition-all duration-300 leading-tight tracking-tight">
                 KITENGE BORA
@@ -427,10 +451,10 @@ const Header = () => {
                           <button
                             key={index}
                             onClick={() => handleSearchClick(item)}
-                            className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2"
+                            className="w-full text-left px-4 py-3 min-h-[44px] text-base text-gray-700 dark:text-gray-300 active:bg-gray-50 dark:active:bg-gray-800 rounded-lg transition-colors flex items-center gap-3 touch-manipulation"
                           >
-                            <Search className="w-4 h-4 text-gray-400" />
-                            {item}
+                            <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                            <span className="truncate">{item}</span>
                           </button>
                         ))}
                       </div>
@@ -606,37 +630,37 @@ const Header = () => {
               <Link
                 to="/"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 Home
               </Link>
               <Link
                 to="/products"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 Products
               </Link>
               <Link
                 to="/about"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 About
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 Contact
               </Link>
               <Link
                 to="/wishlist"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
+                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
               >
-                <Heart className="w-4 h-4" />
+                <Heart className="w-5 h-5" />
                 Wishlist
               </Link>
               {/* Divider */}
@@ -646,7 +670,7 @@ const Header = () => {
                 <Link
                   to="/admin"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
                 >
                   Admin Dashboard
                 </Link>
@@ -656,16 +680,16 @@ const Header = () => {
                   <Link
                     to="/account"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
                   >
                     My Account
                   </Link>
                   <Link
                     to="/profile"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-3 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
+                    className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
                   >
-                    <Settings className="w-4 h-4" />
+                    <Settings className="w-5 h-5" />
                     Profile Settings
                   </Link>
                   <button
@@ -673,9 +697,9 @@ const Header = () => {
                       handleLogout()
                       setShowMobileMenu(false)
                     }}
-                    className="w-full text-left px-4 py-3 text-base font-medium text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-4 min-h-[48px] text-base font-medium text-red-600 dark:text-red-400 active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-5 h-5" />
                     Logout
                   </button>
                 </>
@@ -684,7 +708,7 @@ const Header = () => {
                 <Link
                   to="/login"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-3 text-base font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors text-center"
+                  className="block px-4 py-4 min-h-[48px] text-base font-semibold text-white bg-orange-500 active:bg-orange-600 rounded-lg transition-colors text-center touch-manipulation flex items-center justify-center"
                 >
                   Login
                 </Link>

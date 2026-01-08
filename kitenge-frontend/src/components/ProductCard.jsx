@@ -196,14 +196,14 @@ const ProductCard = ({ product, onView }) => {
           onClick={handleWishlist}
           disabled={isLoading}
           aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-          className={`absolute top-3 sm:top-4 left-3 sm:left-4 p-2 sm:p-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-lg z-10 ${
+          className={`absolute top-3 sm:top-4 left-3 sm:left-4 p-3 sm:p-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-lg z-10 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
             isWishlisted
-              ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-red-500/50 hover:scale-110'
-              : 'bg-white/95 dark:bg-gray-900/95 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:text-white hover:shadow-red-500/50 hover:scale-110'
+              ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-red-500/50 active:scale-110'
+              : 'bg-white/95 dark:bg-gray-900/95 text-gray-700 dark:text-gray-300 active:bg-gradient-to-br active:from-red-500 active:to-red-600 active:text-white active:shadow-red-500/50 active:scale-110'
           }`}
         >
           <Heart
-            className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ${isWishlisted ? 'fill-current scale-110' : ''}`}
+            className={`w-5 h-5 sm:w-5 sm:h-5 transition-all duration-300 ${isWishlisted ? 'fill-current scale-110' : ''}`}
           />
         </button>
       </div>
@@ -251,18 +251,18 @@ const ProductCard = ({ product, onView }) => {
             onClick={handleAddToCart}
             disabled={product.in_stock === false}
             aria-label={`Add ${product.name} to cart`}
-            className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm py-3 sm:py-3.5 group-hover:shadow-accent-lg transition-all duration-300"
+            className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-sm py-4 sm:py-3.5 min-h-[48px] group-hover:shadow-accent-lg transition-all duration-300 touch-manipulation"
           >
-            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
+            <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
             <span className="hidden sm:inline font-bold">Add to cart</span>
             <span className="sm:hidden font-bold">Add</span>
           </button>
           <button
             onClick={() => onView && onView(product)}
             aria-label={`View details for ${product.name}`}
-            className="btn-outline px-4 sm:px-5 py-3 sm:py-3.5 hover:bg-accent hover:text-white hover:border-accent transition-all duration-300 group-hover:scale-105"
+            className="btn-outline px-5 sm:px-5 py-4 sm:py-3.5 min-w-[48px] min-h-[48px] active:bg-accent active:text-white active:border-accent transition-all duration-300 group-hover:scale-105 touch-manipulation flex items-center justify-center"
           >
-            <Eye className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
+            <Eye className="w-5 h-5 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
           </button>
         </div>
       </div>

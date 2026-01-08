@@ -43,9 +43,15 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
       {children}
-      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none">
-        {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto">
+      <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[9999] flex flex-col gap-3 sm:gap-4 pointer-events-none px-4 sm:px-0 max-w-[calc(100vw-2rem)] sm:max-w-md" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+        {toasts.map((toast, index) => (
+          <div 
+            key={toast.id} 
+            className="pointer-events-auto"
+            style={{
+              animationDelay: `${index * 0.1}s`
+            }}
+          >
             <Toast
               message={toast.message}
               type={toast.type}
@@ -60,16 +66,29 @@ export const ToastProvider = ({ children }) => {
       <style>{`
         @keyframes slide-in-right {
           from {
-            transform: translateX(120%);
+            transform: translateX(120%) scale(0.9);
             opacity: 0;
           }
           to {
-            transform: translateX(0);
+            transform: translateX(0) scale(1);
             opacity: 1;
           }
         }
+        @keyframes slide-out-right {
+          from {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+          }
+          to {
+            transform: translateX(120%) scale(0.9);
+            opacity: 0;
+          }
+        }
         .animate-slide-in-right {
-          animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: slide-in-right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .animate-slide-out-right {
+          animation: slide-out-right 0.3s cubic-bezier(0.4, 0, 1, 1);
         }
       `}</style>
     </ToastContext.Provider>

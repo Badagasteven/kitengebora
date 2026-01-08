@@ -81,8 +81,9 @@ const ForgotPassword = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input-field pl-10"
+                    className="input-field pl-10 min-h-[48px] text-base"
                     placeholder="you@example.com"
+                    style={{ fontSize: '16px' }}
                   />
                 </div>
               </div>
@@ -90,7 +91,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full disabled:opacity-50"
+                className="btn-primary w-full disabled:opacity-50 min-h-[52px] text-base touch-manipulation"
               >
                 {loading ? 'Sending...' : 'Send Reset Link'}
               </button>

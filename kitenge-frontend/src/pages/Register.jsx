@@ -240,8 +240,9 @@ const Register = () => {
                   value={name}
                   onChange={(e) => handleChange('name', e.target.value, setName)}
                   onBlur={() => handleBlur('name')}
-                  className={`input-field pl-10 ${fieldErrors.name ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  className={`input-field pl-10 min-h-[48px] text-base ${fieldErrors.name ? 'border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="Your full name"
+                  style={{ fontSize: '16px' }}
                   required
                 />
               </div>
@@ -261,8 +262,9 @@ const Register = () => {
                   value={phone}
                   onChange={(e) => handleChange('phone', e.target.value, setPhone)}
                   onBlur={() => handleBlur('phone')}
-                  className={`input-field pl-10 ${fieldErrors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  className={`input-field pl-10 min-h-[48px] text-base ${fieldErrors.phone ? 'border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="e.g., +250 788 123 456"
+                  style={{ fontSize: '16px' }}
                   required
                 />
               </div>
@@ -282,8 +284,9 @@ const Register = () => {
                   value={email}
                   onChange={(e) => handleChange('email', e.target.value, setEmail)}
                   onBlur={() => handleBlur('email')}
-                  className={`input-field pl-10 ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  className={`input-field pl-10 min-h-[48px] text-base ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="you@example.com"
+                  style={{ fontSize: '16px' }}
                   required
                 />
               </div>
@@ -303,14 +306,16 @@ const Register = () => {
                   value={password}
                   onChange={(e) => handleChange('password', e.target.value, setPassword)}
                   onBlur={() => handleBlur('password')}
-                  className={`input-field pl-10 pr-10 ${fieldErrors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  className={`input-field pl-10 pr-12 min-h-[48px] text-base ${fieldErrors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="Enter password (min. 6 characters)"
+                  style={{ fontSize: '16px' }}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -338,14 +343,16 @@ const Register = () => {
                   value={confirmPassword}
                   onChange={(e) => handleChange('confirmPassword', e.target.value, setConfirmPassword)}
                   onBlur={() => handleBlur('confirmPassword')}
-                  className={`input-field pl-10 pr-10 ${fieldErrors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  className={`input-field pl-10 pr-12 min-h-[48px] text-base ${fieldErrors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}`}
                   placeholder="Repeat password"
+                  style={{ fontSize: '16px' }}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -367,7 +374,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn-primary w-full min-h-[52px] text-base touch-manipulation"
             >
               {loading ? 'Creating account...' : 'Sign Up'}
             </button>

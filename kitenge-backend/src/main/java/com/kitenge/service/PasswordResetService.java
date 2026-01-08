@@ -27,6 +27,9 @@ public class PasswordResetService {
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
     
+    @Value("${app.admin.notification.email:kitengeboraa@gmail.com}")
+    private String adminNotificationEmail;
+    
     @Transactional
     public void requestPasswordReset(String email) {
         User user = userRepository.findByEmail(email)
@@ -84,7 +87,10 @@ public class PasswordResetService {
             }
             
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@kitengebora.com");
+            String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
+                ? adminNotificationEmail.split(",")[0].trim() 
+                : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
+            message.setFrom(senderEmail);
             message.setTo(email);
             message.setSubject("Reset Your Password - Kitenge Bora");
             message.setText(

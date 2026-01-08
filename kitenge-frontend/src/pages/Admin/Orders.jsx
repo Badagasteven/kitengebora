@@ -157,6 +157,80 @@ const Orders = () => {
     }
   }
 
+  // Group orders by month and week
+  const groupOrdersByMonthAndWeek = (orders) => {
+    const grouped = {}
+    
+    orders.forEach(order => {
+      const createdAt = order.createdAt || order.created_at
+      if (!createdAt) return
+      
+      const date = new Date(createdAt)
+      const year = date.getFullYear()
+      const month = date.getMonth() // 0-11
+      const monthKey = `${year}-${String(month + 1).padStart(2, '0')}` // e.g., "2024-01"
+      
+      // Calculate week number within the month (1-5)
+      const firstDay = new Date(year, month, 1)
+      const firstDayOfWeek = firstDay.getDay() // 0-6 (Sunday = 0)
+      const dayOfMonth = date.getDate()
+      const weekNumber = Math.ceil((dayOfMonth + firstDayOfWeek) / 7)
+      
+      if (!grouped[monthKey]) {
+        grouped[monthKey] = {}
+      }
+      
+      const weekKey = `Week ${weekNumber}`
+      if (!grouped[monthKey][weekKey]) {
+        grouped[monthKey][weekKey] = []
+      }
+      
+      grouped[monthKey][weekKey].push(order)
+    })
+    
+    // Sort months (newest first)
+    const sortedMonths = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
+    
+    // Sort weeks within each month (newest first)
+    sortedMonths.forEach(monthKey => {
+      const weeks = Object.keys(grouped[monthKey])
+      weeks.sort((a, b) => {
+        const weekNumA = parseInt(a.replace('Week ', ''))
+        const weekNumB = parseInt(b.replace('Week ', ''))
+        return weekNumB - weekNumA
+      })
+      
+      // Sort orders within each week (newest first)
+      weeks.forEach(weekKey => {
+        grouped[monthKey][weekKey].sort((a, b) => {
+          const dateA = new Date(a.createdAt || a.created_at)
+          const dateB = new Date(b.createdAt || b.created_at)
+          return dateB - dateA
+        })
+      })
+    })
+    
+    return { grouped, sortedMonths }
+  }
+
+  // Get month name from key (e.g., "2024-01" -> "January 2024")
+  const getMonthName = (monthKey) => {
+    const [year, month] = monthKey.split('-')
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1)
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
+
+  // Get order number with month/year context
+  const getOrderNumberDisplay = (order) => {
+    const orderNumber = order.orderNumber || order.order_number || order.id
+    const createdAt = order.createdAt || order.created_at
+    if (!createdAt) return `#${orderNumber}`
+    
+    const date = new Date(createdAt)
+    const monthYear = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    return `#${orderNumber} (${monthYear})`
+  }
+
   const handleDeleteClick = (order) => {
     const orderNumber = order.orderNumber || order.order_number || order.id
     setDeleteConfirm({ show: true, orderId: order.id, orderNumber: orderNumber })
@@ -512,150 +586,187 @@ const Orders = () => {
           </div>
         </div>
 
-        {/* Orders Table */}
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Image
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Phone
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Channel
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Location
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Created
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-                {filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan="9" className="px-6 py-12 text-center">
-                      <p className="text-gray-500 dark:text-gray-400">
-                        {searchQuery ? 'No orders found matching your search.' : 'No orders yet.'}
-                      </p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredOrders.map((order) => {
-                  const total =
-                    (order.subtotal || 0) + (order.delivery_fee || order.deliveryFee || 0)
-                  // Handle both camelCase and snake_case field names
-                  const customerName = order.customerName || order.customer_name
-                  const customerPhone = order.customerPhone || order.customer_phone
-                  const orderNumber = order.orderNumber || order.order_number || order.id
-                  const createdAt = order.createdAt || order.created_at
-                  const deliveryLocation = order.deliveryLocation || order.delivery_location
-                  const deliveryOption = order.deliveryOption || order.delivery_option
+        {/* Orders Table - Grouped by Month and Week */}
+        <div className="space-y-6">
+          {filteredOrders.length === 0 ? (
+            <div className="card p-12 text-center">
+              <p className="text-gray-500 dark:text-gray-400">
+                {searchQuery ? 'No orders found matching your search.' : 'No orders yet.'}
+              </p>
+            </div>
+          ) : (() => {
+            const { grouped, sortedMonths } = groupOrdersByMonthAndWeek(filteredOrders)
+            
+            return sortedMonths.map((monthKey) => {
+              const monthName = getMonthName(monthKey)
+              const weeks = Object.keys(grouped[monthKey]).sort((a, b) => {
+                const weekNumA = parseInt(a.replace('Week ', ''))
+                const weekNumB = parseInt(b.replace('Week ', ''))
+                return weekNumB - weekNumA
+              })
+              
+              return (
+                <div key={monthKey} className="card overflow-hidden">
+                  {/* Month Header */}
+                  <div className="bg-gradient-to-r from-accent/10 to-accent/5 border-b border-accent/20 px-6 py-4">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-accent" />
+                      {monthName}
+                    </h3>
+                  </div>
                   
-                  // Show the actual customer name as entered, or "Unknown" if missing
-                  const displayName = customerName || 'Unknown'
-                  
-                  // Format date
-                  const formattedDate = createdAt
-                    ? new Date(createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })
-                    : '-'
-                  
-                  // Get first product image
-                  const productImage = getFirstProductImage(order)
-                  const imageUrl = productImage ? getImageUrl(productImage) : '/placeholder.png'
-                  
-                  return (
-                    <tr
-                      key={order.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-800"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        #{orderNumber}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <img
-                            src={imageUrl}
-                            alt="Product"
-                            className="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
-                            onError={(e) => {
-                              e.target.src = '/placeholder.png'
-                            }}
-                          />
+                  {weeks.map((weekKey) => {
+                    const weekOrders = grouped[monthKey][weekKey]
+                    
+                    return (
+                      <div key={weekKey} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
+                        {/* Week Header */}
+                        <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-3">
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            {weekKey} ({weekOrders.length} {weekOrders.length === 1 ? 'order' : 'orders'})
+                          </h4>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                        {displayName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {customerPhone || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 capitalize">
-                        {order.channel || 'store'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
-                        {deliveryOption === 'pickup' ? (
-                          <span className="text-gray-400 italic">Pickup</span>
-                        ) : deliveryLocation ? (
-                          <span className="truncate block" title={deliveryLocation}>
-                            {deliveryLocation}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                        {total.toLocaleString()} RWF
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {formattedDate}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => handleViewOrder(order)}
-                            className="text-accent hover:text-accent-darker transition-colors"
-                            title="View order details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(order)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                            title="Delete order"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        
+                        {/* Orders Table for this Week */}
+                        <div className="overflow-x-auto">
+                          <table className="w-full">
+                            <thead className="bg-gray-50 dark:bg-gray-800">
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  ID
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Image
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Customer
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Phone
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Channel
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Location
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Total
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Created
+                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Actions
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                              {weekOrders.map((order) => {
+                                const total =
+                                  (order.subtotal || 0) + (order.delivery_fee || order.deliveryFee || 0)
+                                // Handle both camelCase and snake_case field names
+                                const customerName = order.customerName || order.customer_name
+                                const customerPhone = order.customerPhone || order.customer_phone
+                                const createdAt = order.createdAt || order.created_at
+                                const deliveryLocation = order.deliveryLocation || order.delivery_location
+                                const deliveryOption = order.deliveryOption || order.delivery_option
+                                
+                                // Show the actual customer name as entered, or "Unknown" if missing
+                                const displayName = customerName || 'Unknown'
+                                
+                                // Format date
+                                const formattedDate = createdAt
+                                  ? new Date(createdAt).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })
+                                  : '-'
+                                
+                                // Get first product image
+                                const productImage = getFirstProductImage(order)
+                                const imageUrl = productImage ? getImageUrl(productImage) : '/placeholder.png'
+                                
+                                return (
+                                  <tr
+                                    key={order.id}
+                                    className="hover:bg-gray-50 dark:hover:bg-gray-800"
+                                  >
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                      {getOrderNumberDisplay(order)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      <div className="flex items-center">
+                                        <img
+                                          src={imageUrl}
+                                          alt="Product"
+                                          className="w-12 h-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                                          onError={(e) => {
+                                            e.target.src = '/placeholder.png'
+                                          }}
+                                        />
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                      {displayName}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                      {customerPhone || '-'}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 capitalize">
+                                      {order.channel || 'store'}
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                                      {deliveryOption === 'pickup' ? (
+                                        <span className="text-gray-400 italic">Pickup</span>
+                                      ) : deliveryLocation ? (
+                                        <span className="truncate block" title={deliveryLocation}>
+                                          {deliveryLocation}
+                                        </span>
+                                      ) : (
+                                        <span className="text-gray-400">-</span>
+                                      )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                      {total.toLocaleString()} RWF
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                      {formattedDate}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                      <div className="flex items-center justify-end gap-2">
+                                        <button
+                                          onClick={() => handleViewOrder(order)}
+                                          className="text-accent hover:text-accent-darker transition-colors"
+                                          title="View order details"
+                                        >
+                                          <Eye className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteClick(order)}
+                                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                                          title="Delete order"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )
+                              })}
+                            </tbody>
+                          </table>
                         </div>
-                      </td>
-                    </tr>
-                  )
-                }))}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })
+          })()}
         </div>
 
         {/* Order Detail Modal */}
@@ -665,7 +776,7 @@ const Orders = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Order #{selectedOrder.orderNumber || selectedOrder.order_number || selectedOrder.id}
+                    Order {getOrderNumberDisplay(selectedOrder)}
                   </h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     ID: {selectedOrder.id}

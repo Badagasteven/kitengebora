@@ -48,6 +48,8 @@
     button, a, input, select, textarea {
       min-height: 44px;
       min-width: 44px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
     }
   }
 }

@@ -154,7 +154,7 @@ const Products = () => {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 active:text-gray-600 dark:active:text-gray-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -189,10 +189,10 @@ const Products = () => {
               <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-all ${
+                  className={`p-3 rounded-md transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
                     viewMode === 'grid'
                       ? 'bg-accent text-white shadow-md'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                      : 'text-gray-600 dark:text-gray-400 active:text-gray-900 dark:active:text-gray-200'
                   }`}
                   aria-label="Grid view"
                 >
@@ -200,10 +200,10 @@ const Products = () => {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-all ${
+                  className={`p-3 rounded-md transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
                     viewMode === 'list'
                       ? 'bg-accent text-white shadow-md'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                      : 'text-gray-600 dark:text-gray-400 active:text-gray-900 dark:active:text-gray-200'
                   }`}
                   aria-label="List view"
                 >
@@ -214,11 +214,11 @@ const Products = () => {
               {/* Mobile Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden px-4 py-2 sm:px-6 sm:py-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 active:bg-gray-300 dark:active:bg-gray-600 border border-gray-200 dark:border-gray-700 flex items-center gap-2 touch-target transition-all"
+                className="lg:hidden px-5 py-3 sm:px-6 sm:py-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 dark:active:bg-gray-700 border border-gray-200 dark:border-gray-700 flex items-center gap-2 touch-manipulation min-h-[48px] transition-all"
                 aria-label="Toggle filters"
               >
-                <SlidersHorizontal className="w-4 h-4" />
-                <span className="hidden sm:inline">Filters</span>
+                <SlidersHorizontal className="w-5 h-5" />
+                <span className="text-base sm:inline">Filters</span>
               </button>
             </div>
           </div>
@@ -230,38 +230,39 @@ const Products = () => {
               {searchQuery && (
                 <span className="px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium flex items-center gap-2">
                   Search: "{searchQuery}"
-                  <button onClick={() => setSearchQuery('')} className="hover:text-accent-darker">
-                    <X className="w-3 h-3" />
+                  <button onClick={() => setSearchQuery('')} className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center active:text-accent-darker touch-manipulation" aria-label="Clear search">
+                    <X className="w-4 h-4" />
                   </button>
                 </span>
               )}
               {selectedCategory !== 'all' && (
-                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium flex items-center gap-2">
+                <span className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium flex items-center gap-2">
                   Category: {selectedCategory}
-                  <button onClick={() => setSelectedCategory('all')} className="hover:text-blue-900 dark:hover:text-blue-100">
-                    <X className="w-3 h-3" />
+                  <button onClick={() => setSelectedCategory('all')} className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center active:text-blue-900 dark:active:text-blue-100 touch-manipulation" aria-label="Clear category">
+                    <X className="w-4 h-4" />
                   </button>
                 </span>
               )}
               {(priceRange[0] > 0 || priceRange[1] < 1000000) && (
-                <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium flex items-center gap-2">
+                <span className="px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium flex items-center gap-2">
                   Price: {priceRange[0].toLocaleString()} - {priceRange[1].toLocaleString()} RWF
-                  <button onClick={() => setPriceRange([0, 1000000])} className="hover:text-green-900 dark:hover:text-green-100">
-                    <X className="w-3 h-3" />
+                  <button onClick={() => setPriceRange([0, 1000000])} className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center active:text-green-900 dark:active:text-green-100 touch-manipulation" aria-label="Clear price filter">
+                    <X className="w-4 h-4" />
                   </button>
                 </span>
               )}
               {showPromoOnly && (
-                <span className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-medium flex items-center gap-2">
+                <span className="px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-medium flex items-center gap-2">
                   Promos Only
-                  <button onClick={() => setShowPromoOnly(false)} className="hover:text-red-900 dark:hover:text-red-100">
-                    <X className="w-3 h-3" />
+                  <button onClick={() => setShowPromoOnly(false)} className="p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center active:text-red-900 dark:active:text-red-100 touch-manipulation" aria-label="Clear promo filter">
+                    <X className="w-4 h-4" />
                   </button>
                 </span>
               )}
               <button
                 onClick={clearAllFilters}
-                className="ml-auto px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-accent font-medium flex items-center gap-1"
+                className="ml-auto px-4 py-2 min-h-[40px] text-sm text-gray-600 dark:text-gray-400 active:text-accent font-medium flex items-center gap-2 touch-manipulation"
+                aria-label="Clear all filters"
               >
                 <X className="w-4 h-4" />
                 Clear all

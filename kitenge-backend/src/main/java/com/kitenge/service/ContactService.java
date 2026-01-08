@@ -15,13 +15,18 @@ public class ContactService {
     @Value("${app.admin.email:kitengeboraa@gmail.com}")
     private String adminEmail;
     
+    @Value("${app.admin.notification.email:kitengeboraa@gmail.com}")
+    private String adminNotificationEmail;
+    
     public void sendContactMessage(String name, String email, String subject, String message) {
         try {
-            // Send email to all admins
-            String[] adminEmails = adminEmail.split(",");
-            for (String admin : adminEmails) {
+            // Send email to notification email(s) only
+            String[] notificationEmails = adminNotificationEmail.split(",");
+            String senderEmail = notificationEmails[0].trim(); // Use first notification email as sender
+            for (String notificationEmail : notificationEmails) {
                 SimpleMailMessage adminMessage = new SimpleMailMessage();
-                adminMessage.setTo(admin.trim());
+                adminMessage.setFrom(senderEmail);
+                adminMessage.setTo(notificationEmail.trim());
                 adminMessage.setSubject("New Contact Form Message: " + subject);
                 adminMessage.setText(
                     "You have received a new message from the contact form:\n\n" +
@@ -37,6 +42,7 @@ public class ContactService {
             
             // Send confirmation email to user
             SimpleMailMessage confirmationMessage = new SimpleMailMessage();
+            confirmationMessage.setFrom(senderEmail);
             confirmationMessage.setTo(email);
             confirmationMessage.setSubject("Thank you for contacting Kitenge Bora");
             confirmationMessage.setText(

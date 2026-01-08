@@ -33,6 +33,9 @@ public class OrderService {
     @Value("${app.admin.email}")
     private String adminEmail;
     
+    @Value("${app.admin.notification.email:kitengeboraa@gmail.com}")
+    private String adminNotificationEmail;
+    
     @Value("${app.admin.whatsapp:250788883986}")
     private String adminWhatsApp;
     
@@ -163,16 +166,15 @@ public class OrderService {
     
     private void sendOrderNotification(Order order) {
         try {
-            if (mailSender != null && adminEmail != null && !adminEmail.isEmpty()) {
-                SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom(adminEmail);
-                message.setTo(adminEmail);
-                message.setSubject("🧵 New Order #" + order.getId() + " - " + order.getCustomerName());
-                
-                // Build detailed email content
+            if (mailSender != null && adminNotificationEmail != null && !adminNotificationEmail.isEmpty()) {
+                // Build detailed email content once
                 StringBuilder emailContent = new StringBuilder();
+                Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+                String monthYear = order.getCreatedAt() != null 
+                    ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                    : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
                 emailContent.append("🧵 NEW ORDER RECEIVED\n\n");
-                emailContent.append("Order ID: #").append(order.getId()).append("\n");
+                emailContent.append("Order #").append(orderNumber).append(" (").append(monthYear).append(")\n");
                 emailContent.append("Customer Name: ").append(order.getCustomerName() != null ? order.getCustomerName() : "Guest").append("\n");
                 emailContent.append("Phone: ").append(order.getCustomerPhone()).append("\n");
                 emailContent.append("Channel: ").append(order.getChannel() != null ? order.getChannel() : "Store").append("\n");
@@ -223,9 +225,18 @@ public class OrderService {
                 emailContent.append("Please process this order promptly.\n");
                 emailContent.append("WhatsApp: ").append(adminWhatsApp).append("\n");
                 
-                message.setText(emailContent.toString());
-                mailSender.send(message);
-                System.out.println("Admin notification email sent for order #" + order.getId());
+                // Send email to notification email(s) only
+                String[] notificationEmails = adminNotificationEmail.split(",");
+                String senderEmail = notificationEmails[0].trim(); // Use first notification email as sender
+                for (String notificationEmail : notificationEmails) {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(senderEmail);
+                    message.setTo(notificationEmail.trim());
+                    message.setSubject("🧵 New Order #" + orderNumber + " - " + order.getCustomerName());
+                    message.setText(emailContent.toString());
+                    mailSender.send(message);
+                    System.out.println("Admin notification email sent to " + notificationEmail.trim() + " for order #" + orderNumber);
+                }
             }
         } catch (Exception e) {
             // Log error but don't fail the order
@@ -263,13 +274,20 @@ public class OrderService {
                 
                 if (customerEmail != null && customerEmail.contains("@")) {
                     SimpleMailMessage message = new SimpleMailMessage();
-                    message.setFrom(adminEmail != null ? adminEmail : "noreply@kitengebora.com");
+                    String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
+                        ? adminNotificationEmail.split(",")[0].trim() 
+                        : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
+                    message.setFrom(senderEmail);
                     message.setTo(customerEmail);
-                    message.setSubject("Order Confirmation - Kitenge Bora #" + order.getId());
+                    Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+                    String monthYear = order.getCreatedAt() != null 
+                        ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                        : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
+                    message.setSubject("Order Confirmation - Kitenge Bora #" + orderNumber);
                     StringBuilder emailBody = new StringBuilder();
                     emailBody.append("Hello ").append(order.getCustomerName()).append(",\n\n");
                     emailBody.append("Thank you for your order!\n\n");
-                    emailBody.append("Order #").append(order.getId()).append("\n");
+                    emailBody.append("Order #").append(orderNumber).append(" (").append(monthYear).append(")\n");
                     emailBody.append("Subtotal: ").append(order.getSubtotal()).append(" RWF\n");
                     emailBody.append("Delivery Fee: ").append(order.getDeliveryFee() != null ? order.getDeliveryFee() : 0).append(" RWF\n");
                     if (order.getDeliveryLocation() != null && !order.getDeliveryLocation().trim().isEmpty()) {
@@ -317,12 +335,19 @@ public class OrderService {
                 
                 if (customerEmail != null && customerEmail.contains("@")) {
                     SimpleMailMessage message = new SimpleMailMessage();
-                    message.setFrom(adminEmail != null ? adminEmail : "noreply@kitengebora.com");
+                    String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
+                        ? adminNotificationEmail.split(",")[0].trim() 
+                        : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
+                    message.setFrom(senderEmail);
                     message.setTo(customerEmail);
-                    message.setSubject("Your Order Has Been Shipped - Kitenge Bora #" + order.getId());
+                    Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+                    String monthYear = order.getCreatedAt() != null 
+                        ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                        : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
+                    message.setSubject("Your Order Has Been Shipped - Kitenge Bora #" + orderNumber);
                     message.setText(
                         "Hello " + order.getCustomerName() + ",\n\n" +
-                        "Great news! Your order #" + order.getId() + " has been shipped.\n\n" +
+                        "Great news! Your order #" + orderNumber + " (" + monthYear + ") has been shipped.\n\n" +
                         (order.getTrackingNumber() != null ? 
                             "Tracking Number: " + order.getTrackingNumber() + "\n\n" : "") +
                         "You can track your order status in your account.\n\n" +
@@ -365,12 +390,19 @@ public class OrderService {
                 
                 if (customerEmail != null && customerEmail.contains("@")) {
                     SimpleMailMessage message = new SimpleMailMessage();
-                    message.setFrom(adminEmail != null ? adminEmail : "noreply@kitengebora.com");
+                    String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
+                        ? adminNotificationEmail.split(",")[0].trim() 
+                        : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
+                    message.setFrom(senderEmail);
                     message.setTo(customerEmail);
-                    message.setSubject("Order Delivered - Kitenge Bora #" + order.getId());
+                    Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+                    String monthYear = order.getCreatedAt() != null 
+                        ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                        : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
+                    message.setSubject("Order Delivered - Kitenge Bora #" + orderNumber);
                     message.setText(
                         "Hello " + order.getCustomerName() + ",\n\n" +
-                        "Your order #" + order.getId() + " has been delivered!\n\n" +
+                        "Your order #" + orderNumber + " (" + monthYear + ") has been delivered!\n\n" +
                         "We hope you love your purchase. If you have any questions, please don't hesitate to contact us.\n\n" +
                         "Thank you for shopping with Kitenge Bora!\n\n" +
                         "Best regards,\n" +

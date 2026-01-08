@@ -273,16 +273,18 @@ const ProductDetail = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg active:bg-gray-100 dark:active:bg-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                  aria-label="Decrease quantity"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-5 h-5" />
                 </button>
-                <span className="w-16 text-center font-medium text-lg">{quantity}</span>
+                <span className="w-20 text-center font-medium text-lg">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="p-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg active:bg-gray-100 dark:active:bg-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                  aria-label="Increase quantity"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -292,7 +294,7 @@ const ProductDetail = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={product.in_stock === false}
-                className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base py-3 sm:py-2.5"
+                className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-base py-4 sm:py-3 min-h-[52px] touch-manipulation"
               >
                 <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5" />
                 <span>Add to Cart</span>

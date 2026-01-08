@@ -228,8 +228,9 @@ const Login = () => {
                         setFieldErrors(newErrors)
                       }
                     }}
-                    className={`input-field pl-10 ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    className={`input-field pl-10 min-h-[48px] text-base ${fieldErrors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
                     placeholder="you@example.com"
+                    style={{ fontSize: '16px' }}
                     required
                   />
                 </div>
@@ -251,14 +252,16 @@ const Login = () => {
                       setPassword(e.target.value)
                     }}
                     onBlur={() => setTouched({ ...touched, password: true })}
-                    className="input-field pl-10 pr-10"
+                    className="input-field pl-10 pr-12 min-h-[48px] text-base"
                     placeholder="Enter password"
+                    style={{ fontSize: '16px' }}
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -281,7 +284,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full"
+                className="btn-primary w-full min-h-[48px] text-base touch-manipulation"
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>

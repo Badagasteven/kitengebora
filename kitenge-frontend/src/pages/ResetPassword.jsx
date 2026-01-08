@@ -107,8 +107,9 @@ const ResetPassword = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-10"
+                  className="input-field pl-10 min-h-[48px] text-base"
                   placeholder="Enter new password"
+                  style={{ fontSize: '16px' }}
                   minLength={6}
                 />
               </div>
@@ -125,8 +126,9 @@ const ResetPassword = () => {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="input-field pl-10"
+                  className="input-field pl-10 min-h-[48px] text-base"
                   placeholder="Confirm new password"
+                  style={{ fontSize: '16px' }}
                   minLength={6}
                 />
               </div>
@@ -135,7 +137,7 @@ const ResetPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full disabled:opacity-50"
+              className="btn-primary w-full disabled:opacity-50 min-h-[52px] text-base touch-manipulation"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>

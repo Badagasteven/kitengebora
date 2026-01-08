@@ -288,7 +288,7 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full h-12 sm:h-14 text-base sm:text-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
+                className="btn-primary w-full h-12 sm:h-14 text-base sm:text-lg font-semibold flex items-center justify-center gap-2 disabled:opacity-50 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 touch-manipulation min-h-[52px]"
               >
                 {loading ? (
                   <>

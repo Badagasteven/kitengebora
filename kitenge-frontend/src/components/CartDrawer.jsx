@@ -338,20 +338,20 @@ const CartDrawer = () => {
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity - 1)
                               }
-                              className="p-2.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 rounded-l-lg transition-colors disabled:opacity-50 touch-target"
+                              className="p-3 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 rounded-l-lg transition-colors disabled:opacity-50 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
                               disabled={item.quantity <= 1}
                               aria-label="Decrease quantity"
                             >
                               <Minus className="w-5 h-5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
                             </button>
-                            <span className="px-3 sm:px-4 py-2 text-sm font-medium text-gray-900 dark:text-white min-w-[3rem] sm:min-w-[2.5rem] text-center">
+                            <span className="px-4 sm:px-4 py-2 text-base sm:text-sm font-medium text-gray-900 dark:text-white min-w-[3rem] sm:min-w-[2.5rem] text-center">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity + 1)
                               }
-                              className="p-2.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 rounded-r-lg transition-colors touch-target"
+                              className="p-3 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 rounded-r-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
                               aria-label="Increase quantity"
                             >
                               <Plus className="w-5 h-5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
@@ -364,7 +364,7 @@ const CartDrawer = () => {
                           </div>
                           <button
                             onClick={() => removeFromCart(item.id)}
-                            className="p-2.5 sm:p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 rounded-lg transition-colors flex-shrink-0 touch-target"
+                            className="p-3 sm:p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 rounded-lg transition-colors flex-shrink-0 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
                             aria-label="Remove item"
                           >
                             <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -473,7 +473,7 @@ const CartDrawer = () => {
               <div className="flex gap-2 sm:gap-3">
                 <button
                   onClick={clearCart}
-                  className="btn-outline flex-1 text-sm sm:text-base py-2.5 sm:py-3"
+                  className="btn-outline flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] touch-manipulation"
                   disabled={isProcessing}
                 >
                   Clear Cart
@@ -481,16 +481,16 @@ const CartDrawer = () => {
                 <button
                   onClick={handleCheckout}
                   disabled={isProcessing || !customerPhone.trim() || (deliveryOption !== 'pickup' && !deliveryLocation.trim())}
-                  className="btn-primary flex-1 text-sm sm:text-base py-2.5 sm:py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="btn-primary flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
                 >
                   {isProcessing ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                       Processing...
                     </>
                   ) : (
                     <>
-                      <ShoppingBag className="w-4 h-4" />
+                      <ShoppingBag className="w-5 h-5" />
                       Checkout via WhatsApp
                     </>
                   )}
