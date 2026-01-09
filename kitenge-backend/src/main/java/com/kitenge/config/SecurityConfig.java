@@ -49,7 +49,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/products/**", "/api/upload-image").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 .requestMatchers("/api/orders/**").hasAnyRole("ADMIN", "MANAGER", "STAFF") // Order management
                 .requestMatchers("/api/stats/**").hasAnyRole("ADMIN", "MANAGER") // Business stats (admin/manager only)
-                .requestMatchers("/api/users/profile", "/api/users/change-password").authenticated() // User profile (authenticated users)
+                .requestMatchers(
+                    "/api/users/profile",
+                    "/api/users/change-password",
+                    "/api/users/addresses",
+                    "/api/users/addresses/**",
+                    "/api/users/preferences",
+                    "/api/users/notifications"
+                ).authenticated() // User profile settings (authenticated users)
                 .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER") // User management (admin/manager only) - must come after specific routes
                 .requestMatchers("/api/wishlist/**", "/api/check-auth").authenticated()
                 .requestMatchers("/api/reviews").authenticated() // POST/DELETE reviews require auth
