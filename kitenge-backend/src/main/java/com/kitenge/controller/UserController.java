@@ -1,9 +1,9 @@
 package com.kitenge.controller;
 
-import com.kitenge.dto.UpdateProfileRequest;
-import com.kitenge.dto.UserDto;
+import com.kitenge.dto.*;
 import com.kitenge.model.User;
 import com.kitenge.repository.UserRepository;
+import com.kitenge.service.UserProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,7 @@ public class UserController {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserProfileService userProfileService;
     
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {
@@ -205,6 +206,115 @@ public class UserController {
             error.put("error", "Failed to delete user: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
         }
+    }
+    
+    // Address Management Endpoints
+    @GetMapping("/addresses")
+    public ResponseEntity<?> getAddresses() {
+        try {
+            Long userId = getCurrentUserId();
+            List<UserAddressDto> addresses = userProfileService.getUserAddresses(userId);
+            return ResponseEntity.ok(addresses);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to load addresses: " + e.getMessage()));
+        }
+    }
+    
+    @PostMapping("/addresses")
+    public ResponseEntity<?> addAddress(@RequestBody UserAddressDto addressDto) {
+        try {
+            Long userId = getCurrentUserId();
+            UserAddressDto saved = userProfileService.addAddress(userId, addressDto);
+            return ResponseEntity.ok(saved);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to add address: " + e.getMessage()));
+        }
+    }
+    
+    @PutMapping("/addresses/{addressId}")
+    public ResponseEntity<?> updateAddress(@PathVariable Long addressId, @RequestBody UserAddressDto addressDto) {
+        try {
+            Long userId = getCurrentUserId();
+            UserAddressDto updated = userProfileService.updateAddress(userId, addressId, addressDto);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to update address: " + e.getMessage()));
+        }
+    }
+    
+    @DeleteMapping("/addresses/{addressId}")
+    public ResponseEntity<?> deleteAddress(@PathVariable Long addressId) {
+        try {
+            Long userId = getCurrentUserId();
+            userProfileService.deleteAddress(userId, addressId);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Address deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to delete address: " + e.getMessage()));
+        }
+    }
+    
+    // Preferences Endpoints
+    @GetMapping("/preferences")
+    public ResponseEntity<?> getPreferences() {
+        try {
+            Long userId = getCurrentUserId();
+            UserPreferencesDto prefs = userProfileService.getUserPreferences(userId);
+            return ResponseEntity.ok(prefs);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to load preferences: " + e.getMessage()));
+        }
+    }
+    
+    @PutMapping("/preferences")
+    public ResponseEntity<?> updatePreferences(@RequestBody UserPreferencesDto preferencesDto) {
+        try {
+            Long userId = getCurrentUserId();
+            UserPreferencesDto updated = userProfileService.updateUserPreferences(userId, preferencesDto);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to update preferences: " + e.getMessage()));
+        }
+    }
+    
+    // Notifications Endpoints
+    @GetMapping("/notifications")
+    public ResponseEntity<?> getNotifications() {
+        try {
+            Long userId = getCurrentUserId();
+            UserNotificationsDto notifs = userProfileService.getUserNotifications(userId);
+            return ResponseEntity.ok(notifs);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to load notifications: " + e.getMessage()));
+        }
+    }
+    
+    @PutMapping("/notifications")
+    public ResponseEntity<?> updateNotifications(@RequestBody UserNotificationsDto notificationsDto) {
+        try {
+            Long userId = getCurrentUserId();
+            UserNotificationsDto updated = userProfileService.updateUserNotifications(userId, notificationsDto);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to update notifications: " + e.getMessage()));
+        }
+    }
+    
+    // Helper method to get current user ID
+    private Long getCurrentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getPrincipal() == null) {
+            throw new RuntimeException("Not authenticated");
+        }
+        
+        @SuppressWarnings("unchecked")
+        Map<String, Object> principal = (Map<String, Object>) auth.getPrincipal();
+        Long userId = (Long) principal.get("userId");
+        
+        if (userId == null) {
+            throw new RuntimeException("User ID not found in authentication");
+        }
+        
+        return userId;
     }
 }
 

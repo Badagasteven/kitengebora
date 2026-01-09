@@ -109,6 +109,20 @@ export const userAPI = {
     api.post('/users/change-password', { currentPassword, newPassword }),
   getAllUsers: () => api.get('/users/all'),
   deleteUser: (userId) => api.delete(`/users/${userId}`),
+  
+  // Addresses
+  getAddresses: () => api.get('/users/addresses'),
+  addAddress: (data) => api.post('/users/addresses', data),
+  updateAddress: (addressId, data) => api.put(`/users/addresses/${addressId}`, data),
+  deleteAddress: (addressId) => api.delete(`/users/addresses/${addressId}`),
+  
+  // Preferences
+  getPreferences: () => api.get('/users/preferences'),
+  updatePreferences: (data) => api.put('/users/preferences', data),
+  
+  // Notifications
+  getNotifications: () => api.get('/users/notifications'),
+  updateNotifications: (data) => api.put('/users/notifications', data),
 }
 
 // Reviews API

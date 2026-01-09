@@ -130,38 +130,42 @@ const Profile = () => {
         lastLogin: data.lastLogin || data.last_login || null,
       })
       
-      // Load preferences from localStorage
-      const savedPrefs = localStorage.getItem('kb_user_preferences')
-      if (savedPrefs) {
-        try {
-          setPreferences(JSON.parse(savedPrefs))
-        } catch (e) {
-          console.error('Failed to parse preferences:', e)
+      // Load preferences from backend
+      try {
+        const prefsRes = await userAPI.getPreferences()
+        if (prefsRes.data) {
+          setPreferences(prefsRes.data)
         }
+      } catch (e) {
+        console.error('Failed to load preferences:', e)
+        // Keep default preferences
       }
       
-      // Load addresses from localStorage (or API if available)
-      const savedAddresses = localStorage.getItem('kb_user_addresses')
-      if (savedAddresses) {
-        try {
-          setAddresses(JSON.parse(savedAddresses))
-        } catch (e) {
-          console.error('Failed to parse addresses:', e)
+      // Load addresses from backend
+      try {
+        const addressesRes = await userAPI.getAddresses()
+        if (addressesRes.data && Array.isArray(addressesRes.data)) {
+          setAddresses(addressesRes.data)
         }
+      } catch (e) {
+        console.error('Failed to load addresses:', e)
+        // Keep empty addresses array
       }
       
-      // Load notifications from localStorage
-      const savedNotifications = localStorage.getItem('kb_user_notifications')
-      if (savedNotifications) {
-        try {
-          setNotifications(JSON.parse(savedNotifications))
-        } catch (e) {
-          console.error('Failed to parse notifications:', e)
+      // Load notifications from backend
+      try {
+        const notificationsRes = await userAPI.getNotifications()
+        if (notificationsRes.data) {
+          setNotifications(notificationsRes.data)
         }
+      } catch (e) {
+        console.error('Failed to load notifications:', e)
+        // Keep default notifications
       }
     } catch (error) {
       console.error('Failed to load profile:', error)
-      toast.error('Failed to load profile')
+      // Don't show error toast, just log it
+      console.error('Profile load error details:', error.response?.data)
     } finally {
       setLoading(false)
     }
@@ -276,54 +280,66 @@ const Profile = () => {
   }
 
   // Save notifications
-  const handleNotificationsSave = () => {
-    localStorage.setItem('kb_user_notifications', JSON.stringify(notifications))
-    toast.success('Notification preferences saved!')
+  const handleNotificationsSave = async () => {
+    try {
+      await userAPI.updateNotifications(notifications)
+      toast.success('Notification preferences saved!')
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to save notification preferences')
+    }
   }
 
   // Address management
-  const handleAddAddress = () => {
+  const handleAddAddress = async () => {
     if (!newAddress.street || !newAddress.city || !newAddress.country) {
       toast.error('Please fill in all required fields')
       return
     }
     
-    const addressToAdd = {
-      id: Date.now(),
-      ...newAddress,
+    try {
+      const saved = await userAPI.addAddress(newAddress)
+      setAddresses(prev => [...prev, saved.data])
+      setNewAddress({ label: '', street: '', city: '', country: '', isDefault: false })
+      setEditingAddress(null)
+      toast.success('Address added successfully!')
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to add address')
     }
-    
-    if (newAddress.isDefault) {
-      setAddresses(prev => prev.map(addr => ({ ...addr, isDefault: false })))
-    }
-    
-    setAddresses(prev => [...prev, addressToAdd])
-    localStorage.setItem('kb_user_addresses', JSON.stringify([...addresses, addressToAdd]))
-    setNewAddress({ label: '', street: '', city: '', country: '', isDefault: false })
-    toast.success('Address added successfully!')
   }
 
-  const handleDeleteAddress = (id) => {
-    const updated = addresses.filter(addr => addr.id !== id)
-    setAddresses(updated)
-    localStorage.setItem('kb_user_addresses', JSON.stringify(updated))
-    toast.success('Address deleted!')
+  const handleDeleteAddress = async (id) => {
+    try {
+      await userAPI.deleteAddress(id)
+      setAddresses(prev => prev.filter(addr => addr.id !== id))
+      toast.success('Address deleted!')
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to delete address')
+    }
   }
 
-  const handleSetDefaultAddress = (id) => {
-    const updated = addresses.map(addr => ({
-      ...addr,
-      isDefault: addr.id === id
-    }))
-    setAddresses(updated)
-    localStorage.setItem('kb_user_addresses', JSON.stringify(updated))
-    toast.success('Default address updated!')
+  const handleSetDefaultAddress = async (id) => {
+    try {
+      const address = addresses.find(addr => addr.id === id)
+      await userAPI.updateAddress(id, { ...address, isDefault: true })
+      const updated = addresses.map(addr => ({
+        ...addr,
+        isDefault: addr.id === id
+      }))
+      setAddresses(updated)
+      toast.success('Default address updated!')
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to update default address')
+    }
   }
 
   // Save preferences
-  const handlePreferencesSave = () => {
-    localStorage.setItem('kb_user_preferences', JSON.stringify(preferences))
-    toast.success('Preferences saved!')
+  const handlePreferencesSave = async () => {
+    try {
+      await userAPI.updatePreferences(preferences)
+      toast.success('Preferences saved!')
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to save preferences')
+    }
   }
 
   // Account management
@@ -1195,7 +1211,7 @@ const Profile = () => {
                 <div className="grid grid-cols-3 gap-3">
                   <button
                     onClick={() => setPreferences({ ...preferences, theme: 'light' })}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center ${
                       preferences.theme === 'light'
                         ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
@@ -1206,7 +1222,7 @@ const Profile = () => {
                   </button>
                   <button
                     onClick={() => setPreferences({ ...preferences, theme: 'dark' })}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center ${
                       preferences.theme === 'dark'
                         ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
@@ -1217,7 +1233,7 @@ const Profile = () => {
                   </button>
                   <button
                     onClick={() => setPreferences({ ...preferences, theme: 'system' })}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center ${
                       preferences.theme === 'system'
                         ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
