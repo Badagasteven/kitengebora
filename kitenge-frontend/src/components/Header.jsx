@@ -150,8 +150,12 @@ const Header = () => {
                   alt="Kitenge Bora Logo"
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    // Fallback to fabric display image if logo doesn't exist
-                    e.target.src = '/kitenge-fabrics-display.jpeg'
+                    // Try alternative logo paths
+                    if (e.target.src.includes('kitenge-logo.png')) {
+                      e.target.src = '/kitenge-logo.png.png'
+                    } else {
+                      e.target.src = '/igitenge1.jpeg'
+                    }
                   }}
                 />
               </div>
@@ -295,8 +299,12 @@ const Header = () => {
                 alt="Kitenge Bora Logo"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  // Fallback to fabric display image if logo doesn't exist
-                  e.target.src = '/kitenge-fabrics-display.jpeg'
+                  // Try alternative logo paths
+                  if (e.target.src.includes('kitenge-logo.png')) {
+                    e.target.src = '/kitenge-logo.png.png'
+                  } else {
+                    e.target.src = '/igitenge1.jpeg'
+                  }
                 }}
               />
             </div>

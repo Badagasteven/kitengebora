@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Mail, Phone, MapPin, Facebook, Instagram, X, Youtube, Heart, ArrowRight, Sparkles } from 'lucide-react'
+import { Mail, Phone, MapPin, Facebook, Instagram, X, Heart, ArrowRight, Sparkles } from 'lucide-react'
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
@@ -56,15 +56,6 @@ const Footer = () => {
                   aria-label="X (Twitter)"
                 >
                   <X className="w-5 h-5 text-white group-active:scale-110 transition-transform duration-300" />
-                </a>
-                <a
-                  href="https://youtube.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group w-12 h-12 min-w-[48px] min-h-[48px] rounded-xl bg-gradient-to-br from-[#FF0000] to-[#E60000] active:from-[#E60000] active:to-[#FF0000] flex items-center justify-center transition-all duration-300 shadow-lg active:shadow-xl active:scale-110 active:-translate-y-1 touch-manipulation"
-                  aria-label="YouTube"
-                >
-                  <Youtube className="w-5 h-5 text-white group-active:scale-110 transition-transform duration-300" />
                 </a>
                 <a
                   href="https://wa.me/250788883986"
