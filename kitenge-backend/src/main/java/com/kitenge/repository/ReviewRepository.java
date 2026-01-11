@@ -10,6 +10,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByProductIdOrderByCreatedAtDesc(Long productId);
     List<Review> findByUserId(Long userId);
+    void deleteByUserId(Long userId);
     boolean existsByProductIdAndUserId(Long productId, Long userId);
     Double findAverageRatingByProductId(Long productId);
 }

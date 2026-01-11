@@ -125,95 +125,104 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="max-w-7xl mx-auto">
-        {/* Mobile Header - Shein Style */}
+        {/* Mobile Header - Sports Style */}
         <div className="lg:hidden">
-          {/* Top Row: Logo, Search, Cart */}
-          <div className="flex items-center justify-between h-14 px-3 gap-2">
-            {/* Menu Button - Left */}
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="p-3 -ml-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
-              aria-label="Menu"
-            >
-              {showMobileMenu ? (
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              ) : (
-                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              )}
-            </button>
+          {/* Top Row: Menu, Logo, Cart */}
+          <div className="bg-black">
+            <div className="flex items-center justify-between h-12 px-3 gap-2">
+              {/* Menu Button - Left */}
+              <button
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                className="p-2 -ml-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Menu"
+              >
+                {showMobileMenu ? (
+                  <X className="w-6 h-6 text-white" />
+                ) : (
+                  <Menu className="w-6 h-6 text-white" />
+                )}
+              </button>
 
-            {/* Logo - Center */}
-            <Link to="/" className="flex-shrink-0 mx-2 min-h-[44px] flex items-center justify-center gap-2 group">
-              <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow">
-                <img
-                  src="/kitenge-logo.png"
-                  alt="Kitenge Bora Logo"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Try alternative logo paths
-                    if (e.target.src.includes('kitenge-logo.png')) {
-                      e.target.src = '/kitenge-logo.png.png'
-                    } else {
-                      e.target.src = '/igitenge1.jpeg'
-                    }
-                  }}
-                />
-              </div>
-              <div className="text-base font-bold text-gray-900 dark:text-white tracking-tight group-hover:text-accent transition-colors">
-                KITENGE BORA
-              </div>
-            </Link>
+              {/* Logo - Center */}
+              <Link to="/" className="flex-shrink-0 mx-2 min-h-[44px] flex items-center justify-center gap-2">
+                <div className="relative w-9 h-9 rounded-md overflow-hidden flex-shrink-0 shadow-sm bg-white">
+                  <img
+                    src="/kitenge-logo.png"
+                    alt="Kitenge Bora Logo"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      if (e.target.src.includes('kitenge-logo.png')) {
+                        e.target.src = '/kitenge-logo.png.png'
+                      } else {
+                        e.target.src = '/igitenge1.jpeg'
+                      }
+                    }}
+                  />
+                </div>
+                <div className="text-sm font-extrabold text-white tracking-wide">
+                  KITENGE BORA
+                </div>
+              </Link>
 
-            {/* Cart - Right */}
-            <button
-              onClick={() => window.dispatchEvent(new Event('cart:open'))}
-              className="relative p-3 -mr-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
-            >
-              <ShoppingBag className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
-                  {cartCount > 9 ? '9+' : cartCount}
-                </span>
-              )}
-            </button>
+              {/* Cart - Right */}
+              <button
+                onClick={() => window.dispatchEvent(new Event('cart:open'))}
+                className="relative p-2 -mr-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <ShoppingBag className="w-6 h-6 text-white" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Search Bar - Always Visible, Prominent */}
-          <div className="px-3 pb-3" ref={searchRef}>
-            <form 
+          <div className="relative px-3 pb-3 bg-amber-400" ref={searchRef}>
+            <form
               onSubmit={handleSearchSubmit}
               onClick={() => setShowSearch(true)}
-              className="relative flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg min-h-[44px] h-11 px-4 cursor-text"
+              className="flex items-center gap-2 cursor-text"
             >
-              <Search className="w-5 h-5 text-gray-400 mr-3 flex-shrink-0" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setShowSearch(true)}
-                placeholder="Search for products..."
-                className="flex-1 bg-transparent border-0 outline-none text-base text-gray-700 dark:text-gray-300 placeholder-gray-400"
-                style={{ fontSize: '16px' }}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setSearchQuery('')
-                    setSearchResults([])
-                  }}
-                  className="ml-2 p-2 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                  aria-label="Clear search"
-                >
-                  <X className="w-5 h-5 text-gray-400" />
-                </button>
-              )}
+              <div className="flex-1 flex items-center bg-white rounded-md border border-amber-200 shadow-sm min-h-[44px] h-11 px-3">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setShowSearch(true)}
+                  placeholder="Search Products..."
+                  className="flex-1 bg-transparent border-0 outline-none text-sm text-gray-800 placeholder-gray-400"
+                  style={{ fontSize: '16px' }}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSearchQuery('')
+                      setSearchResults([])
+                    }}
+                    className="p-2 flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-4 h-4 text-gray-400" />
+                  </button>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="w-11 h-11 rounded-md bg-gray-900 text-white flex items-center justify-center shadow-md"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5" />
+              </button>
             </form>
 
             {/* Search Results Dropdown */}
             {showSearch && searchQuery && (
-              <div className="absolute left-0 right-0 mt-1 mx-3 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 z-50 max-h-[60vh] overflow-y-auto">
+              <div className="absolute left-3 right-3 top-full mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 z-50 max-h-[60vh] overflow-y-auto">
                 {searchLoading ? (
                   <div className="p-6 text-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mx-auto"></div>

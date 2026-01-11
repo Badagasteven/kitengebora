@@ -5,6 +5,8 @@ import com.kitenge.model.User;
 import com.kitenge.repository.PasswordResetTokenRepository;
 import com.kitenge.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,6 +21,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PasswordResetService {
     
+    private static final Logger logger = LoggerFactory.getLogger(PasswordResetService.class);
+
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
@@ -104,11 +108,8 @@ public class PasswordResetService {
                 "Kitenge Bora Team"
             );
             mailSender.send(message);
-            System.out.println("Password reset email sent successfully to: " + email);
         } catch (Exception e) {
-            System.err.println("ERROR: Failed to send password reset email to " + email);
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Failed to send password reset email", e);
             // Re-throw to notify the user that email failed
             throw new RuntimeException("Failed to send password reset email. Please check your email configuration. Error: " + e.getMessage());
         }

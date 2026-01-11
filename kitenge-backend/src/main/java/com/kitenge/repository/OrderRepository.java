@@ -15,6 +15,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByCustomerPhone(String customerPhone);
     List<Order> findByUserId(Long userId);
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
+    Optional<Order> findTopByOrderNumberAndCustomerPhoneOrderByCreatedAtDesc(Integer orderNumber, String customerPhone);
+    List<Order> findByOrderNumberOrderByCreatedAtDesc(Integer orderNumber);
     
     // Find the last order number for the current month
     @Query("SELECT MAX(o.orderNumber) FROM Order o WHERE YEAR(o.createdAt) = :year AND MONTH(o.createdAt) = :month")

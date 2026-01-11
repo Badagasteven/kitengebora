@@ -4,6 +4,7 @@ import Footer from './Footer'
 import CartDrawer from './CartDrawer'
 import BackToTop from './BackToTop'
 import ErrorBoundary from './ErrorBoundary'
+import MobileBottomNav from './MobileBottomNav'
 
 const Layout = () => {
   return (
@@ -11,7 +12,7 @@ const Layout = () => {
       <ErrorBoundary>
         <Header />
       </ErrorBoundary>
-      <main className="flex-grow">
+      <main className="flex-grow pb-24 lg:pb-0">
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>
@@ -21,6 +22,9 @@ const Layout = () => {
       </ErrorBoundary>
       <ErrorBoundary>
         <CartDrawer />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <MobileBottomNav />
       </ErrorBoundary>
       <BackToTop />
     </div>

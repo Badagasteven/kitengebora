@@ -3,23 +3,40 @@ package com.kitenge.service;
 import com.kitenge.model.User;
 import com.kitenge.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class TwoFactorService {
     
+    private static final Logger logger = LoggerFactory.getLogger(TwoFactorService.class);
+
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
     
+    private static final int CODE_TTL_MINUTES = 10;
+
+    private static class TwoFactorCode {
+        private final String code;
+        private final LocalDateTime expiresAt;
+
+        private TwoFactorCode(String code, LocalDateTime expiresAt) {
+            this.code = code;
+            this.expiresAt = expiresAt;
+        }
+    }
+
     // Store 2FA codes temporarily (in production, use Redis or database)
-    private final Map<String, String> twoFactorCodes = new HashMap<>();
+    private final Map<String, TwoFactorCode> twoFactorCodes = new ConcurrentHashMap<>();
     
     public String generateAndSendCode(String email) {
         User user = userRepository.findByEmail(email)
@@ -33,7 +50,7 @@ public class TwoFactorService {
         String code = String.format("%06d", new SecureRandom().nextInt(1000000));
         
         // Store code (expires in 10 minutes)
-        twoFactorCodes.put(email, code);
+        twoFactorCodes.put(email, new TwoFactorCode(code, LocalDateTime.now().plusMinutes(CODE_TTL_MINUTES)));
         
         // Send email
         sendTwoFactorCode(email, code);
@@ -42,12 +59,17 @@ public class TwoFactorService {
     }
     
     public boolean verifyCode(String email, String code) {
-        String storedCode = twoFactorCodes.get(email);
+        TwoFactorCode storedCode = twoFactorCodes.get(email);
         if (storedCode == null) {
             return false;
         }
         
-        boolean isValid = storedCode.equals(code);
+        if (storedCode.expiresAt.isBefore(LocalDateTime.now())) {
+            twoFactorCodes.remove(email);
+            return false;
+        }
+
+        boolean isValid = storedCode.code.equals(code);
         if (isValid) {
             // Remove code after successful verification
             twoFactorCodes.remove(email);
@@ -58,9 +80,7 @@ public class TwoFactorService {
     private void sendTwoFactorCode(String email, String code) {
         try {
             if (mailSender == null) {
-                System.err.println("WARNING: JavaMailSender is not configured. 2FA code will not be sent via email.");
-                System.err.println("2FA Code for " + email + ": " + code);
-                System.err.println("To enable email, set EMAIL_USER and EMAIL_PASS environment variables.");
+                logger.warn("JavaMailSender is not configured; 2FA code will not be sent via email.");
                 return;
             }
             
@@ -78,12 +98,8 @@ public class TwoFactorService {
                 "Kitenge Bora Team"
             );
             mailSender.send(message);
-            System.out.println("2FA code sent successfully to: " + email);
         } catch (Exception e) {
-            System.err.println("ERROR: Failed to send 2FA code to " + email);
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
-            System.err.println("\n2FA Code for " + email + ": " + code);
+            logger.warn("Failed to send 2FA code", e);
         }
     }
 }

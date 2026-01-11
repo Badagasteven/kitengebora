@@ -24,6 +24,7 @@ const Products = lazy(() => import('./pages/Products'))
 const ProductDetail = lazy(() => import('./pages/ProductDetail'))
 const About = lazy(() => import('./pages/About'))
 const Contact = lazy(() => import('./pages/Contact'))
+const TrackOrder = lazy(() => import('./pages/TrackOrder'))
 const ShippingInfo = lazy(() => import('./pages/ShippingInfo'))
 const ReturnsRefunds = lazy(() => import('./pages/ReturnsRefunds'))
 const FAQ = lazy(() => import('./pages/FAQ'))
@@ -62,6 +63,7 @@ function App() {
                       <Route path="products/:id" element={<ProductDetail />} />
                       <Route path="about" element={<About />} />
                       <Route path="contact" element={<Contact />} />
+                      <Route path="track-order" element={<TrackOrder />} />
                       <Route path="shipping-info" element={<ShippingInfo />} />
                       <Route path="returns-refunds" element={<ReturnsRefunds />} />
                       <Route path="faq" element={<FAQ />} />

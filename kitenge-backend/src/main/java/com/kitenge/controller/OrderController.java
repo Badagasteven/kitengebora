@@ -6,6 +6,8 @@ import com.kitenge.service.OrderService;
 import com.kitenge.service.WhatsAppService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OrderController {
     
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
     private final OrderService orderService;
     private final WhatsAppService whatsAppService;
     
@@ -90,101 +94,64 @@ public class OrderController {
             Long userId = null;
             try {
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                System.out.println("=== ORDER CREATION DEBUG ===");
-                System.out.println("Authentication: " + (authentication != null ? "present" : "null"));
-                if (authentication != null) {
-                    System.out.println("Is Authenticated: " + authentication.isAuthenticated());
-                    System.out.println("Name: " + authentication.getName());
-                    System.out.println("Principal type: " + (authentication.getPrincipal() != null ? authentication.getPrincipal().getClass().getName() : "null"));
-                    
-                    if (authentication.isAuthenticated() && 
-                        !authentication.getName().equals("anonymousUser") &&
-                        authentication.getPrincipal() instanceof Map) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> principal = (Map<String, Object>) authentication.getPrincipal();
-                        System.out.println("Principal keys: " + principal.keySet());
-                        Object userIdObj = principal.get("userId");
-                        System.out.println("userIdObj: " + userIdObj + " (type: " + (userIdObj != null ? userIdObj.getClass().getName() : "null") + ")");
-                        
-                        if (userIdObj != null) {
-                            if (userIdObj instanceof Number) {
-                                userId = ((Number) userIdObj).longValue();
-                            } else if (userIdObj instanceof String) {
-                                try {
-                                    userId = Long.parseLong((String) userIdObj);
-                                } catch (NumberFormatException e) {
-                                    System.err.println("Failed to parse userId as Long: " + userIdObj);
-                                }
-                            }
+                if (authentication != null &&
+                    authentication.isAuthenticated() &&
+                    !"anonymousUser".equals(authentication.getName()) &&
+                    authentication.getPrincipal() instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> principal = (Map<String, Object>) authentication.getPrincipal();
+                    Object userIdObj = principal.get("userId");
+
+                    if (userIdObj instanceof Number) {
+                        userId = ((Number) userIdObj).longValue();
+                    } else if (userIdObj instanceof String) {
+                        try {
+                            userId = Long.parseLong((String) userIdObj);
+                        } catch (NumberFormatException e) {
+                            logger.warn("Failed to parse userId from authentication", e);
                         }
-                        System.out.println("Final userId: " + userId);
-                    } else {
-                        System.out.println("Order creation - No valid authentication (anonymous or not Map)");
                     }
                 }
-                System.out.println("===========================");
             } catch (Exception e) {
-                System.err.println("Error extracting userId from authentication: " + e.getMessage());
-                e.printStackTrace();
+                logger.warn("Failed to extract userId from authentication", e);
                 // Continue with userId = null for guest checkout
             }
-            
+
             Order order = orderService.createOrder(request, userId);
-            System.out.println("Order created with userId: " + order.getUserId());
-            
+
             // Send WhatsApp notification with images (or generate URL as fallback)
             String adminWhatsAppUrl = null;
             try {
-                System.out.println("=== SENDING WHATSAPP NOTIFICATION WITH IMAGES ===");
-                System.out.println("Order ID: " + order.getId());
                 adminWhatsAppUrl = whatsAppService.sendOrderWithImages(order);
-                if (adminWhatsAppUrl != null) {
-                    System.out.println("✅ WhatsApp notification processed successfully");
-                    System.out.println("URL: " + adminWhatsAppUrl);
-                } else {
-                    System.err.println("❌ Failed to process WhatsApp notification - returned null");
-                }
             } catch (Exception e) {
-                System.err.println("❌ Exception processing WhatsApp notification: " + e.getMessage());
-                e.printStackTrace();
+                logger.warn("WhatsApp notification failed", e);
                 // Fallback to URL generation
                 try {
                     adminWhatsAppUrl = whatsAppService.generateOrderWhatsAppUrl(order);
                 } catch (Exception e2) {
-                    System.err.println("❌ Fallback URL generation also failed: " + e2.getMessage());
+                    logger.warn("WhatsApp URL generation failed", e2);
                 }
             }
-            
+
             // Generate WhatsApp URL for customer (optional - for customer confirmation)
             String customerWhatsAppUrl = null;
             if (order.getCustomerPhone() != null && !order.getCustomerPhone().trim().isEmpty()) {
                 try {
-                    System.out.println("Generating WhatsApp URL for customer phone: " + order.getCustomerPhone());
                     customerWhatsAppUrl = whatsAppService.generateCustomerWhatsAppUrl(order, order.getCustomerPhone());
-                    System.out.println("Generated customer WhatsApp URL: " + customerWhatsAppUrl);
                 } catch (Exception e) {
-                    System.err.println("Failed to generate customer WhatsApp URL: " + e.getMessage());
-                    e.printStackTrace();
+                    logger.warn("Customer WhatsApp URL generation failed", e);
                 }
-            } else {
-                System.out.println("No customer phone provided, skipping customer WhatsApp URL generation");
             }
-            
+
             // Return order with WhatsApp URLs
             Map<String, Object> response = new HashMap<>();
             response.put("order", order);
             if (adminWhatsAppUrl != null && !adminWhatsAppUrl.isEmpty()) {
                 response.put("adminWhatsAppUrl", adminWhatsAppUrl);
-                System.out.println("✅ Including adminWhatsAppUrl in response");
-            } else {
-                System.err.println("❌ adminWhatsAppUrl is null or empty - NOT including in response");
             }
             if (customerWhatsAppUrl != null) {
                 response.put("customerWhatsAppUrl", customerWhatsAppUrl);
-                System.out.println("Including customerWhatsAppUrl in response");
             }
-            System.out.println("Response keys: " + response.keySet());
-            System.out.println("=============================================");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -192,7 +159,7 @@ public class OrderController {
             return ResponseEntity.status(500).body(error);
         }
     }
-    
+
     @DeleteMapping("/orders/{id}")
     public ResponseEntity<Map<String, Boolean>> deleteOrder(@PathVariable Long id) {
         try {
@@ -225,15 +192,75 @@ public class OrderController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+
+    @PostMapping("/orders/track")
+    public ResponseEntity<?> trackOrderByNumber(@RequestBody Map<String, String> request) {
+        try {
+            String orderNumberValue = request.get("orderNumber");
+            String phone = request.get("phone");
+
+            if (orderNumberValue == null || orderNumberValue.trim().isEmpty() || phone == null || phone.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Order number and phone are required"));
+            }
+
+            Integer orderNumber;
+            try {
+                orderNumber = Integer.parseInt(orderNumberValue.trim());
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid order number"));
+            }
+
+            Order order = orderService.getOrderByOrderNumberAndPhone(orderNumber, phone.trim())
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+
+            Map<String, Object> trackingInfo = new HashMap<>();
+            trackingInfo.put("orderId", order.getId());
+            trackingInfo.put("orderNumber", order.getOrderNumber());
+            trackingInfo.put("status", order.getStatus());
+            trackingInfo.put("trackingNumber", order.getTrackingNumber());
+            trackingInfo.put("createdAt", order.getCreatedAt());
+            trackingInfo.put("shippedAt", order.getShippedAt());
+            trackingInfo.put("deliveredAt", order.getDeliveredAt());
+
+            return ResponseEntity.ok(trackingInfo);
+        } catch (RuntimeException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
     
     @GetMapping("/orders/{id}/track")
     public ResponseEntity<?> trackOrder(@PathVariable Long id) {
         try {
             Order order = orderService.getOrderById(id)
                     .orElseThrow(() -> new RuntimeException("Order not found"));
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Long userId = null;
+            if (auth != null && auth.getPrincipal() instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> principal = (Map<String, Object>) auth.getPrincipal();
+                Object userIdObj = principal.get("userId");
+                if (userIdObj instanceof Number) {
+                    userId = ((Number) userIdObj).longValue();
+                }
+            }
+
+            boolean isStaff = auth != null && auth.getAuthorities().stream().anyMatch(authority -> {
+                String role = authority.getAuthority();
+                return "ROLE_ADMIN".equals(role) || "ROLE_MANAGER".equals(role) || "ROLE_STAFF".equals(role);
+            });
+
+            if (!isStaff) {
+                if (userId == null || order.getUserId() == null || !order.getUserId().equals(userId)) {
+                    return ResponseEntity.status(403).body(Map.of("error", "Not authorized to track this order"));
+                }
+            }
             
             Map<String, Object> trackingInfo = new HashMap<>();
             trackingInfo.put("orderId", order.getId());
+            trackingInfo.put("orderNumber", order.getOrderNumber());
             trackingInfo.put("status", order.getStatus());
             trackingInfo.put("trackingNumber", order.getTrackingNumber());
             trackingInfo.put("createdAt", order.getCreatedAt());
@@ -248,4 +275,5 @@ public class OrderController {
         }
     }
 }
+
 

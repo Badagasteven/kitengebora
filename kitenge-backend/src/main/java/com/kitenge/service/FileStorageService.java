@@ -10,11 +10,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import java.util.Set;
 
 @Service
 public class FileStorageService {
     
     private final Path uploadDir;
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
+            "image/jpeg",
+            "image/jpg",
+            "image/png",
+            "image/webp"
+    );
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp");
     
     public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
         this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -31,6 +39,13 @@ public class FileStorageService {
             String extension = "";
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String contentType = file.getContentType();
+            if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+                throw new RuntimeException("Unsupported file type");
+            }
+            if (extension.isEmpty() || !ALLOWED_EXTENSIONS.contains(extension.toLowerCase())) {
+                throw new RuntimeException("Unsupported file extension");
             }
             String filename = System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8) + extension;
             

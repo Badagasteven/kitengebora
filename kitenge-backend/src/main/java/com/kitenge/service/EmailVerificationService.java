@@ -5,6 +5,8 @@ import com.kitenge.model.User;
 import com.kitenge.repository.EmailVerificationTokenRepository;
 import com.kitenge.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,6 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailVerificationService {
     
+    private static final Logger logger = LoggerFactory.getLogger(EmailVerificationService.class);
+
     private final EmailVerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
@@ -74,10 +78,7 @@ public class EmailVerificationService {
     private void sendVerificationEmail(String email, String token) {
         try {
             if (mailSender == null) {
-                System.err.println("WARNING: JavaMailSender is not configured. Email will not be sent.");
-                System.err.println("To enable email, set EMAIL_USER and EMAIL_PASS environment variables.");
-                System.err.println("Email verification token generated: " + token);
-                System.err.println("Verification link: " + frontendUrl + "/verify-email?token=" + token);
+                logger.warn("JavaMailSender is not configured; verification email will not be sent.");
                 return;
             }
             
@@ -96,13 +97,8 @@ public class EmailVerificationService {
                 "Kitenge Bora Team"
             );
             mailSender.send(message);
-            System.out.println("Verification email sent successfully to: " + email);
         } catch (Exception e) {
-            System.err.println("ERROR: Failed to send verification email to " + email);
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
-            System.err.println("\nVerification token was generated: " + token);
-            System.err.println("You can manually use this link: " + frontendUrl + "/verify-email?token=" + token);
+            logger.warn("Failed to send verification email", e);
         }
     }
 }

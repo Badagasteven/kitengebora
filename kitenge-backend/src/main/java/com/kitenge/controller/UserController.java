@@ -2,7 +2,10 @@ package com.kitenge.controller;
 
 import com.kitenge.dto.*;
 import com.kitenge.model.User;
+import com.kitenge.repository.ReviewRepository;
 import com.kitenge.repository.UserRepository;
+import com.kitenge.repository.WishlistRepository;
+import com.kitenge.service.FileStorageService;
 import com.kitenge.service.UserProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +29,9 @@ public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserProfileService userProfileService;
+    private final FileStorageService fileStorageService;
+    private final WishlistRepository wishlistRepository;
+    private final ReviewRepository reviewRepository;
     
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {
@@ -49,6 +56,12 @@ public class UserController {
             userDto.setAddress(user.getAddress());
             userDto.setCity(user.getCity());
             userDto.setCountry(user.getCountry());
+            userDto.setProfileImageUrl(user.getProfileImageUrl());
+            userDto.setEmailVerified(user.getEmailVerified());
+            userDto.setTwoFactorEnabled(user.getTwoFactorEnabled());
+            userDto.setActive(user.getActive());
+            userDto.setCreatedAt(user.getCreatedAt());
+            userDto.setLastLogin(user.getLastLogin());
             userDto.setRole(user.getRole());
             
             return ResponseEntity.ok(userDto);
@@ -99,6 +112,12 @@ public class UserController {
             userDto.setAddress(user.getAddress());
             userDto.setCity(user.getCity());
             userDto.setCountry(user.getCountry());
+            userDto.setProfileImageUrl(user.getProfileImageUrl());
+            userDto.setEmailVerified(user.getEmailVerified());
+            userDto.setTwoFactorEnabled(user.getTwoFactorEnabled());
+            userDto.setActive(user.getActive());
+            userDto.setCreatedAt(user.getCreatedAt());
+            userDto.setLastLogin(user.getLastLogin());
             userDto.setRole(user.getRole());
             
             return ResponseEntity.ok(userDto);
@@ -145,6 +164,97 @@ public class UserController {
             return ResponseEntity.status(500).body(error);
         }
     }
+
+    @PutMapping("/two-factor")
+    public ResponseEntity<?> updateTwoFactor(@RequestBody Map<String, Boolean> request) {
+        try {
+            Boolean enabled = request.get("enabled");
+            if (enabled == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Missing 'enabled' flag"));
+            }
+
+            Long userId = getCurrentUserId();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setTwoFactorEnabled(enabled);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("twoFactorEnabled", user.getTwoFactorEnabled()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to update two-factor settings: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/profile-image")
+    public ResponseEntity<?> uploadProfileImage(@RequestParam("image") MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "No image uploaded"));
+            }
+
+            Long userId = getCurrentUserId();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            String url = fileStorageService.storeFile(file);
+            user.setProfileImageUrl(url);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to upload profile image: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/deactivate")
+    public ResponseEntity<?> deactivateAccount() {
+        try {
+            Long userId = getCurrentUserId();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Admin accounts cannot be deactivated"));
+            }
+
+            user.setActive(false);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("message", "Account deactivated successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to deactivate account: " + e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deleteAccount() {
+        try {
+            Long userId = getCurrentUserId();
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Admin accounts cannot be deleted"));
+            }
+
+            wishlistRepository.deleteByUserId(userId);
+            reviewRepository.deleteByUserId(userId);
+            userRepository.delete(user);
+
+            return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to delete account: " + e.getMessage()));
+        }
+    }
     
     @GetMapping("/all")
     public ResponseEntity<?> getAllUsers() {
@@ -159,6 +269,12 @@ public class UserController {
                 dto.setAddress(user.getAddress());
                 dto.setCity(user.getCity());
                 dto.setCountry(user.getCountry());
+                dto.setProfileImageUrl(user.getProfileImageUrl());
+                dto.setEmailVerified(user.getEmailVerified());
+                dto.setTwoFactorEnabled(user.getTwoFactorEnabled());
+                dto.setActive(user.getActive());
+                dto.setCreatedAt(user.getCreatedAt());
+                dto.setLastLogin(user.getLastLogin());
                 dto.setRole(user.getRole());
                 return dto;
             }).collect(Collectors.toList());
@@ -317,4 +433,3 @@ public class UserController {
         return userId;
     }
 }
-

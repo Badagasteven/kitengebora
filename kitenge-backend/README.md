@@ -4,32 +4,32 @@ A modern Spring Boot backend for the Kitenge Bora e-commerce platform, replacing
 
 ## Features
 
-- ✅ **RESTful API** - Clean, well-structured REST endpoints
-- ✅ **JWT Authentication** - Stateless authentication with JSON Web Tokens
-- ✅ **Spring Security** - Role-based access control (Admin/User)
-- ✅ **PostgreSQL Integration** - JPA/Hibernate for database operations
-- ✅ **File Upload** - Image upload handling for products
-- ✅ **Email Notifications** - Order confirmation emails (optional)
-- ✅ **CORS Support** - Configured for frontend integration
-- ✅ **Input Validation** - Request validation using Bean Validation
+- RESTful API
+- JWT authentication
+- Spring Security with role-based access control (Admin/User)
+- PostgreSQL integration with JPA/Hibernate
+- File upload for product images
+- Email notifications (optional)
+- CORS support for frontend integration
+- Bean Validation for request input
 
 ## Tech Stack
 
-- **Spring Boot 3.2.0**
-- **Java 17**
-- **PostgreSQL**
-- **Spring Data JPA**
-- **Spring Security**
-- **JWT (jjwt)**
-- **Lombok**
-- **Maven**
+- Spring Boot 3.2.0
+- Java 17
+- PostgreSQL
+- Spring Data JPA
+- Spring Security
+- JWT (jjwt)
+- Lombok
+- Maven
 
 ## Prerequisites
 
 - Java 17 or higher
 - Maven 3.6+
 - PostgreSQL 12+
-- (Optional) Email account for order notifications
+- Optional: Email account for order notifications
 
 ## Setup Instructions
 
@@ -50,20 +50,17 @@ psql -U postgres -f ../kitenge-project/setup_kitenge.sql
 
 ### 2. Configuration
 
-Edit `src/main/resources/application.properties`:
+Set environment variables (see `.env.example` for a full list):
 
 ```properties
-# Update database credentials
-spring.datasource.username=postgres
-spring.datasource.password=your_password
-
-# Update JWT secret (use a strong random string in production)
-jwt.secret=your-secret-key-change-this-in-production
-
-# Optional: Email configuration
-spring.mail.username=your-email@gmail.com
-spring.mail.password=your-app-password
-app.admin.email=admin@kitenge.com
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/kitenge
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=your_password
+JWT_SECRET=your-strong-random-secret
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+ADMIN_EMAIL=admin@kitenge.com
+ADMIN_DEFAULT_PASSWORD=change-me
 ```
 
 ### 3. Build and Run
@@ -81,7 +78,7 @@ mvn spring-boot:run
 
 Or use your IDE to run `KitengeBoraApplication.java`.
 
-The server will start on `http://localhost:8080`
+The server will start on `http://localhost:8080`.
 
 ## API Endpoints
 
@@ -95,11 +92,11 @@ The server will start on `http://localhost:8080`
 ### Products (Public)
 
 - `GET /api/public-products` - Get all active products
+- `GET /api/products/{id}` - Get product by ID
 
 ### Products (Admin Only)
 
 - `GET /api/products` - Get all products (including inactive)
-- `GET /api/products/{id}` - Get product by ID
 - `POST /api/products` - Create new product
 - `PUT /api/products/{id}` - Update product
 - `DELETE /api/products/{id}` - Delete product
@@ -107,6 +104,7 @@ The server will start on `http://localhost:8080`
 ### Orders
 
 - `POST /api/orders` - Create a new order (public)
+- `GET /api/orders` - List all orders (admin only)
 
 ### Wishlist (Authenticated)
 
@@ -152,55 +150,56 @@ POST /api/login
 
 Update your frontend to use the new API:
 
-1. **Base URL**: Change from `http://localhost:4000` to `http://localhost:8080`
-2. **Authentication**: Store JWT token and include in headers:
+1. Base URL: Change from `http://localhost:4000` to `http://localhost:8080`
+2. Authentication: Store JWT token and include in headers:
    ```javascript
    headers: {
-     'Authorization': `Bearer ${token}`,
-     'Content-Type': 'application/json'
+     Authorization: `Bearer ${token}`,
+     'Content-Type': 'application/json',
    }
    ```
-3. **Endpoints**: All endpoints remain the same (`/api/products`, `/api/orders`, etc.)
+3. Endpoints: All endpoints remain the same (`/api/products`, `/api/orders`, etc.)
 
 ## Project Structure
 
 ```
 kitenge-backend/
-├── src/
-│   ├── main/
-│   │   ├── java/com/kitenge/
-│   │   │   ├── config/          # Configuration classes
-│   │   │   ├── controller/       # REST controllers
-│   │   │   ├── dto/              # Data Transfer Objects
-│   │   │   ├── model/            # Entity models
-│   │   │   ├── repository/       # JPA repositories
-│   │   │   ├── security/         # Security configuration
-│   │   │   ├── service/          # Business logic
-│   │   │   └── util/             # Utility classes
-│   │   └── resources/
-│   │       └── application.properties
-│   └── test/
-└── pom.xml
+- src/
+  - main/
+    - java/com/kitenge/
+      - config/          # Configuration classes
+      - controller/      # REST controllers
+      - dto/             # Data Transfer Objects
+      - model/           # Entity models
+      - repository/      # JPA repositories
+      - security/        # Security configuration
+      - service/         # Business logic
+      - util/            # Utility classes
+    - resources/
+      - application.properties
+  - test/
+- pom.xml
 ```
 
 ## Differences from Node.js Version
 
-1. **Stateless Authentication**: Uses JWT instead of server-side sessions
-2. **Type Safety**: Strong typing with Java
-3. **Better Structure**: Layered architecture (Controller → Service → Repository)
-4. **Automatic Validation**: Bean Validation annotations
-5. **Database Migrations**: JPA handles schema updates automatically
-6. **Better Error Handling**: Structured exception handling
+1. Stateless authentication with JWT instead of server-side sessions
+2. Strong typing with Java
+3. Layered architecture (Controller + Service + Repository)
+4. Bean Validation for requests
+5. JPA handles schema updates automatically
+6. Structured error handling
 
 ## Production Considerations
 
-1. **Change JWT Secret**: Use a strong, random secret key
-2. **Database Connection Pool**: Configure connection pooling
-3. **HTTPS**: Enable HTTPS in production
-4. **CORS**: Restrict CORS to your frontend domain
-5. **Logging**: Configure proper logging levels
-6. **Environment Variables**: Use environment variables for sensitive data
-7. **File Storage**: Consider cloud storage (S3, etc.) for uploaded files
+1. Change JWT secret to a strong, random value
+2. Configure database connection pooling
+3. Enable HTTPS in production
+4. Restrict CORS to your frontend domain
+5. Configure proper logging levels
+6. Use environment variables for sensitive data
+7. Consider cloud storage for uploaded files (S3, etc.)
+8. Set `ADMIN_DEFAULT_PASSWORD` only for initial admin creation, then rotate it
 
 ## Troubleshooting
 
@@ -221,4 +220,3 @@ kitenge-backend/
 ## License
 
 This project is part of the Kitenge Bora e-commerce platform.
-

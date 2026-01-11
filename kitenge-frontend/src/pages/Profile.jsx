@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 import { useToast } from '../contexts/ToastContext'
 import { userAPI } from '../services/api'
+import { getImageUrl } from '../utils/imageUtils'
+import ProfileHeader from '../components/profile/ProfileHeader'
+import ProfileTabs from '../components/profile/ProfileTabs'
 import { 
   User, 
   Mail, 
@@ -10,38 +14,31 @@ import {
   MapPin, 
   Lock, 
   Save, 
-  Edit3, 
   Eye, 
   EyeOff,
   CheckCircle,
-  ArrowLeft,
   Shield,
   Bell,
-  CreditCard,
   Settings,
-  Globe,
   Trash2,
   Download,
-  X,
   Plus,
   Home,
   Briefcase,
   Calendar,
-  CheckCircle2,
   AlertCircle,
   Monitor,
   Moon,
   Sun,
   Languages,
   DollarSign,
-  Clock,
   Smartphone,
-  LogOut,
   FileText
 } from 'lucide-react'
 
 const Profile = () => {
-  const { user, setUser, isAuthenticated, loading: authLoading } = useAuth()
+  const { user, setUser, isAuthenticated, loading: authLoading, logout } = useAuth()
+  const { setThemeMode } = useTheme()
   const navigate = useNavigate()
   const toast = useToast()
   const [loading, setLoading] = useState(true)
@@ -58,13 +55,13 @@ const Profile = () => {
     address: '',
     city: '',
     country: '',
+    profileImageUrl: '',
   })
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   })
-  const [profileImage, setProfileImage] = useState(null)
   const [profileImagePreview, setProfileImagePreview] = useState(null)
   const [accountInfo, setAccountInfo] = useState({
     createdAt: null,
@@ -97,6 +94,7 @@ const Profile = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false)
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+  const [updatingTwoFactor, setUpdatingTwoFactor] = useState(false)
 
   useEffect(() => {
     // Redirect if not authenticated
@@ -121,12 +119,16 @@ const Profile = () => {
         address: data.address || '',
         city: data.city || '',
         country: data.country || '',
+        profileImageUrl: data.profileImageUrl || '',
       })
+
+      setTwoFactorEnabled(Boolean(data.twoFactorEnabled))
+      setProfileImagePreview(data.profileImageUrl ? getImageUrl(data.profileImageUrl) : null)
       
       // Load account info
       setAccountInfo({
         createdAt: data.createdAt || data.created_at || null,
-        emailVerified: data.emailVerified || data.email_verified || false,
+        emailVerified: data.emailVerified ?? data.email_verified ?? false,
         lastLogin: data.lastLogin || data.last_login || null,
       })
       
@@ -134,7 +136,10 @@ const Profile = () => {
       try {
         const prefsRes = await userAPI.getPreferences()
         if (prefsRes.data) {
-          setPreferences(prefsRes.data)
+          setPreferences(prev => ({ ...prev, ...prefsRes.data }))
+          if (prefsRes.data.theme) {
+            setThemeMode(prefsRes.data.theme)
+          }
         }
       } catch (e) {
         console.error('Failed to load preferences:', e)
@@ -176,12 +181,41 @@ const Profile = () => {
     setSaving(true)
 
     try {
-      const response = await userAPI.updateProfile(profile)
+      const payload = {
+        email: profile.email,
+        name: profile.name,
+        phone: profile.phone,
+        address: profile.address,
+        city: profile.city,
+        country: profile.country,
+      }
+      const response = await userAPI.updateProfile(payload)
+      const data = response.data
       toast.success('Profile updated successfully!')
+
+      setProfile(prev => ({
+        ...prev,
+        email: data.email ?? prev.email,
+        name: data.name ?? prev.name,
+        phone: data.phone ?? prev.phone,
+        address: data.address ?? prev.address,
+        city: data.city ?? prev.city,
+        country: data.country ?? prev.country,
+        profileImageUrl: data.profileImageUrl ?? prev.profileImageUrl,
+      }))
+      setAccountInfo(prev => ({
+        ...prev,
+        createdAt: data.createdAt ?? prev.createdAt,
+        emailVerified: data.emailVerified ?? prev.emailVerified,
+        lastLogin: data.lastLogin ?? prev.lastLogin,
+      }))
+      if (data.profileImageUrl) {
+        setProfileImagePreview(getImageUrl(data.profileImageUrl))
+      }
       
       // Update user context if email changed
-      if (response.data.email !== user?.email) {
-        setUser(response.data)
+      if (data.email !== user?.email) {
+        setUser(data)
       }
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to update profile')
@@ -221,6 +255,26 @@ const Profile = () => {
     }
   }
 
+  const handleTwoFactorToggle = async (enabled) => {
+    const previousValue = twoFactorEnabled
+    setTwoFactorEnabled(enabled)
+    setUpdatingTwoFactor(true)
+    try {
+      const response = await userAPI.updateTwoFactor(enabled)
+      if (typeof response.data?.twoFactorEnabled === 'boolean') {
+        setTwoFactorEnabled(response.data.twoFactorEnabled)
+      }
+      toast.success(
+        enabled ? 'Two-factor authentication enabled' : 'Two-factor authentication disabled'
+      )
+    } catch (error) {
+      setTwoFactorEnabled(previousValue)
+      toast.error(error.response?.data?.error || 'Failed to update two-factor settings')
+    } finally {
+      setUpdatingTwoFactor(false)
+    }
+  }
+
   // Get user initials for avatar
   const getInitials = () => {
     if (profile.name) {
@@ -238,19 +292,36 @@ const Profile = () => {
   }
 
   // Profile picture upload
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0]
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file')
+        return
+      }
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Image size must be less than 5MB')
         return
       }
-      setProfileImage(file)
+      const previousImageUrl = profile.profileImageUrl
       const reader = new FileReader()
       reader.onloadend = () => {
         setProfileImagePreview(reader.result)
       }
       reader.readAsDataURL(file)
+
+      try {
+        const response = await userAPI.uploadProfileImage(file)
+        const imageUrl = response.data?.url || response.data?.profileImageUrl
+        if (imageUrl) {
+          setProfile(prev => ({ ...prev, profileImageUrl: imageUrl }))
+          setProfileImagePreview(getImageUrl(imageUrl))
+        }
+        toast.success('Profile photo updated successfully!')
+      } catch (error) {
+        setProfileImagePreview(previousImageUrl ? getImageUrl(previousImageUrl) : null)
+        toast.error(error.response?.data?.error || 'Failed to upload profile image')
+      }
     }
   }
 
@@ -362,14 +433,30 @@ const Profile = () => {
     toast.success('Data downloaded successfully!')
   }
 
-  const handleDeactivateAccount = () => {
-    toast.success('Account deactivation feature coming soon!')
-    setShowDeactivateConfirm(false)
+  const handleDeactivateAccount = async () => {
+    try {
+      await userAPI.deactivateAccount()
+      toast.success('Account deactivated successfully.')
+      logout()
+      navigate('/login')
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to deactivate account')
+    } finally {
+      setShowDeactivateConfirm(false)
+    }
   }
 
-  const handleDeleteAccount = () => {
-    toast.error('Account deletion must be done through customer support for security reasons.')
-    setShowDeleteConfirm(false)
+  const handleDeleteAccount = async () => {
+    try {
+      await userAPI.deleteAccount()
+      toast.success('Account deleted successfully.')
+      logout()
+      navigate('/login')
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Failed to delete account')
+    } finally {
+      setShowDeleteConfirm(false)
+    }
   }
 
   // Show loading while checking authentication
@@ -386,84 +473,14 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 py-12 sm:py-16 lg:py-20">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link
-            to="/account"
-            className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Account</span>
-          </Link>
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="w-24 h-24 sm:w-32 sm:h-32 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white text-3xl sm:text-4xl font-bold shadow-xl border-4 border-white/30 overflow-hidden">
-                {profileImagePreview ? (
-                  <img src={profileImagePreview} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  getInitials()
-                )}
-              </div>
-              <label className="absolute bottom-0 right-0 sm:bottom-2 sm:right-2 p-2 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                <Edit3 className="w-4 h-4 text-orange-500" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-
-            {/* User Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
-                  {profile.name || 'My Profile'}
-                </h1>
-                {accountInfo.emailVerified && (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 rounded-full">
-                    <CheckCircle2 className="w-4 h-4 text-green-300" />
-                    <span className="text-xs text-green-100 font-medium">Verified</span>
-                  </div>
-                )}
-              </div>
-              <p className="text-white/90 text-sm sm:text-base mb-1 flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                {profile.email}
-              </p>
-              {profile.phone && (
-                <p className="text-white/90 text-sm sm:text-base flex items-center gap-2 mb-2">
-                  <Phone className="w-4 h-4" />
-                  {profile.phone}
-                </p>
-              )}
-              <div className="flex flex-wrap items-center gap-4 mt-3 text-xs sm:text-sm text-white/80">
-                {accountInfo.createdAt && (
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    Member since {formatDate(accountInfo.createdAt)}
-                  </div>
-                )}
-                {accountInfo.lastLogin && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    Last login {formatDate(accountInfo.lastLogin)}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ProfileHeader
+        profile={profile}
+        accountInfo={accountInfo}
+        profileImagePreview={profileImagePreview}
+        getInitials={getInitials}
+        formatDate={formatDate}
+        onImageUpload={handleImageUpload}
+      />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Profile Completion & Quick Stats */}
@@ -504,83 +521,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="flex overflow-x-auto scrollbar-hide">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`px-4 sm:px-6 py-4 font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                activeTab === 'profile'
-                  ? 'text-orange-500 border-b-2 border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">Personal Info</span>
-              <span className="sm:hidden">Info</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('notifications')}
-              className={`px-4 sm:px-6 py-4 font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                activeTab === 'notifications'
-                  ? 'text-orange-500 border-b-2 border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <Bell className="w-4 h-4" />
-              <span className="hidden sm:inline">Notifications</span>
-              <span className="sm:hidden">Alerts</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('security')}
-              className={`px-4 sm:px-6 py-4 font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                activeTab === 'security'
-                  ? 'text-orange-500 border-b-2 border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <Shield className="w-4 h-4" />
-              <span className="hidden sm:inline">Privacy & Security</span>
-              <span className="sm:hidden">Security</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('addresses')}
-              className={`px-4 sm:px-6 py-4 font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                activeTab === 'addresses'
-                  ? 'text-orange-500 border-b-2 border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">Addresses</span>
-              <span className="sm:hidden">Address</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('preferences')}
-              className={`px-4 sm:px-6 py-4 font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                activeTab === 'preferences'
-                  ? 'text-orange-500 border-b-2 border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Preferences</span>
-              <span className="sm:hidden">Prefs</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('account')}
-              className={`px-4 sm:px-6 py-4 font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                activeTab === 'account'
-                  ? 'text-orange-500 border-b-2 border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Account</span>
-              <span className="sm:hidden">Account</span>
-            </button>
-          </div>
-        </div>
+        <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Profile Information Tab */}
         {activeTab === 'profile' && (
@@ -947,22 +888,18 @@ const Profile = () => {
                   <input
                     type="checkbox"
                     checked={twoFactorEnabled}
-                    onChange={(e) => {
-                      setTwoFactorEnabled(e.target.checked)
-                      if (e.target.checked) {
-                        toast.info('2FA setup coming soon!')
-                      }
-                    }}
+                    onChange={(e) => handleTwoFactorToggle(e.target.checked)}
+                    disabled={updatingTwoFactor}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-orange-500 peer-disabled:opacity-60"></div>
                 </label>
               </div>
               {twoFactorEnabled && (
                 <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <p className="text-sm text-blue-800 dark:text-blue-300">
                     <AlertCircle className="w-4 h-4 inline mr-2" />
-                    Two-factor authentication setup will be available soon.
+                    We'll send a verification code to your email each time you log in.
                   </p>
                 </div>
               )}
@@ -1210,7 +1147,10 @@ const Profile = () => {
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   <button
-                    onClick={() => setPreferences({ ...preferences, theme: 'light' })}
+                    onClick={() => {
+                      setPreferences({ ...preferences, theme: 'light' })
+                      setThemeMode('light')
+                    }}
                     className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center ${
                       preferences.theme === 'light'
                         ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
@@ -1221,7 +1161,10 @@ const Profile = () => {
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Light</span>
                   </button>
                   <button
-                    onClick={() => setPreferences({ ...preferences, theme: 'dark' })}
+                    onClick={() => {
+                      setPreferences({ ...preferences, theme: 'dark' })
+                      setThemeMode('dark')
+                    }}
                     className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center ${
                       preferences.theme === 'dark'
                         ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
@@ -1232,7 +1175,10 @@ const Profile = () => {
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Dark</span>
                   </button>
                   <button
-                    onClick={() => setPreferences({ ...preferences, theme: 'system' })}
+                    onClick={() => {
+                      setPreferences({ ...preferences, theme: 'system' })
+                      setThemeMode('system')
+                    }}
                     className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center ${
                       preferences.theme === 'system'
                         ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
@@ -1439,4 +1385,5 @@ const Profile = () => {
 }
 
 export default Profile
+
 

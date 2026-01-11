@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -79,6 +81,12 @@ public class AuthService {
         userDto.setAddress(user.getAddress());
         userDto.setCity(user.getCity());
         userDto.setCountry(user.getCountry());
+        userDto.setProfileImageUrl(user.getProfileImageUrl());
+        userDto.setEmailVerified(user.getEmailVerified());
+        userDto.setTwoFactorEnabled(user.getTwoFactorEnabled());
+        userDto.setActive(user.getActive());
+        userDto.setCreatedAt(user.getCreatedAt());
+        userDto.setLastLogin(user.getLastLogin());
         userDto.setRole(role);
         
         AuthResponse response = new AuthResponse();
@@ -95,6 +103,10 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Invalid credentials");
         }
+
+        if (Boolean.FALSE.equals(user.getActive())) {
+            throw new RuntimeException("Account is deactivated");
+        }
         
         // Check if 2FA is enabled
         if (user.getTwoFactorEnabled() != null && user.getTwoFactorEnabled()) {
@@ -108,6 +120,9 @@ public class AuthService {
             return response;
         }
         
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
+
         // Normal login without 2FA
         // Admin status: email must match admin email AND/OR role must be ADMIN
         // If email matches admin email, always set as admin regardless of role
@@ -135,6 +150,12 @@ public class AuthService {
         userDto.setAddress(user.getAddress());
         userDto.setCity(user.getCity());
         userDto.setCountry(user.getCountry());
+        userDto.setProfileImageUrl(user.getProfileImageUrl());
+        userDto.setEmailVerified(user.getEmailVerified());
+        userDto.setTwoFactorEnabled(user.getTwoFactorEnabled());
+        userDto.setActive(user.getActive());
+        userDto.setCreatedAt(user.getCreatedAt());
+        userDto.setLastLogin(user.getLastLogin());
         userDto.setRole(role);
         
         AuthResponse response = new AuthResponse();
@@ -147,10 +168,17 @@ public class AuthService {
     public AuthResponse verifyTwoFactor(TwoFactorRequest request) {
         User user = userRepository.findByEmailIgnoreCase(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (Boolean.FALSE.equals(user.getActive())) {
+            throw new RuntimeException("Account is deactivated");
+        }
         
         if (!twoFactorService.verifyCode(request.getEmail(), request.getCode())) {
             throw new RuntimeException("Invalid or expired verification code");
         }
+
+        user.setLastLogin(LocalDateTime.now());
+        userRepository.save(user);
         
         // Admin status: email must match admin email AND/OR role must be ADMIN
         boolean isAdmin = isAdminEmail(user.getEmail()) || "ADMIN".equals(user.getRole());
@@ -177,6 +205,12 @@ public class AuthService {
         userDto.setAddress(user.getAddress());
         userDto.setCity(user.getCity());
         userDto.setCountry(user.getCountry());
+        userDto.setProfileImageUrl(user.getProfileImageUrl());
+        userDto.setEmailVerified(user.getEmailVerified());
+        userDto.setTwoFactorEnabled(user.getTwoFactorEnabled());
+        userDto.setActive(user.getActive());
+        userDto.setCreatedAt(user.getCreatedAt());
+        userDto.setLastLogin(user.getLastLogin());
         userDto.setRole(role);
         
         AuthResponse response = new AuthResponse();

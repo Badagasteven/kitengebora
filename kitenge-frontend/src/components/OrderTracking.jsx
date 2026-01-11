@@ -1,30 +1,49 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Package, CheckCircle, Clock, Truck, XCircle } from 'lucide-react'
 import { ordersAPI } from '../services/api'
-import { useToast } from '../contexts/ToastContext'
 
-const OrderTracking = ({ orderId }) => {
-  const toast = useToast()
+const OrderTracking = ({ orderId, orderNumber, phone, pollIntervalMs = 15000, emptyMessage = null }) => {
   const [trackingInfo, setTrackingInfo] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [lastUpdated, setLastUpdated] = useState(null)
+
+  const canTrack = useMemo(() => {
+    return Boolean(orderId || (orderNumber && phone))
+  }, [orderId, orderNumber, phone])
 
   useEffect(() => {
-    if (orderId) {
-      loadTrackingInfo()
+    if (canTrack) {
+      loadTrackingInfo(true)
     }
-  }, [orderId])
+  }, [orderId, orderNumber, phone, canTrack])
 
-  const loadTrackingInfo = async () => {
+  useEffect(() => {
+    if (!canTrack) return
+    const interval = setInterval(() => {
+      loadTrackingInfo(false)
+    }, pollIntervalMs)
+    return () => clearInterval(interval)
+  }, [orderId, orderNumber, phone, pollIntervalMs, canTrack])
+
+  const loadTrackingInfo = async (showLoading) => {
     try {
-      const response = await ordersAPI.trackOrder(orderId)
+      if (showLoading) {
+        setLoading(true)
+      }
+      const response = orderId
+        ? await ordersAPI.trackOrder(orderId)
+        : await ordersAPI.trackOrderByNumber(orderNumber, phone)
       setTrackingInfo(response.data)
+      setLastUpdated(new Date())
     } catch (error) {
       console.error('Failed to load tracking info:', error)
       // Don't show error toast - just handle gracefully
       // The order might not have tracking info yet
       setTrackingInfo(null)
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }
 
@@ -82,11 +101,19 @@ const OrderTracking = ({ orderId }) => {
 
   if (!trackingInfo || !trackingInfo.status) {
     // If no tracking info, show basic status if available
+    if (emptyMessage) {
+      return (
+        <div className="card p-6 text-sm text-gray-600 dark:text-gray-400">
+          {emptyMessage}
+        </div>
+      )
+    }
     return null
   }
 
   const status = trackingInfo.status || 'PENDING'
   const steps = getStatusSteps(status)
+  const displayNumber = trackingInfo.orderNumber || trackingInfo.orderId
 
   return (
     <div className="card p-6">
@@ -96,13 +123,18 @@ const OrderTracking = ({ orderId }) => {
             Order Tracking
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Order #{trackingInfo.orderId}
+            Order #{displayNumber}
           </p>
         </div>
         <div className={`px-4 py-2 rounded-full font-medium ${getStatusColor(status)}`}>
           {status}
         </div>
       </div>
+      {lastUpdated && (
+        <div className="mb-6 text-xs text-gray-500 dark:text-gray-400">
+          Last updated: {lastUpdated.toLocaleTimeString()}
+        </div>
+      )}
 
       {/* Tracking Steps */}
       <div className="relative mb-6">

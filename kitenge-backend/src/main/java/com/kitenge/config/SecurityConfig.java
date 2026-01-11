@@ -4,6 +4,7 @@ import com.kitenge.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -38,20 +39,27 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/uploads/**").permitAll() // Allow public access to uploaded images
-                .requestMatchers("/api/register", "/api/login", "/api/public-products").permitAll()
-                .requestMatchers("/api/forgot-password", "/api/reset-password").permitAll()
-                .requestMatchers("/api/verify-email", "/api/resend-verification").permitAll()
-                .requestMatchers("/api/test/email").permitAll() // Allow email testing
-                .requestMatchers("/api/contact").permitAll() // Contact form (public)
-                .requestMatchers("/api/orders").permitAll() // POST orders (customers can place orders, but userId will be set if authenticated)
+                .requestMatchers(HttpMethod.POST, "/api/register", "/api/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/forgot-password", "/api/reset-password").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/verify-email", "/api/resend-verification", "/api/verify-2fa").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/public-products").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll() // Contact form (public)
+                .requestMatchers(HttpMethod.POST, "/api/orders").permitAll() // Customers can place orders
+                .requestMatchers(HttpMethod.POST, "/api/orders/track").permitAll() // Guest order tracking
                 .requestMatchers("/api/orders/my-orders").authenticated() // Users can get their own orders
                 .requestMatchers("/api/orders/*/track").authenticated() // Allow authenticated users to track their own orders
                 .requestMatchers("/api/products/**", "/api/upload-image").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 .requestMatchers("/api/orders/**").hasAnyRole("ADMIN", "MANAGER", "STAFF") // Order management
                 .requestMatchers("/api/stats/**").hasAnyRole("ADMIN", "MANAGER") // Business stats (admin/manager only)
+                .requestMatchers("/api/test/email").hasRole("ADMIN") // Email testing
                 .requestMatchers(
                     "/api/users/profile",
                     "/api/users/change-password",
+                    "/api/users/profile-image",
+                    "/api/users/two-factor",
+                    "/api/users/deactivate",
+                    "/api/users/me",
                     "/api/users/addresses",
                     "/api/users/addresses/**",
                     "/api/users/preferences",
@@ -59,9 +67,10 @@ public class SecurityConfig {
                 ).authenticated() // User profile settings (authenticated users)
                 .requestMatchers("/api/users/**").hasAnyRole("ADMIN", "MANAGER") // User management (admin/manager only) - must come after specific routes
                 .requestMatchers("/api/wishlist/**", "/api/check-auth").authenticated()
-                .requestMatchers("/api/reviews").authenticated() // POST/DELETE reviews require auth
-                .requestMatchers("/api/reviews/**").permitAll() // GET reviews are public
-                .anyRequest().permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/reviews").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         

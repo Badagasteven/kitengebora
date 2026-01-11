@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { productsAPI } from '../services/api'
 import ProductCard from '../components/ProductCard'
 import RecentlyViewed from '../components/RecentlyViewed'
@@ -12,6 +12,7 @@ import { getImageUrl } from '../utils/imageUtils'
 
 const Home = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -26,6 +27,16 @@ const Home = () => {
   useEffect(() => {
     loadProducts()
   }, [])
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const view = params.get('view')
+    if (view === 'promo') {
+      setSelectedView('promo')
+    } else if (view === 'new' || !view) {
+      setSelectedView('new')
+    }
+  }, [location.search])
 
   useEffect(() => {
     filterProducts()
@@ -172,34 +183,60 @@ const Home = () => {
         {/* Subtle dark overlay for text readability - minimal to preserve image quality */}
         <div className="absolute inset-0 bg-black/15 sm:bg-black/10 z-10"></div>
 
-        {/* Text Content - Enhanced visibility with stronger backdrop - Mobile Optimized */}
-        <div className="relative z-20 text-center px-4 sm:px-6 max-w-4xl w-full animate-fade-in-up">
-          {/* Text backdrop for better readability - stronger to ensure text is always visible */}
-          <div className="relative inline-block px-6 sm:px-8 md:px-10 py-5 sm:py-6 md:py-8 rounded-2xl sm:rounded-3xl backdrop-blur-xl bg-gradient-to-br from-black/70 via-black/60 to-black/70 border-2 border-white/30 shadow-2xl">
-            <div className="text-[10px] sm:text-xs md:text-sm font-bold mb-3 sm:mb-4 md:mb-5 text-accent-300 uppercase tracking-widest drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-              New drop · Kitenge prints
+        {/* Text Content - Mobile and Desktop */}
+        <div className="relative z-20 w-full px-4 sm:px-6 max-w-5xl animate-fade-in-up">
+          {/* Mobile hero copy */}
+          <div className="sm:hidden flex">
+            <div className="max-w-xs bg-black/60 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-5 shadow-2xl">
+              <div className="text-[11px] font-bold mb-2 text-amber-300 uppercase tracking-widest drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                New arrivals
+              </div>
+              <h1 className="text-3xl font-black mb-2 text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)] leading-tight">
+                Select your material
+              </h1>
+              <div className="text-xs text-white/85 font-semibold mb-4">
+                This week
+              </div>
+              <button
+                onClick={() =>
+                  document
+                    .getElementById('collection')
+                    ?.scrollIntoView({ behavior: 'smooth' })
+                }
+                className="bg-amber-400 text-gray-900 font-bold px-5 py-3 rounded-md shadow-lg active:scale-95 transition-transform min-h-[44px]"
+              >
+                Discover now
+              </button>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black mb-4 sm:mb-5 md:mb-7 text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)] leading-tight sm:leading-tight">
-              Bold African prints for everyday wear.
-            </h1>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/95 mb-6 sm:mb-8 md:mb-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] leading-relaxed font-semibold max-w-2xl mx-auto px-2">
-              Carefully selected kitenge, ankara and wax fabrics ready to be
-              tailored into your favourite looks.
-            </p>
-            <button
-              onClick={() =>
-                document
-                  .getElementById('collection')
-                  ?.scrollIntoView({ behavior: 'smooth' })
-              }
-              className="btn-primary bg-white text-accent hover:bg-gray-50 shadow-2xl hover:shadow-accent-lg hover:scale-110 transition-all duration-300 text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 font-bold min-h-[48px] touch-manipulation"
-            >
-              Shop the collection
-            </button>
+          </div>
+
+          {/* Desktop hero copy */}
+          <div className="hidden sm:block text-center">
+            <div className="relative inline-block px-6 sm:px-8 md:px-10 py-5 sm:py-6 md:py-8 rounded-2xl sm:rounded-3xl backdrop-blur-xl bg-gradient-to-br from-black/70 via-black/60 to-black/70 border-2 border-white/30 shadow-2xl">
+              <div className="text-[10px] sm:text-xs md:text-sm font-bold mb-3 sm:mb-4 md:mb-5 text-accent-300 uppercase tracking-widest drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                New drop A Kitenge prints
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black mb-4 sm:mb-5 md:mb-7 text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)] leading-tight sm:leading-tight">
+                Bold African prints for everyday wear.
+              </h1>
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/95 mb-6 sm:mb-8 md:mb-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] leading-relaxed font-semibold max-w-2xl mx-auto px-2">
+                Carefully selected kitenge, ankara and wax fabrics ready to be
+                tailored into your favourite looks.
+              </p>
+              <button
+                onClick={() =>
+                  document
+                    .getElementById('collection')
+                    ?.scrollIntoView({ behavior: 'smooth' })
+                }
+                className="btn-primary bg-white text-accent hover:bg-gray-50 shadow-2xl hover:shadow-accent-lg hover:scale-110 transition-all duration-300 text-sm sm:text-base md:text-lg px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 font-bold min-h-[48px] touch-manipulation"
+              >
+                Shop the collection
+              </button>
+            </div>
           </div>
         </div>
-
-            {/* Carousel Navigation - Enhanced styling - Mobile Optimized */}
+        {/* Carousel Navigation - Enhanced styling - Mobile Optimized */}
         {featuredProducts.length > 1 && (
           <>
             {/* Previous Button - Enhanced visibility with better touch targets */}

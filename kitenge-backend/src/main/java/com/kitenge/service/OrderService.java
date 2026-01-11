@@ -6,10 +6,15 @@ import com.kitenge.model.Order;
 import com.kitenge.model.OrderItem;
 import com.kitenge.model.Product;
 import com.kitenge.model.User;
+import com.kitenge.model.UserNotifications;
 import com.kitenge.repository.OrderRepository;
 import com.kitenge.repository.ProductRepository;
+import com.kitenge.repository.UserNotificationsRepository;
 import com.kitenge.repository.UserRepository;
+import com.kitenge.util.PhoneNumberUtils;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,11 +29,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrderService {
     
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final JavaMailSender mailSender;
     private final WhatsAppService whatsAppService;
+    private final SmsService smsService;
+    private final UserNotificationsRepository userNotificationsRepository;
     
     @Value("${app.admin.email}")
     private String adminEmail;
@@ -38,6 +47,9 @@ public class OrderService {
     
     @Value("${app.admin.whatsapp:250788883986}")
     private String adminWhatsApp;
+
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
     
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -45,6 +57,28 @@ public class OrderService {
     
     public Optional<Order> getOrderById(Long id) {
         return orderRepository.findById(id);
+    }
+
+    public Optional<Order> getOrderByOrderNumberAndPhone(Integer orderNumber, String phone) {
+        if (orderNumber == null || phone == null || phone.trim().isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<Order> directMatch = orderRepository.findTopByOrderNumberAndCustomerPhoneOrderByCreatedAtDesc(
+                orderNumber,
+                phone.trim()
+        );
+        if (directMatch.isPresent()) {
+            return directMatch;
+        }
+
+        String normalizedInput = PhoneNumberUtils.normalizePhoneNumber(phone);
+        if (normalizedInput == null) {
+            return Optional.empty();
+        }
+
+        return orderRepository.findByOrderNumberOrderByCreatedAtDesc(orderNumber).stream()
+                .filter(order -> normalizedInput.equals(PhoneNumberUtils.normalizePhoneNumber(order.getCustomerPhone())))
+                .findFirst();
     }
     
     public List<Order> getOrdersByUserId(Long userId) {
@@ -116,15 +150,8 @@ public class OrderService {
         order.setOrderNumber(orderNumber);
         
         order = orderRepository.save(order);
-        
-        System.out.println("=== ORDER CREATED ===");
-        System.out.println("Order ID: " + order.getId());
-        System.out.println("Order Number: " + order.getOrderNumber());
-        System.out.println("User ID: " + order.getUserId());
-        System.out.println("Customer Name: " + order.getCustomerName());
-        System.out.println("Customer Phone: " + order.getCustomerPhone());
-        System.out.println("Items Count: " + order.getItems().size());
-        System.out.println("=====================");
+
+        logger.info("Order created: id={}, orderNumber={}", order.getId(), order.getOrderNumber());
         
         // Send notifications
         sendOrderNotification(order);
@@ -146,22 +173,33 @@ public class OrderService {
     public Order updateOrderStatus(Long orderId, String status, String trackingNumber) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        
+
+        String previousStatus = order.getStatus();
+        String previousTracking = order.getTrackingNumber();
+        boolean statusChanged = status != null && !status.equalsIgnoreCase(previousStatus);
+        boolean trackingUpdated = trackingNumber != null && !trackingNumber.trim().isEmpty()
+                && (previousTracking == null || !previousTracking.equals(trackingNumber.trim()));
+
         order.setStatus(status);
-        
+
         if (trackingNumber != null && !trackingNumber.trim().isEmpty()) {
             order.setTrackingNumber(trackingNumber.trim());
         }
-        
-        if ("SHIPPED".equals(status)) {
+
+        if ("SHIPPED".equals(status) && order.getShippedAt() == null) {
             order.setShippedAt(LocalDateTime.now());
             sendShippingNotification(order);
-        } else if ("DELIVERED".equals(status)) {
+        } else if ("DELIVERED".equals(status) && order.getDeliveredAt() == null) {
             order.setDeliveredAt(LocalDateTime.now());
             sendDeliveryNotification(order);
         }
-        
-        return orderRepository.save(order);
+
+        Order saved = orderRepository.save(order);
+        if (statusChanged || trackingUpdated) {
+            sendCustomerStatusUpdates(saved, status);
+        }
+
+        return saved;
     }
     
     private void sendOrderNotification(Order order) {
@@ -235,20 +273,19 @@ public class OrderService {
                     message.setSubject("🧵 New Order #" + orderNumber + " - " + order.getCustomerName());
                     message.setText(emailContent.toString());
                     mailSender.send(message);
-                    System.out.println("Admin notification email sent to " + notificationEmail.trim() + " for order #" + orderNumber);
+                    logger.info("Admin notification email sent for order {}", orderNumber);
                 }
             }
         } catch (Exception e) {
             // Log error but don't fail the order
-            System.err.println("Failed to send email notification: " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Failed to send admin notification email", e);
         }
     }
     
     private void sendOrderConfirmationEmail(Order order) {
         try {
             if (mailSender == null) {
-                System.out.println("Email not configured - order confirmation email not sent for order #" + order.getId());
+                logger.warn("Email not configured; order confirmation email not sent for order {}", order.getId());
                 return;
             }
             
@@ -263,7 +300,7 @@ public class OrderService {
                             customerEmail = user.getEmail();
                         }
                     } catch (Exception e) {
-                        System.err.println("Failed to fetch user email: " + e.getMessage());
+                        logger.warn("Failed to fetch user email", e);
                     }
                 }
                 
@@ -300,19 +337,18 @@ public class OrderService {
                     emailBody.append("Kitenge Bora Team");
                     message.setText(emailBody.toString());
                     mailSender.send(message);
-                    System.out.println("Order confirmation email sent to: " + customerEmail);
+                    logger.info("Order confirmation email sent for order {}", order.getId());
                 }
             }
         } catch (Exception e) {
-            System.err.println("Failed to send order confirmation email: " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Failed to send order confirmation email for order {}", order.getId(), e);
         }
     }
     
     private void sendShippingNotification(Order order) {
         try {
             if (mailSender == null) {
-                System.out.println("Email not configured - shipping notification not sent for order #" + order.getId());
+                logger.warn("Email not configured; shipping notification not sent for order {}", order.getId());
                 return;
             }
             
@@ -325,7 +361,7 @@ public class OrderService {
                             customerEmail = user.getEmail();
                         }
                     } catch (Exception e) {
-                        System.err.println("Failed to fetch user email: " + e.getMessage());
+                        logger.warn("Failed to fetch user email", e);
                     }
                 }
                 
@@ -355,19 +391,18 @@ public class OrderService {
                         "Kitenge Bora Team"
                     );
                     mailSender.send(message);
-                    System.out.println("Shipping notification sent to: " + customerEmail);
+                    logger.info("Shipping notification sent for order {}", order.getId());
                 }
             }
         } catch (Exception e) {
-            System.err.println("Failed to send shipping notification: " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Failed to send shipping notification for order {}", order.getId(), e);
         }
     }
     
     private void sendDeliveryNotification(Order order) {
         try {
             if (mailSender == null) {
-                System.out.println("Email not configured - delivery notification not sent for order #" + order.getId());
+                logger.warn("Email not configured; delivery notification not sent for order {}", order.getId());
                 return;
             }
             
@@ -380,7 +415,7 @@ public class OrderService {
                             customerEmail = user.getEmail();
                         }
                     } catch (Exception e) {
-                        System.err.println("Failed to fetch user email: " + e.getMessage());
+                        logger.warn("Failed to fetch user email", e);
                     }
                 }
                 
@@ -409,13 +444,45 @@ public class OrderService {
                         "Kitenge Bora Team"
                     );
                     mailSender.send(message);
-                    System.out.println("Delivery notification sent to: " + customerEmail);
+                    logger.info("Delivery notification sent for order {}", order.getId());
                 }
             }
         } catch (Exception e) {
-            System.err.println("Failed to send delivery notification: " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Failed to send delivery notification for order {}", order.getId(), e);
         }
     }
-}
 
+    private void sendCustomerStatusUpdates(Order order, String status) {
+        if (order == null || order.getCustomerPhone() == null || order.getCustomerPhone().trim().isEmpty()) {
+            return;
+        }
+
+        boolean shouldSend = true;
+        if (order.getUserId() != null) {
+            shouldSend = userNotificationsRepository.findByUserId(order.getUserId())
+                    .map(UserNotifications::getSmsOrderUpdates)
+                    .orElse(false);
+        }
+
+        if (!shouldSend) {
+            return;
+        }
+
+        String message = buildCustomerStatusMessage(order, status);
+        whatsAppService.sendCustomerStatusUpdate(order, status);
+        smsService.sendOrderStatusUpdate(order.getCustomerPhone(), message);
+    }
+
+    private String buildCustomerStatusMessage(Order order, String status) {
+        Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+        StringBuilder message = new StringBuilder();
+        message.append("Order Update #").append(orderNumber).append("\n\n");
+        message.append("Status: ").append(status != null ? status : "PENDING").append("\n");
+        if (order.getTrackingNumber() != null && !order.getTrackingNumber().trim().isEmpty()) {
+            message.append("Tracking: ").append(order.getTrackingNumber()).append("\n");
+        }
+        message.append("\nTrack your order: ").append(frontendUrl).append("/track-order\n");
+        message.append("Thank you for shopping with Kitenge Bora.");
+        return message.toString();
+    }
+}

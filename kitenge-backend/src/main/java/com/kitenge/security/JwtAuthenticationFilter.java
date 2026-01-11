@@ -1,6 +1,8 @@
 package com.kitenge.security;
 
 import com.kitenge.util.JwtUtil;
+import com.kitenge.model.User;
+import com.kitenge.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
     
     @Value("${app.admin.email}")
     private String adminEmail;
@@ -48,6 +51,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (jwtUtil.validateToken(token, email)) {
+                    if (userId == null) {
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+
+                    User user = userRepository.findById(userId).orElse(null);
+                    if (user == null || Boolean.FALSE.equals(user.getActive())) {
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+
                     // Determine authorities based on role
                     List<SimpleGrantedAuthority> authorities;
                     if (isAdmin != null && isAdmin) {

@@ -17,7 +17,7 @@ public class ProductService {
     private final OrderItemRepository orderItemRepository;
     
     public List<Product> getAllPublicProducts() {
-        return productRepository.findByActiveTrueOrderByIdDesc();
+        return productRepository.findByActiveTrueOrActiveIsNullOrderByIdDesc();
     }
     
     public List<Product> getAllProducts() {

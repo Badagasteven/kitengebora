@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByActiveTrueOrderByIdDesc();
+    List<Product> findByActiveTrueOrActiveIsNullOrderByIdDesc();
     List<Product> findAllByOrderByInStockDescActiveDescIdDesc();
 }
 

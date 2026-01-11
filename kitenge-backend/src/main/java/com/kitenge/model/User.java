@@ -51,12 +51,21 @@ public class User {
     @Column(name = "country")
     private String country;
     
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
+    
     @Column(name = "email_verified")
     private Boolean emailVerified = false;
+    
+    @Column(name = "is_active")
+    private Boolean active = true;
     
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+    
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserAddress> addresses;
@@ -67,4 +76,3 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private UserNotifications notifications;
 }
-

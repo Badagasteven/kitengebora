@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
 // Log API URL for debugging (only in development)
 if (import.meta.env.DEV) {
-  console.log('🔗 API Base URL:', API_BASE_URL)
+  console.log('API Base URL:', API_BASE_URL)
 }
 
 const api = axios.create({
@@ -36,13 +36,13 @@ api.interceptors.response.use(
     // Log API errors for debugging
     if (import.meta.env.DEV) {
       if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-        console.error('❌ Network Error - Backend not reachable at:', API_BASE_URL)
-        console.error('💡 Make sure backend is running on the correct port')
+        console.error('Network Error - Backend not reachable at:', API_BASE_URL)
+        console.error('Make sure backend is running on the correct port')
       } else if (error.response) {
-        console.error('❌ API Error:', error.response.status, error.response.statusText)
-        console.error('📍 URL:', error.config?.url)
+        console.error('API Error:', error.response.status, error.response.statusText)
+        console.error('URL:', error.config?.url)
       } else {
-        console.error('❌ Request Error:', error.message)
+        console.error('Request Error:', error.message)
       }
     }
     
@@ -92,6 +92,8 @@ export const ordersAPI = {
   getOrder: (id) => api.get(`/orders/${id}`),
   deleteOrder: (id) => api.delete(`/orders/${id}`),
   trackOrder: (id) => api.get(`/orders/${id}/track`),
+  trackOrderByNumber: (orderNumber, phone) =>
+    api.post('/orders/track', { orderNumber, phone }),
   updateOrderStatus: (id, status, trackingNumber) =>
     api.put(`/orders/${id}/status`, { status, trackingNumber }),
 }
@@ -107,6 +109,16 @@ export const userAPI = {
   updateProfile: (data) => api.put('/users/profile', data),
   changePassword: (currentPassword, newPassword) =>
     api.post('/users/change-password', { currentPassword, newPassword }),
+  updateTwoFactor: (enabled) => api.put('/users/two-factor', { enabled }),
+  uploadProfileImage: (file) => {
+    const formData = new FormData()
+    formData.append('image', file)
+    return api.post('/users/profile-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  deactivateAccount: () => api.post('/users/deactivate'),
+  deleteAccount: () => api.delete('/users/me'),
   getAllUsers: () => api.get('/users/all'),
   deleteUser: (userId) => api.delete(`/users/${userId}`),
   
