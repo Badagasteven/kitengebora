@@ -10,7 +10,7 @@ const tabs = [
 ]
 
 const ProfileTabs = ({ activeTab, setActiveTab }) => (
-  <div className="mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+  <div className="mb-6 sm:mb-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
     <div className="flex overflow-x-auto scrollbar-hide">
       {tabs.map((tab) => {
         const Icon = tab.icon
@@ -19,7 +19,7 @@ const ProfileTabs = ({ activeTab, setActiveTab }) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 sm:px-6 py-4 font-medium text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`px-3 sm:px-6 py-3 sm:py-4 font-medium text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
               isActive
                 ? 'text-orange-500 border-b-2 border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'

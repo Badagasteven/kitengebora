@@ -132,7 +132,7 @@ const ProductDetail = () => {
         
         <Link
           to="/products"
-          className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-accent mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-sm sm:text-base text-gray-600 dark:text-gray-400 hover:text-accent mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Products
@@ -223,29 +223,29 @@ const ProductDetail = () => {
               )}
             </div>
 
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {product.name}
             </h1>
 
             {product.description && (
-              <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+              <p className="text-gray-600 dark:text-gray-400 mb-6 text-base sm:text-lg">
                 {product.description}
               </p>
             )}
 
             <div className="mb-6">
               <div className="flex items-center gap-4 mb-2">
-                <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                   {product.price.toLocaleString()} RWF
                 </span>
                 {product.original_price && (
-                  <span className="text-xl text-gray-400 line-through">
+                  <span className="text-lg sm:text-xl text-gray-400 line-through">
                     {product.original_price.toLocaleString()} RWF
                   </span>
                 )}
               </div>
               {product.is_promo && calculateDiscount(product) > 0 && product.original_price && product.original_price > product.price && (
-                <p className="text-green-600 dark:text-green-400 font-semibold text-lg">
+                <p className="text-green-600 dark:text-green-400 font-semibold text-base sm:text-lg">
                   You save{' '}
                   {Math.max(0, product.original_price - product.price).toLocaleString()} RWF
                 </p>

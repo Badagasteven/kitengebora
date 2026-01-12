@@ -125,27 +125,27 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="max-w-7xl mx-auto">
-        {/* Mobile Header - Sports Style */}
+        {/* Mobile Header */}
         <div className="lg:hidden">
-          {/* Top Row: Menu, Logo, Cart */}
-          <div className="bg-black">
-            <div className="flex items-center justify-between h-12 px-3 gap-2">
-              {/* Menu Button - Left */}
-              <button
-                onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="p-2 -ml-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                aria-label="Menu"
-              >
-                {showMobileMenu ? (
-                  <X className="w-6 h-6 text-white" />
-                ) : (
-                  <Menu className="w-6 h-6 text-white" />
-                )}
-              </button>
+          {/* Top Row: Menu, Logo, Account, Cart */}
+          <div className="bg-white dark:bg-gray-900">
+            <div className="flex items-center h-12 px-3">
+              <div className="flex items-center flex-1">
+                <button
+                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  className="p-2 -ml-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Menu"
+                >
+                  {showMobileMenu ? (
+                    <X className="w-6 h-6 text-gray-900 dark:text-white" />
+                  ) : (
+                    <Menu className="w-6 h-6 text-gray-900 dark:text-white" />
+                  )}
+                </button>
+              </div>
 
-              {/* Logo - Center */}
               <Link to="/" className="flex-shrink-0 mx-2 min-h-[44px] flex items-center justify-center gap-2">
-                <div className="relative w-9 h-9 rounded-md overflow-hidden flex-shrink-0 shadow-sm bg-white">
+                <div className="relative w-9 h-9 rounded-md overflow-hidden flex-shrink-0 shadow-sm bg-white dark:bg-gray-800 ring-1 ring-gray-200 dark:ring-gray-700">
                   <img
                     src="/kitenge-logo.png"
                     alt="Kitenge Bora Logo"
@@ -159,41 +159,61 @@ const Header = () => {
                     }}
                   />
                 </div>
-                <div className="text-sm font-extrabold text-white tracking-wide">
-                  KITENGE BORA
+                <div className="text-sm font-extrabold text-gray-900 dark:text-white tracking-wide">
+                  KITENGE <span className="text-accent-600">BORA</span>
                 </div>
               </Link>
 
-              {/* Cart - Right */}
-              <button
-                onClick={() => window.dispatchEvent(new Event('cart:open'))}
-                className="relative p-2 -mr-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
-              >
-                <ShoppingBag className="w-6 h-6 text-white" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
-                    {cartCount > 9 ? '9+' : cartCount}
-                  </span>
+              <div className="flex items-center justify-end flex-1 gap-1">
+                {!isAuthenticated ? (
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-1 px-2.5 h-9 rounded-full border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Login</span>
+                  </Link>
+                ) : (
+                  <Link
+                    to={isAdmin ? '/admin' : '/account'}
+                    className="flex items-center gap-1 px-2.5 h-9 rounded-full border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>{isAdmin ? 'Admin' : 'Account'}</span>
+                  </Link>
                 )}
-              </button>
+
+                <button
+                  onClick={() => window.dispatchEvent(new Event('cart:open'))}
+                  className="relative p-2 -mr-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Cart"
+                >
+                  <ShoppingBag className="w-6 h-6 text-gray-900 dark:text-white" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
+                      {cartCount > 9 ? '9+' : cartCount}
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Search Bar - Always Visible, Prominent */}
-          <div className="relative px-3 pb-3 bg-amber-400" ref={searchRef}>
+          <div className="relative px-3 pb-3 pt-2 bg-gray-50 dark:bg-gray-900" ref={searchRef}>
             <form
               onSubmit={handleSearchSubmit}
               onClick={() => setShowSearch(true)}
               className="flex items-center gap-2 cursor-text"
             >
-              <div className="flex-1 flex items-center bg-white rounded-md border border-amber-200 shadow-sm min-h-[44px] h-11 px-3">
+              <div className="flex-1 flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm min-h-[44px] h-11 px-3 focus-within:border-accent-400 focus-within:ring-2 focus-within:ring-accent/20">
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setShowSearch(true)}
                   placeholder="Search Products..."
-                  className="flex-1 bg-transparent border-0 outline-none text-sm text-gray-800 placeholder-gray-400"
+                  className="flex-1 bg-transparent border-0 outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                   style={{ fontSize: '16px' }}
                 />
                 {searchQuery && (
@@ -213,7 +233,7 @@ const Header = () => {
               </div>
               <button
                 type="submit"
-                className="w-11 h-11 rounded-md bg-gray-900 text-white flex items-center justify-center shadow-md"
+                className="w-11 h-11 rounded-lg bg-gradient-accent text-white flex items-center justify-center shadow-md hover:shadow-lg transition-transform active:scale-95"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
@@ -725,7 +745,7 @@ const Header = () => {
                 <Link
                   to="/login"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-4 min-h-[48px] text-base font-semibold text-white bg-orange-500 active:bg-orange-600 rounded-lg transition-colors text-center touch-manipulation flex items-center justify-center"
+                  className="block px-4 py-4 min-h-[48px] text-base font-semibold text-white bg-gradient-accent active:bg-accent-700 rounded-lg transition-colors text-center touch-manipulation flex items-center justify-center shadow-md"
                 >
                   Login
                 </Link>
@@ -743,7 +763,7 @@ const Header = () => {
                     }}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       theme === 'light'
-                        ? 'bg-orange-500 text-white'
+                        ? 'bg-gradient-accent text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                     }`}
                   >
@@ -757,7 +777,7 @@ const Header = () => {
                     }}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       theme === 'dark'
-                        ? 'bg-orange-500 text-white'
+                        ? 'bg-gradient-accent text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                     }`}
                   >
@@ -771,7 +791,7 @@ const Header = () => {
                     }}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       theme === 'system'
-                        ? 'bg-orange-500 text-white'
+                        ? 'bg-gradient-accent text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                     }`}
                   >

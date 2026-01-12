@@ -309,20 +309,20 @@ const Account = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
               My Account
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
               Welcome back, {user?.email}
             </p>
           </div>
           <Link
             to="/profile"
-            className="btn-outline flex items-center gap-2"
+            className="btn-outline flex items-center justify-center gap-2 w-full sm:w-auto min-h-[44px]"
           >
             <Settings className="w-4 h-4" />
             Manage Profile
@@ -330,16 +330,16 @@ const Account = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {statCards.map((stat) => {
             const CardContent = (
-              <div className="card p-6 hover:shadow-soft transition-all group">
+              <div className="card p-4 sm:p-6 hover:shadow-soft transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                       {stat.title}
                     </p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                       {stat.value}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
@@ -347,7 +347,7 @@ const Account = () => {
                     </p>
                   </div>
                   <div
-                    className={`${stat.color} p-3 rounded-lg text-white group-hover:scale-110 transition-transform`}
+                    className={`${stat.color} p-2.5 sm:p-3 rounded-lg text-white group-hover:scale-110 transition-transform`}
                   >
                     <stat.icon className="w-6 h-6" />
                   </div>
@@ -366,10 +366,10 @@ const Account = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Link
             to="/wishlist"
-            className="card p-8 hover:shadow-soft transition-all group"
+            className="card p-5 sm:p-8 hover:shadow-soft transition-all group"
           >
             <Heart className="w-12 h-12 text-accent mb-4 group-hover:scale-110 transition-transform" />
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -380,7 +380,7 @@ const Account = () => {
             </p>
           </Link>
 
-          <div className="card p-8">
+          <div className="card p-5 sm:p-8">
             <User className="w-12 h-12 text-accent mb-4" />
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               Profile Settings
@@ -392,8 +392,8 @@ const Account = () => {
         </div>
 
         {/* Order History */}
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="card p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-5 sm:mb-6">
             <div className="flex items-center gap-3">
               <Package className="w-6 h-6 text-accent" />
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -409,25 +409,25 @@ const Account = () => {
 
           {/* Filters and Sort */}
           {orders.length > 0 && (
-            <div className="flex flex-wrap gap-3 mb-6">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <Filter className="w-4 h-4 text-gray-400" />
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="input-field text-sm py-2 px-3"
+                  className="input-field text-sm py-2 px-3 w-full sm:w-auto"
                 >
                   <option value="all">All Orders</option>
                   <option value="recent">Last 7 Days</option>
                   <option value="thisMonth">This Month</option>
                 </select>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 <ArrowUpDown className="w-4 h-4 text-gray-400" />
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="input-field text-sm py-2 px-3"
+                  className="input-field text-sm py-2 px-3 w-full sm:w-auto"
                 >
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
@@ -464,11 +464,11 @@ const Account = () => {
                 return (
                   <div
                     key={order.id}
-                    className="p-5 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-gray-200 dark:border-gray-700 hover:border-accent/30"
+                    className="p-4 sm:p-5 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-gray-200 dark:border-gray-700 hover:border-accent/30"
                   >
-                    <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                           <p className="font-bold text-lg text-gray-900 dark:text-white">
                             Order #{displayNumber}
                           </p>
@@ -476,7 +476,7 @@ const Account = () => {
                             Completed
                           </span>
                         </div>
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-600 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
                             {formatDate(order.created_at)}
@@ -493,7 +493,7 @@ const Account = () => {
                           )}
                         </div>
                       </div>
-                      <div className="text-right ml-4">
+                      <div className="text-left sm:text-right sm:ml-4">
                         <p className="font-bold text-xl text-gray-900 dark:text-white mb-2">
                           {total.toLocaleString()} RWF
                         </p>
@@ -510,7 +510,7 @@ const Account = () => {
                     {/* Order Items Preview */}
                     {order.items && Array.isArray(order.items) && order.items.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <div className="flex gap-3 overflow-x-auto pb-2">
+                        <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
                           {order.items.slice(0, 4).map((item, idx) => {
                             if (!item || !item.product_id) return null
                             return (
@@ -518,7 +518,7 @@ const Account = () => {
                                 <img
                                   src={getProductImage(item.product_id)}
                                   alt={getProductName(item.product_id)}
-                                  className="w-12 h-12 object-cover rounded-lg"
+                                  className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg"
                                   onError={(e) => {
                                     e.target.src = '/placeholder.png'
                                   }}
@@ -553,22 +553,22 @@ const Account = () => {
 
         {/* Order Detail Modal */}
         {selectedOrder && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50">
+            <div className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                   Order #{orderDisplayNumbers[selectedOrder.id] || selectedOrder.id}
                 </h2>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl sm:text-2xl"
                 >
                   ×
                 </button>
               </div>
 
               <div className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       Customer
@@ -615,12 +615,12 @@ const Account = () => {
                         return (
                           <div
                             key={idx}
-                            className="flex gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                            className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
                           >
                             <img
                               src={getProductImage(item.product_id)}
                               alt={getProductName(item.product_id)}
-                              className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                              className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
                               onError={(e) => {
                                 e.target.src = '/placeholder.png'
                               }}
@@ -634,7 +634,7 @@ const Account = () => {
                                   {product.category}
                                 </p>
                               )}
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
                                   Quantity: <span className="font-medium">{item.quantity || 0}</span> ×{' '}
                                   <span className="font-medium">{(item.unit_price || 0).toLocaleString()} RWF</span>

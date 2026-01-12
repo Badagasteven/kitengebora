@@ -274,13 +274,13 @@ const CartDrawer = () => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex items-center justify-between p-5 sm:p-6 border-b-2 border-gray-200 dark:border-gray-800 shadow-lg">
+          <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex items-center justify-between p-4 sm:p-6 border-b-2 border-gray-200 dark:border-gray-800 shadow-lg">
             <div className="flex items-center gap-4">
               <div className="p-3 sm:p-3.5 bg-gradient-accent rounded-xl shadow-accent">
                 <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
+                <h2 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white">
                   Shopping Cart
                 </h2>
                 {cart.length > 0 && (
@@ -310,7 +310,7 @@ const CartDrawer = () => {
                   return (
                     <div
                       key={item.id}
-                      className="group flex gap-3 sm:gap-4 p-4 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl border-2 border-gray-200 dark:border-gray-700 hover:border-accent/50 hover:shadow-lg transition-all duration-300"
+                      className="group flex gap-3 sm:gap-4 p-3 sm:p-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl border-2 border-gray-200 dark:border-gray-700 hover:border-accent/50 hover:shadow-lg transition-all duration-300"
                     >
                       <div className="relative flex-shrink-0">
                         <img
@@ -332,8 +332,8 @@ const CartDrawer = () => {
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                           {item.price.toLocaleString()} RWF each
                         </p>
-                        <div className="flex items-center justify-between gap-2 sm:gap-3">
-                          <div className="flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900">
+                        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
+                          <div className="flex items-center justify-between sm:justify-start gap-1 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 w-full sm:w-auto">
                             <button
                               onClick={() =>
                                 updateQuantity(item.id, item.quantity - 1)
@@ -344,7 +344,7 @@ const CartDrawer = () => {
                             >
                               <Minus className="w-5 h-5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
                             </button>
-                            <span className="px-4 sm:px-4 py-2 text-base sm:text-sm font-medium text-gray-900 dark:text-white min-w-[3rem] sm:min-w-[2.5rem] text-center">
+                            <span className="px-4 sm:px-4 py-2 text-base sm:text-sm font-medium text-gray-900 dark:text-white min-w-[2.5rem] sm:min-w-[2.5rem] text-center">
                               {item.quantity}
                             </span>
                             <button
@@ -357,18 +357,20 @@ const CartDrawer = () => {
                               <Plus className="w-5 h-5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
                             </button>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {(itemTotal).toLocaleString()} RWF
-                            </p>
+                          <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {(itemTotal).toLocaleString()} RWF
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="p-3 sm:p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 rounded-lg transition-colors flex-shrink-0 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
+                              aria-label="Remove item"
+                            >
+                              <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
+                            </button>
                           </div>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="p-3 sm:p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 active:bg-red-100 dark:active:bg-red-900/30 rounded-lg transition-colors flex-shrink-0 touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 className="w-5 h-5 sm:w-4 sm:h-4" />
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -380,9 +382,9 @@ const CartDrawer = () => {
 
           {/* Footer */}
           {cart.length > 0 && (
-            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-800 p-5 sm:p-6 space-y-5 shadow-2xl">
+            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-800 p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl">
               {/* Order Summary */}
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl p-5 sm:p-6 space-y-4 border-2 border-gray-200 dark:border-gray-700">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl p-4 sm:p-6 space-y-4 border-2 border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">
                     Subtotal
@@ -429,8 +431,8 @@ const CartDrawer = () => {
                   </div>
                 )}
                 <div className="flex justify-between items-center pt-3 border-t-2 border-gray-300 dark:border-gray-600">
-                  <span className="font-black text-xl text-gray-900 dark:text-white">Total</span>
-                  <span className="font-black text-2xl bg-gradient-to-r from-accent to-accent-600 bg-clip-text text-transparent">
+                  <span className="font-black text-lg sm:text-xl text-gray-900 dark:text-white">Total</span>
+                  <span className="font-black text-xl sm:text-2xl bg-gradient-to-r from-accent to-accent-600 bg-clip-text text-transparent">
                     {grandTotal.toLocaleString()} RWF
                   </span>
                 </div>
@@ -470,10 +472,10 @@ const CartDrawer = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 sm:gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={clearCart}
-                  className="btn-outline flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] touch-manipulation"
+                  className="btn-outline w-full sm:flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] touch-manipulation"
                   disabled={isProcessing}
                 >
                   Clear Cart
@@ -481,7 +483,7 @@ const CartDrawer = () => {
                 <button
                   onClick={handleCheckout}
                   disabled={isProcessing || !customerPhone.trim() || (deliveryOption !== 'pickup' && !deliveryLocation.trim())}
-                  className="btn-primary flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
+                  className="btn-primary w-full sm:flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
                 >
                   {isProcessing ? (
                     <>
@@ -499,7 +501,7 @@ const CartDrawer = () => {
               
               {/* WhatsApp Button - Shows after order is placed */}
               {showWhatsAppButton && whatsappUrl && (
-                <div className="mt-4 p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl border-2 border-green-400 dark:border-green-600 shadow-lg">
+                <div className="mt-4 p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl border-2 border-green-400 dark:border-green-600 shadow-lg">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-1.5 bg-green-500 rounded-full">
                       <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">

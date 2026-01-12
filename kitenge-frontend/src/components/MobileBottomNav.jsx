@@ -38,12 +38,14 @@ const MobileBottomNav = () => {
 
   const itemClasses = (active) =>
     `flex flex-col items-center gap-1 py-2 ${
-      active ? 'text-gray-900' : 'text-gray-500'
+      active ? 'text-accent-700 dark:text-accent-300' : 'text-gray-500 dark:text-gray-400'
     }`
 
   const iconWrapClasses = (active) =>
     `w-11 h-11 rounded-full flex items-center justify-center transition-all ${
-      active ? 'bg-amber-400 shadow-md' : 'bg-transparent'
+      active
+        ? 'bg-gradient-accent text-white shadow-accent'
+        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
     }`
 
   return (
@@ -53,7 +55,7 @@ const MobileBottomNav = () => {
       }`}
     >
       <div className="mx-auto max-w-md px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        <div className="bg-white border border-gray-200 shadow-2xl rounded-t-2xl">
+        <div className="bg-white/95 dark:bg-gray-900/95 border border-gray-200 dark:border-gray-800 shadow-2xl rounded-t-2xl backdrop-blur">
           <nav className="grid grid-cols-5">
             <Link to="/" className={itemClasses(isHome)}>
               <span className={iconWrapClasses(isHome)}>

@@ -9,7 +9,7 @@ const ProfileHeader = ({
   formatDate,
   onImageUpload,
 }) => (
-  <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 py-12 sm:py-16 lg:py-20">
+  <div className="relative overflow-hidden bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 py-10 sm:py-16 lg:py-20">
     <div className="absolute inset-0 bg-black/10"></div>
     <div className="absolute inset-0">
       <div className="absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
@@ -18,7 +18,7 @@ const ProfileHeader = ({
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <Link
         to="/account"
-        className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 sm:mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         <span className="text-sm font-medium">Back to Account</span>
@@ -46,7 +46,7 @@ const ProfileHeader = ({
 
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white">
               {profile.name || 'My Profile'}
             </h1>
             {accountInfo.emailVerified && (

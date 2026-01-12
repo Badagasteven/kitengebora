@@ -115,7 +115,7 @@ const Login = () => {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Mobile Product Carousel - Shown only on mobile */}
       {products.length > 0 && (
-        <div className="lg:hidden relative h-48 sm:h-64 overflow-hidden bg-gradient-to-br from-orange-500 to-orange-700">
+        <div className="lg:hidden relative h-48 sm:h-64 overflow-hidden bg-gradient-to-br from-accent-600 via-accent-500 to-accent-700">
           {products.map((product, index) => (
             <div
               key={product.id}
@@ -136,11 +136,11 @@ const Login = () => {
                   e.target.src = '/placeholder.png'
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/45 to-black/70"></div>
             </div>
           ))}
           <div className="relative z-10 flex items-center justify-center h-full px-6 text-white text-center">
-            <div className="bg-black/40 backdrop-blur-sm rounded-2xl px-6 py-8 sm:px-8 sm:py-10 border border-white/20 shadow-2xl">
+            <div className="bg-black/45 backdrop-blur-sm rounded-2xl px-6 py-8 sm:px-8 sm:py-10 border border-white/20 shadow-2xl">
               <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
                 Hello Again 👋
               </h2>

@@ -187,8 +187,8 @@ const Home = () => {
         <div className="relative z-20 w-full px-4 sm:px-6 max-w-5xl animate-fade-in-up">
           {/* Mobile hero copy */}
           <div className="sm:hidden flex">
-            <div className="max-w-xs bg-black/60 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-5 shadow-2xl">
-              <div className="text-[11px] font-bold mb-2 text-amber-300 uppercase tracking-widest drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+            <div className="max-w-xs bg-black/65 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-5 shadow-2xl">
+              <div className="text-[11px] font-bold mb-2 text-accent-300 uppercase tracking-widest drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
                 New arrivals
               </div>
               <h1 className="text-3xl font-black mb-2 text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)] leading-tight">
@@ -203,7 +203,7 @@ const Home = () => {
                     .getElementById('collection')
                     ?.scrollIntoView({ behavior: 'smooth' })
                 }
-                className="bg-amber-400 text-gray-900 font-bold px-5 py-3 rounded-md shadow-lg active:scale-95 transition-transform min-h-[44px]"
+                className="bg-gradient-accent text-white font-bold px-5 py-3 rounded-md shadow-accent active:scale-95 transition-transform min-h-[44px]"
               >
                 Discover now
               </button>

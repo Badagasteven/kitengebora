@@ -130,10 +130,10 @@ const Products = () => {
         
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
             All Products
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-sm sm:text-lg text-gray-600 dark:text-gray-400">
             Discover our curated collection of African fabrics and outfits
           </p>
         </div>
@@ -162,7 +162,7 @@ const Products = () => {
             </div>
 
             {/* Quick Action Buttons */}
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex flex-wrap sm:flex-nowrap gap-2 flex-shrink-0">
               {/* Promos Button */}
               <button
                 onClick={() => setShowPromoOnly(!showPromoOnly)}
@@ -214,7 +214,11 @@ const Products = () => {
               {/* Mobile Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="lg:hidden px-5 py-3 sm:px-6 sm:py-3 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 dark:active:bg-gray-700 border border-gray-200 dark:border-gray-700 flex items-center gap-2 touch-manipulation min-h-[48px] transition-all"
+                className={`lg:hidden px-5 py-3 sm:px-6 sm:py-3 rounded-lg border flex items-center gap-2 touch-manipulation min-h-[48px] transition-all ${
+                  showFilters
+                    ? 'bg-gradient-accent text-white border-transparent shadow-accent'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 dark:active:bg-gray-700 border-gray-200 dark:border-gray-700'
+                }`}
                 aria-label="Toggle filters"
               >
                 <SlidersHorizontal className="w-5 h-5" />
