@@ -13,7 +13,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Set;
 
 @Service
 public class FileStorageService {
@@ -22,13 +21,6 @@ public class FileStorageService {
     private final CloudinaryProvider cloudinaryProvider;
     private final boolean useCloudinary;
     private final String cloudinaryFolder;
-    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
-            "image/jpeg",
-            "image/jpg",
-            "image/png",
-            "image/webp"
-    );
-    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp");
     
     public FileStorageService(
             UploadDirectoryProvider uploadDirectoryProvider,
@@ -50,17 +42,11 @@ public class FileStorageService {
     public String storeFile(MultipartFile file) {
         try {
             String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
             String contentType = file.getContentType();
-            if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+            if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
                 throw new RuntimeException("Unsupported file type");
             }
-            if (extension.isEmpty() || !ALLOWED_EXTENSIONS.contains(extension.toLowerCase())) {
-                throw new RuntimeException("Unsupported file extension");
-            }
+            String extension = resolveExtension(originalFilename, contentType);
 
             if (useCloudinary) {
                 return uploadToCloudinary(file);
@@ -114,6 +100,49 @@ public class FileStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Could not upload file to Cloudinary", e);
         }
+    }
+
+    private String resolveExtension(String originalFilename, String contentType) {
+        String extension = "";
+        if (originalFilename != null) {
+            int lastDot = originalFilename.lastIndexOf('.');
+            if (lastDot >= 0 && lastDot < originalFilename.length() - 1) {
+                extension = originalFilename.substring(lastDot).toLowerCase();
+            }
+        }
+        if (extension.isBlank()) {
+            extension = extensionFromContentType(contentType);
+        }
+        if (extension.isBlank()) {
+            extension = ".img";
+        }
+        return extension;
+    }
+
+    private String extensionFromContentType(String contentType) {
+        if (contentType == null) {
+            return "";
+        }
+        String normalized = contentType.toLowerCase();
+        if (!normalized.startsWith("image/")) {
+            return "";
+        }
+        String subtype = normalized.substring("image/".length());
+        int semicolonIndex = subtype.indexOf(';');
+        if (semicolonIndex != -1) {
+            subtype = subtype.substring(0, semicolonIndex).trim();
+        }
+        int plusIndex = subtype.indexOf('+');
+        if (plusIndex != -1) {
+            subtype = subtype.substring(0, plusIndex).trim();
+        }
+        if ("jpeg".equals(subtype)) {
+            subtype = "jpg";
+        }
+        if (subtype.isBlank()) {
+            return "";
+        }
+        return "." + subtype;
     }
 }
 
