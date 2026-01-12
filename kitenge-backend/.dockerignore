@@ -1,0 +1,12 @@
+target
+data
+uploads
+.env
+.env.*
+.git
+.gitignore
+.idea
+*.log
+*.iml
+node_modules
+src/test
