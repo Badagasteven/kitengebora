@@ -4,6 +4,7 @@ import com.kitenge.model.Product;
 import com.kitenge.repository.ProductRepository;
 import com.kitenge.repository.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,8 @@ public class ProductService {
     
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    @Value("${app.base.url:http://localhost:8080}")
+    private String appBaseUrl;
     
     public List<Product> getAllPublicProducts() {
         return productRepository.findByActiveTrueOrActiveIsNullOrderByIdDesc();
@@ -37,6 +40,9 @@ public class ProductService {
         if (product.getInStock() == null) {
             product.setInStock(true);
         }
+        if (product.getImage() != null && !product.getImage().isBlank()) {
+            product.setImage(normalizeImagePath(product.getImage()));
+        }
         return productRepository.save(product);
     }
     
@@ -56,8 +62,8 @@ public class ProductService {
         if (productDetails.getPrice() != null) {
             product.setPrice(productDetails.getPrice());
         }
-        if (productDetails.getImage() != null) {
-            product.setImage(productDetails.getImage());
+        if (productDetails.getImage() != null && !productDetails.getImage().isBlank()) {
+            product.setImage(normalizeImagePath(productDetails.getImage()));
         }
         if (productDetails.getInStock() != null) {
             product.setInStock(productDetails.getInStock());
@@ -88,6 +94,21 @@ public class ProductService {
         }
         
         productRepository.delete(product);
+    }
+
+    private String normalizeImagePath(String imagePath) {
+        String trimmed = imagePath.trim();
+        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+            return trimmed;
+        }
+        if (appBaseUrl == null || appBaseUrl.isBlank()) {
+            return trimmed;
+        }
+        String normalizedBase = appBaseUrl.endsWith("/") ? appBaseUrl.substring(0, appBaseUrl.length() - 1) : appBaseUrl;
+        if (trimmed.startsWith(normalizedBase + "/")) {
+            return trimmed.substring(normalizedBase.length());
+        }
+        return trimmed;
     }
 }
 

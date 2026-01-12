@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { productsAPI } from '../../services/api'
 import { useToast } from '../../contexts/ToastContext'
 import { Plus, Edit, Trash2, Upload, Search, Filter, X, Check } from 'lucide-react'
@@ -15,6 +15,7 @@ const Products = () => {
   const [editingProduct, setEditingProduct] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, productId: null, productName: '' })
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -35,6 +36,28 @@ const Products = () => {
   useEffect(() => {
     filterProducts()
   }, [products, searchQuery])
+
+  const categoryOptions = useMemo(() => {
+    const categoryMap = new Map()
+    products.forEach((product) => {
+      const category = product.category?.trim()
+      if (!category) return
+      const key = category.toLowerCase()
+      if (!categoryMap.has(key)) {
+        categoryMap.set(key, category)
+      }
+    })
+
+    const currentCategory = formData.category?.trim()
+    if (currentCategory) {
+      const key = currentCategory.toLowerCase()
+      if (!categoryMap.has(key)) {
+        categoryMap.set(key, currentCategory)
+      }
+    }
+
+    return Array.from(categoryMap.values()).sort((a, b) => a.localeCompare(b))
+  }, [products, formData.category])
 
   // Auto-calculate price when promo fields change
   useEffect(() => {
@@ -111,6 +134,7 @@ const Products = () => {
 
   const handleEdit = (product) => {
     setEditingProduct(product)
+    setIsAddingCategory(false)
     setFormData({
       name: product.name || '',
       description: product.description || '',
@@ -200,13 +224,7 @@ const Products = () => {
     try {
       toast.info('Uploading image...')
       const response = await productsAPI.uploadImage(file)
-      let imageUrl = response.data.url
-      
-      // If the URL is relative, construct the full URL using centralized helper
-      if (imageUrl && imageUrl.startsWith('/uploads/')) {
-        imageUrl = getImageUrl(imageUrl)
-      }
-      
+      const imageUrl = response.data.url
       setFormData({ ...formData, image: imageUrl })
       toast.success('Image uploaded successfully!')
     } catch (error) {
@@ -229,6 +247,7 @@ const Products = () => {
       discount: '',
       active: true,
     })
+    setIsAddingCategory(false)
     setEditingProduct(null)
     setShowForm(false)
   }
@@ -342,14 +361,57 @@ const Products = () => {
                         <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                           Category
                         </label>
-                        <input
-                          type="text"
-                          value={formData.category}
-                          onChange={(e) =>
-                            setFormData({ ...formData, category: e.target.value })
-                          }
-                          className="input-field"
-                        />
+                        <div className="space-y-2">
+                          {!isAddingCategory ? (
+                            <select
+                              value={formData.category}
+                              onChange={(e) => {
+                                setFormData({ ...formData, category: e.target.value })
+                                setIsAddingCategory(false)
+                              }}
+                              className="input-field"
+                            >
+                              <option value="">Select category</option>
+                              {categoryOptions.map((category) => (
+                                <option key={category} value={category}>
+                                  {category}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <input
+                              type="text"
+                              value={formData.category}
+                              onChange={(e) =>
+                                setFormData({ ...formData, category: e.target.value })
+                              }
+                              className="input-field"
+                              placeholder="Enter new category"
+                            />
+                          )}
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                            {!isAddingCategory ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsAddingCategory(true)
+                                  setFormData({ ...formData, category: '' })
+                                }}
+                                className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                              >
+                                Add new category
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setIsAddingCategory(false)}
+                                className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                              >
+                                Use existing categories
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
 

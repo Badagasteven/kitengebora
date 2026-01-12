@@ -1,13 +1,12 @@
 package com.kitenge.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.kitenge.config.UploadDirectoryProvider;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import java.util.Set;
@@ -24,8 +23,8 @@ public class FileStorageService {
     );
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".webp");
     
-    public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
-        this.uploadDir = Paths.get(uploadDir).toAbsolutePath().normalize();
+    public FileStorageService(UploadDirectoryProvider uploadDirectoryProvider) {
+        this.uploadDir = uploadDirectoryProvider.getUploadDir();
         try {
             Files.createDirectories(this.uploadDir);
         } catch (IOException e) {

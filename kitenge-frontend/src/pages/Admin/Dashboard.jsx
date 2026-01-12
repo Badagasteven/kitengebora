@@ -119,15 +119,15 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <AdminSidebar />
       <div className="flex-1">
-        <div className="p-4 sm:p-6 lg:p-8">
+        <div className="p-4 pt-20 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
                 Admin Dashboard
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg">
+              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-lg">
                 Welcome back! Here's an overview of your store's performance.
               </p>
             </div>
@@ -146,28 +146,28 @@ const Dashboard = () => {
               Business Overview
             </h2>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 ml-16">
+          <p className="text-sm text-gray-500 dark:text-gray-400 ml-0 sm:ml-16">
             Key metrics and performance indicators
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {statCards.map((stat) => (
             <Link
               key={stat.title}
               to={stat.link}
-              className={`group relative overflow-hidden bg-gradient-to-br ${stat.bgGradient} border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
+              className={`group relative overflow-hidden bg-gradient-to-br ${stat.bgGradient} border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
             >
               {/* Decorative corner */}
               <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-10 rounded-bl-full`}></div>
               
               <div className="relative flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                  <p className="text-[11px] sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">
                     {stat.title}
                   </p>
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {stat.value}
                   </p>
                   {stat.description && (
@@ -181,9 +181,9 @@ const Dashboard = () => {
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <div
-                    className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}
+                    className={`p-2.5 sm:p-3 bg-gradient-to-br ${stat.gradient} rounded-xl text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}
                   >
-                    <stat.icon className="w-6 h-6 sm:w-7 sm:h-7" />
+                    <stat.icon className="w-5 h-5 sm:w-7 sm:h-7" />
                   </div>
                   <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-700 dark:group-hover:text-white group-hover:translate-x-1 transition-all" />
                 </div>
@@ -194,7 +194,7 @@ const Dashboard = () => {
 
         {/* Revenue Chart */}
         {Object.keys(stats.revenueByMonth).length > 0 && (
-          <div className="card p-6 sm:p-8 mb-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="card p-4 sm:p-8 mb-6 sm:mb-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg">
                 <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -246,28 +246,28 @@ const Dashboard = () => {
               Quick Actions
             </h2>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 ml-16">
+          <p className="text-sm text-gray-500 dark:text-gray-400 ml-0 sm:ml-16">
             Navigate to key management areas
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <Link
             to="/admin/products"
-            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50"
+            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-blue-500/50"
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-bl-full"></div>
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <Layers className="w-6 h-6 text-white" />
+                <div className="p-2.5 sm:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
                 Products
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
                 Manage your catalog
               </p>
               <div className="flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400">
@@ -279,20 +279,20 @@ const Dashboard = () => {
 
           <Link
             to="/admin/orders"
-            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-purple-500/50"
+            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-purple-500/50"
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-bl-full"></div>
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <ShoppingBag className="w-6 h-6 text-white" />
+                <div className="p-2.5 sm:p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
                 Orders
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
                 Track & fulfill orders
               </p>
               <div className="flex items-center gap-2 text-sm font-semibold text-purple-600 dark:text-purple-400">
@@ -304,20 +304,20 @@ const Dashboard = () => {
 
           <Link
             to="/admin/analytics"
-            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-green-500/50"
+            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-green-500/50"
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 rounded-bl-full"></div>
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <BarChart3 className="w-6 h-6 text-white" />
+                <div className="p-2.5 sm:p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 group-hover:translate-x-1 transition-all" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
                 Analytics
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
                 View insights
               </p>
               <div className="flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
@@ -329,20 +329,20 @@ const Dashboard = () => {
 
           <Link
             to="/profile"
-            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/50"
+            className="group relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/50"
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-orange-500/5 rounded-bl-full"></div>
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <Settings className="w-6 h-6 text-white" />
+                <div className="p-2.5 sm:p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 group-hover:translate-x-1 transition-all" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
                 Settings
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
                 Account & preferences
               </p>
               <div className="flex items-center gap-2 text-sm font-semibold text-orange-600 dark:text-orange-400">
