@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { useState, useEffect, useRef } from 'react'
 import { productsAPI } from '../services/api'
+import { getImageUrl } from '../utils/imageUtils'
 
 const Header = () => {
   const { isAuthenticated, isAdmin, user, logout } = useAuth()
@@ -22,6 +23,7 @@ const Header = () => {
   const searchRef = useRef(null)
   const navigate = useNavigate()
   const cartCount = getCartCount()
+  const [avatarError, setAvatarError] = useState(false)
 
   const userDisplayName = user?.name || user?.email?.split('@')?.[0] || ''
   const userInitials = userDisplayName
@@ -30,6 +32,11 @@ const Header = () => {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('')
+  const userAvatarUrl = user?.profileImageUrl ? getImageUrl(user.profileImageUrl) : ''
+
+  useEffect(() => {
+    setAvatarError(false)
+  }, [userAvatarUrl])
 
   // Load search history from localStorage
   useEffect(() => {
@@ -173,6 +180,19 @@ const Header = () => {
               </Link>
 
               <div className="flex items-center justify-end flex-1 gap-1">
+                <button
+                  onClick={() => window.dispatchEvent(new Event('cart:open'))}
+                  className="relative p-2 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="Cart"
+                >
+                  <ShoppingBag className="w-6 h-6 text-gray-900 dark:text-white" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
+                      {cartCount > 9 ? '9+' : cartCount}
+                    </span>
+                  )}
+                </button>
+
                 {!isAuthenticated ? (
                   <Link
                     to="/login"
@@ -185,28 +205,23 @@ const Header = () => {
                 ) : (
                   <Link
                     to={isAdmin ? '/admin' : '/account'}
-                    className="flex items-center gap-2 pl-1 pr-2 h-10 rounded-full border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors max-w-[160px]"
+                    className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 overflow-hidden flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     aria-label={`Account: ${userDisplayName || (isAdmin ? 'Admin' : 'Account')}`}
                   >
-                    <span className="w-8 h-8 rounded-full bg-gradient-accent text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
-                      {userInitials || <User className="w-4 h-4" />}
-                    </span>
-                    <span className="truncate">{userDisplayName || (isAdmin ? 'Admin' : 'Account')}</span>
+                    {userAvatarUrl && !avatarError ? (
+                      <img
+                        src={userAvatarUrl}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                        onError={() => setAvatarError(true)}
+                      />
+                    ) : (
+                      <span className="w-full h-full bg-gradient-accent text-white flex items-center justify-center font-black text-xs tracking-wide">
+                        {userInitials || <User className="w-4 h-4" />}
+                      </span>
+                    )}
                   </Link>
                 )}
-
-                <button
-                  onClick={() => window.dispatchEvent(new Event('cart:open'))}
-                  className="relative p-2 -mr-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                  aria-label="Cart"
-                >
-                  <ShoppingBag className="w-6 h-6 text-gray-900 dark:text-white" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </span>
-                  )}
-                </button>
               </div>
             </div>
           </div>

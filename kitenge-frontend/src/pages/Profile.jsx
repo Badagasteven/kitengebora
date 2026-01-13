@@ -213,10 +213,13 @@ const Profile = () => {
         setProfileImagePreview(getImageUrl(data.profileImageUrl))
       }
       
-      // Update user context if email changed
-      if (data.email !== user?.email) {
-        setUser(data)
-      }
+      // Keep auth user in sync (name / email / profile image)
+      setUser((prev) => ({
+        ...prev,
+        email: data.email ?? prev?.email,
+        name: data.name ?? prev?.name,
+        profileImageUrl: data.profileImageUrl ?? prev?.profileImageUrl,
+      }))
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to update profile')
     } finally {
