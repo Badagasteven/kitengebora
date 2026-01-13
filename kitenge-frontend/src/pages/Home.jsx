@@ -185,27 +185,28 @@ const Home = () => {
 
         {/* Text Content - Mobile and Desktop */}
         <div className="relative z-20 w-full px-4 sm:px-6 max-w-5xl animate-fade-in-up">
-          {/* Mobile hero copy */}
-          <div className="sm:hidden flex">
-            <div className="max-w-xs bg-black/65 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-5 shadow-2xl">
-              <div className="text-[11px] font-bold mb-2 text-accent-300 uppercase tracking-widest drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
-                New arrivals
+          {/* Mobile hero copy (match desktop wording) */}
+          <div className="sm:hidden flex justify-center">
+            <div className="w-full max-w-sm text-center bg-gradient-to-br from-black/70 via-black/60 to-black/70 backdrop-blur-xl border border-white/25 rounded-2xl px-5 py-6 shadow-2xl">
+              <div className="text-[10px] font-bold mb-3 text-accent-300 uppercase tracking-widest drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                New drop A Kitenge prints
               </div>
-              <h1 className="text-3xl font-black mb-2 text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.9)] leading-tight">
-                Select your material
+              <h1 className="text-[28px] font-black mb-3 text-white drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)] leading-tight">
+                Bold African prints for everyday wear.
               </h1>
-              <div className="text-xs text-white/85 font-semibold mb-4">
-                This week
-              </div>
+              <p className="text-sm text-white/90 mb-5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] leading-relaxed font-semibold px-1">
+                Carefully selected kitenge, ankara and wax fabrics ready to be
+                tailored into your favourite looks.
+              </p>
               <button
                 onClick={() =>
                   document
                     .getElementById('collection')
                     ?.scrollIntoView({ behavior: 'smooth' })
                 }
-                className="bg-gradient-accent text-white font-bold px-5 py-3 rounded-md shadow-accent active:scale-95 transition-transform min-h-[44px]"
+                className="w-full btn-primary bg-white text-accent hover:bg-gray-50 shadow-2xl hover:shadow-accent-lg active:scale-95 transition-all duration-300 text-sm px-6 py-3 font-bold min-h-[48px] touch-manipulation"
               >
-                Discover now
+                Shop the collection
               </button>
             </div>
           </div>

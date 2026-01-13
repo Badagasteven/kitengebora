@@ -14,9 +14,9 @@ const Footer = () => {
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-12">
           {/* Brand Section */}
-          <div className="space-y-6">
+          <div className="col-span-2 md:col-span-1 space-y-6">
             <div>
               <h3 className="text-3xl sm:text-4xl font-black text-white mb-4 bg-gradient-to-r from-accent-400 via-accent-500 to-accent-600 to-accent-500 bg-clip-text text-transparent">
                 KITENGE BORA
@@ -74,11 +74,11 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-white font-black text-lg mb-6 flex items-center gap-2 uppercase tracking-wide">
+            <h4 className="text-white font-black text-base sm:text-lg mb-4 sm:mb-6 flex items-center gap-2 uppercase tracking-wide">
               <Sparkles className="w-5 h-5 text-accent" />
               Quick Links
             </h4>
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-2 gap-x-5 gap-y-2 sm:block sm:space-y-3">
               {[
                 { to: '/', label: 'Home' },
                 { to: '/products', label: 'Products' },
@@ -101,11 +101,11 @@ const Footer = () => {
 
           {/* Customer Service */}
           <div>
-            <h4 className="text-white font-black text-lg mb-6 flex items-center gap-2 uppercase tracking-wide">
+            <h4 className="text-white font-black text-base sm:text-lg mb-4 sm:mb-6 flex items-center gap-2 uppercase tracking-wide">
               <Heart className="w-5 h-5 text-accent" />
               Customer Service
             </h4>
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-2 gap-x-5 gap-y-2 sm:block sm:space-y-3">
               {[
                 { to: '/account', label: 'My Account' },
                 { to: '/profile', label: 'Profile Settings' },
@@ -127,12 +127,12 @@ const Footer = () => {
           </div>
 
           {/* Contact Info */}
-          <div>
-            <h4 className="text-white font-black text-lg mb-6 flex items-center gap-2 uppercase tracking-wide">
+          <div className="col-span-2 md:col-span-1">
+            <h4 className="text-white font-black text-base sm:text-lg mb-4 sm:mb-6 flex items-center gap-2 uppercase tracking-wide">
               <MapPin className="w-5 h-5 text-accent" />
               Get in Touch
             </h4>
-            <ul className="space-y-4">
+            <ul className="space-y-3 sm:space-y-4">
               <li>
                 <a
                   href="mailto:kitengeboraa@gmail.com"

@@ -23,6 +23,14 @@ const Header = () => {
   const navigate = useNavigate()
   const cartCount = getCartCount()
 
+  const userDisplayName = user?.name || user?.email?.split('@')?.[0] || ''
+  const userInitials = userDisplayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
+
   // Load search history from localStorage
   useEffect(() => {
     const savedHistory = localStorage.getItem('kb_search_history')
@@ -168,18 +176,22 @@ const Header = () => {
                 {!isAuthenticated ? (
                   <Link
                     to="/login"
-                    className="flex items-center gap-1 px-2.5 h-9 rounded-full border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    aria-label="Login"
                   >
                     <User className="w-4 h-4" />
-                    <span>Login</span>
+                    <span className="sr-only">Login</span>
                   </Link>
                 ) : (
                   <Link
                     to={isAdmin ? '/admin' : '/account'}
-                    className="flex items-center gap-1 px-2.5 h-9 rounded-full border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="flex items-center gap-2 pl-1 pr-2 h-10 rounded-full border border-gray-300 dark:border-gray-700 text-xs font-semibold text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors max-w-[160px]"
+                    aria-label={`Account: ${userDisplayName || (isAdmin ? 'Admin' : 'Account')}`}
                   >
-                    <User className="w-4 h-4" />
-                    <span>{isAdmin ? 'Admin' : 'Account'}</span>
+                    <span className="w-8 h-8 rounded-full bg-gradient-accent text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      {userInitials || <User className="w-4 h-4" />}
+                    </span>
+                    <span className="truncate">{userDisplayName || (isAdmin ? 'Admin' : 'Account')}</span>
                   </Link>
                 )}
 
