@@ -39,9 +39,12 @@ export const ThemeProvider = ({ children }) => {
 
   // Initialize theme
   useEffect(() => {
-    const saved = localStorage.getItem('kb_theme') || 'system'
-    setTheme(saved)
-    applyTheme(saved)
+    const saved = localStorage.getItem('kb_theme')
+    const defaultTheme = window.innerWidth < 640 ? 'light' : 'system'
+    const initialTheme = saved || defaultTheme
+
+    setTheme(initialTheme)
+    applyTheme(initialTheme)
   }, [])
 
   // Listen for system theme changes
