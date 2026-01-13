@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
 import CartDrawer from './CartDrawer'
@@ -7,26 +7,36 @@ import ErrorBoundary from './ErrorBoundary'
 import MobileBottomNav from './MobileBottomNav'
 
 const Layout = () => {
+  const location = useLocation()
+  const isAdminRoute = location.pathname.startsWith('/admin')
+  const showStoreChrome = !isAdminRoute
+
   return (
     <div className="min-h-screen bg-white dark:bg-black flex flex-col">
-      <ErrorBoundary>
-        <Header />
-      </ErrorBoundary>
-      <main className="flex-grow pb-24 lg:pb-0">
+      {showStoreChrome && (
+        <ErrorBoundary>
+          <Header />
+        </ErrorBoundary>
+      )}
+      <main className={`flex-grow ${showStoreChrome ? 'pb-24 lg:pb-0' : ''}`}>
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>
       </main>
-      <ErrorBoundary>
-        <Footer />
-      </ErrorBoundary>
-      <ErrorBoundary>
-        <CartDrawer />
-      </ErrorBoundary>
-      <ErrorBoundary>
-        <MobileBottomNav />
-      </ErrorBoundary>
-      <BackToTop />
+      {showStoreChrome && (
+        <>
+          <ErrorBoundary>
+            <Footer />
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <CartDrawer />
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <MobileBottomNav />
+          </ErrorBoundary>
+          <BackToTop />
+        </>
+      )}
     </div>
   )
 }

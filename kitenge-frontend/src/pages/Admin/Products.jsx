@@ -294,7 +294,7 @@ const Products = () => {
               className="sm:hidden btn-primary flex items-center justify-center gap-2 w-full min-h-[52px] text-base touch-manipulation font-semibold"
             >
               <Plus className="w-6 h-6" />
-              <span>Add New Product</span>
+              <span>Add Product</span>
             </button>
           </div>
           
@@ -326,9 +326,9 @@ const Products = () => {
 
           {/* Product Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
-              <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-                <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+              <div className="bg-white dark:bg-gray-900 rounded-2xl max-w-3xl w-full max-h-[94vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 sm:px-6 py-4 flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                     {editingProduct ? 'Edit Product' : 'Add New Product'}
                   </h2>
@@ -340,7 +340,7 @@ const Products = () => {
                     <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
@@ -528,7 +528,7 @@ const Products = () => {
                         Product Image
                       </label>
                       <div className="space-y-3">
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <input
                             type="text"
                             value={formData.image}
@@ -538,7 +538,7 @@ const Products = () => {
                             className="input-field flex-1"
                             placeholder="Enter image URL or upload file"
                           />
-                          <label className="btn-outline cursor-pointer flex items-center gap-2 whitespace-nowrap">
+                          <label className="btn-outline cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
                             <Upload className="w-4 h-4" />
                             Upload
                             <input
@@ -566,7 +566,7 @@ const Products = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
                       <label className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -613,7 +613,7 @@ const Products = () => {
                       </label>
                     </div>
 
-                    <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                       <button 
                         type="submit" 
                         className="btn-primary flex-1 flex items-center justify-center gap-2"
