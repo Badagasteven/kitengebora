@@ -467,6 +467,7 @@ const Customers = () => {
             </table>
           </div>
         </div>
+        </div>
 
         {/* Customer Detail Modal */}
         {selectedCustomer && (
