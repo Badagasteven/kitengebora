@@ -330,6 +330,25 @@
     min-width: 20px;
     min-height: 20px;
   }
+
+  /* Lighter effects on mobile for smoother scrolling */
+  .card,
+  .card-hover {
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  .card,
+  .card-hover,
+  .btn-primary,
+  .btn-outline,
+  .hover-lift,
+  .hover-glow {
+    transition-duration: 150ms;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
 }
 
 /* Tablet optimizations */
@@ -345,6 +364,16 @@
 @media (max-width: 640px) {
   body {
     overscroll-behavior-y: contain;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
 
