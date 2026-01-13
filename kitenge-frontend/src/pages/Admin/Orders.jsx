@@ -220,6 +220,23 @@ const Orders = () => {
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
   }
 
+  const getStatusBadgeClasses = (status) => {
+    const normalized = (status || 'PENDING').toUpperCase()
+    if (normalized === 'DELIVERED') {
+      return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+    }
+    if (normalized === 'SHIPPED') {
+      return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+    }
+    if (normalized === 'PROCESSING' || normalized === 'CONFIRMED') {
+      return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300'
+    }
+    if (normalized === 'CANCELLED') {
+      return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+    }
+    return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
+  }
+
   // Get order number with month/year context
   const getOrderNumberDisplay = (order) => {
     const orderNumber = order.orderNumber || order.order_number || order.id
@@ -412,81 +429,81 @@ const Orders = () => {
       <AdminSidebar />
       <div className="flex-1">
         <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Orders
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
             View incoming customer orders and their details.
           </p>
         </div>
 
         {/* Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="card p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
+          <div className="card p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800">
             <div className="flex items-center justify-between mb-2">
               <ShoppingBag className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">
               Total Orders
             </p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {Array.isArray(orders) ? orders.length : 0}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
               All time
             </p>
           </div>
-          <div className="card p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800">
+          <div className="card p-4 sm:p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800">
             <div className="flex items-center justify-between mb-2">
               <Calendar className="w-5 h-5 text-green-600 dark:text-green-400" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">
               Orders Today
             </p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {getTodayOrders()}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
               Since midnight
             </p>
           </div>
-          <div className="card p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-800">
+          <div className="card p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-800">
             <div className="flex items-center justify-between mb-2">
               <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">
               Orders This Month
             </p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {getThisMonthOrders()}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
               Current month
             </p>
           </div>
-          <div className="card p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200 dark:border-orange-800">
+          <div className="card p-4 sm:p-6 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200 dark:border-orange-800">
             <div className="flex items-center justify-between mb-2">
               <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">
               Orders This Year
             </p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {getThisYearOrders()}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
               Current year
             </p>
           </div>
-          <div className="card p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border border-emerald-200 dark:border-emerald-800">
+          <div className="card p-4 sm:p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border border-emerald-200 dark:border-emerald-800">
             <div className="flex items-center justify-between mb-2">
               <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">
               Revenue
             </p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
               {getTotalRevenue().toLocaleString()} RWF
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
@@ -509,10 +526,10 @@ const Orders = () => {
           </div>
           
           {/* Time Filter Dropdown */}
-          <div className="relative">
+          <div className="relative w-full sm:w-auto">
             <button
               onClick={() => setShowTimeFilter(!showTimeFilter)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors min-w-[160px] justify-between"
+              className="flex w-full sm:w-auto items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors min-w-[160px] justify-between"
             >
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4" />
@@ -608,7 +625,7 @@ const Orders = () => {
               return (
                 <div key={monthKey} className="card overflow-hidden">
                   {/* Month Header */}
-                  <div className="bg-gradient-to-r from-accent/10 to-accent/5 border-b border-accent/20 px-6 py-4">
+                  <div className="bg-gradient-to-r from-accent/10 to-accent/5 border-b border-accent/20 px-4 sm:px-6 py-3 sm:py-4">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                       <Calendar className="w-5 h-5 text-accent" />
                       {monthName}
@@ -621,14 +638,100 @@ const Orders = () => {
                     return (
                       <div key={weekKey} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0">
                         {/* Week Header */}
-                        <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-3">
+                        <div className="bg-gray-50 dark:bg-gray-800/50 px-4 sm:px-6 py-2.5 sm:py-3">
                           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                             {weekKey} ({weekOrders.length} {weekOrders.length === 1 ? 'order' : 'orders'})
                           </h4>
                         </div>
                         
                         {/* Orders Table for this Week */}
-                        <div className="overflow-x-auto">
+                        <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-800">
+                          {weekOrders.map((order) => {
+                            const total =
+                              (order.subtotal || 0) + (order.delivery_fee || order.deliveryFee || 0)
+                            const customerName = order.customerName || order.customer_name
+                            const customerPhone = order.customerPhone || order.customer_phone
+                            const createdAt = order.createdAt || order.created_at
+                            const deliveryLocation = order.deliveryLocation || order.delivery_location
+                            const deliveryOption = order.deliveryOption || order.delivery_option
+                            const displayName = customerName || 'Unknown'
+                            const formattedDate = createdAt
+                              ? new Date(createdAt).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })
+                              : '-'
+                            const productImage = getFirstProductImage(order)
+                            const imageUrl = productImage ? getImageUrl(productImage) : '/placeholder.png'
+                            const statusLabel = order.status || order.Status || 'PENDING'
+                            const statusClasses = getStatusBadgeClasses(statusLabel)
+
+                            return (
+                              <div key={order.id} className="p-4 space-y-3">
+                                <div className="flex items-start gap-3">
+                                  <img
+                                    src={imageUrl}
+                                    alt="Product"
+                                    className="w-14 h-14 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                                    onError={(e) => {
+                                      e.target.src = '/placeholder.png'
+                                    }}
+                                  />
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {getOrderNumberDisplay(order)}
+                                      </p>
+                                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                        {total.toLocaleString()} RWF
+                                      </p>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                      {displayName}
+                                      {customerPhone ? ` • ${customerPhone}` : ''}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                      {deliveryOption === 'pickup'
+                                        ? 'Pickup'
+                                        : deliveryLocation || 'Delivery'}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClasses}`}>
+                                    {statusLabel}
+                                  </span>
+                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 capitalize">
+                                    {order.channel || 'store'}
+                                  </span>
+                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                    {formattedDate}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+                                  <button
+                                    onClick={() => handleViewOrder(order)}
+                                    className="text-accent hover:text-accent-darker p-2"
+                                    aria-label="View order"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteClick(order)}
+                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-2"
+                                    aria-label="Delete order"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                        <div className="hidden sm:block overflow-x-auto">
                           <table className="w-full">
                             <thead className="bg-gray-50 dark:bg-gray-800">
                               <tr>
@@ -1062,4 +1165,3 @@ const Orders = () => {
 }
 
 export default Orders
-

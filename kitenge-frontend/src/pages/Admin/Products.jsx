@@ -647,9 +647,97 @@ const Products = () => {
           )}
 
           {/* Products Table */}
-          <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
+          <div className="space-y-4">
+            {/* Mobile Cards */}
+            <div className="sm:hidden space-y-4">
+              {filteredProducts.length === 0 ? (
+                <div className="card p-8 text-center">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {searchQuery ? 'No products match your search.' : 'No products yet.'}
+                  </p>
+                </div>
+              ) : (
+                filteredProducts.map((product) => (
+                  <div key={product.id} className="card p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={getImageUrl(product.image)}
+                        alt={product.name}
+                        className="w-14 h-14 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
+                        onError={(e) => {
+                          e.target.src = '/placeholder.png'
+                        }}
+                      />
+                      <div className="flex-1">
+                        <p className="text-base font-semibold text-gray-900 dark:text-white">
+                          {product.name}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {product.category || 'Uncategorized'}
+                        </p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">
+                          {product.price.toLocaleString()} RWF
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {product.active !== false ? (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                          Archived
+                        </span>
+                      )}
+                      {product.in_stock ? (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          In Stock
+                        </span>
+                      ) : (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          Out of Stock
+                        </span>
+                      )}
+                      {product.is_promo && (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                          Promo
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-800">
+                      <button
+                        onClick={() => handleToggleActive(product)}
+                        className="text-sm font-medium text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        {product.active ? 'Archive' : 'Activate'}
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="text-accent hover:text-accent-darker p-2"
+                          aria-label="Edit product"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(product)}
+                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-2"
+                          aria-label="Delete product"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Desktop Table */}
+            <div className="card overflow-hidden hidden sm:block">
+              <div className="overflow-x-auto">
+                <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">

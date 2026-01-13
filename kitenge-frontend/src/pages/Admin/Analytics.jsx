@@ -132,7 +132,7 @@ const Analytics = () => {
       <div className="flex-1">
         <div className="p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <Link
             to="/admin"
             className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-accent mb-4 transition-colors"
@@ -140,32 +140,32 @@ const Analytics = () => {
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Revenue Analytics
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
             Detailed insights into your business performance and revenue
           </p>
         </div>
 
         {/* Revenue Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {revenueCards.map((card) => (
-            <div key={card.title} className="card p-6 hover:shadow-lg transition-all">
+            <div key={card.title} className="card p-4 sm:p-6 hover:shadow-lg transition-all">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex-1">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     {card.title}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
                     {card.value}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500">
                     {card.description}
                   </p>
                 </div>
-                <div className={`${card.color} p-3 rounded-lg text-white`}>
-                  <card.icon className="w-6 h-6" />
+                <div className={`${card.color} p-2.5 sm:p-3 rounded-lg text-white`}>
+                  <card.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
               </div>
               {card.trend && (
@@ -179,19 +179,19 @@ const Analytics = () => {
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           {businessMetrics.map((metric) => (
             <Link
               key={metric.title}
               to={metric.link}
-              className="card p-6 hover:shadow-lg transition-all border-2 border-transparent hover:border-accent/20"
+              className="card p-4 sm:p-6 hover:shadow-lg transition-all border-2 border-transparent hover:border-accent/20"
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     {metric.title}
                   </p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-1">
                     {metric.value}
                   </p>
                   {metric.description && (
@@ -200,8 +200,8 @@ const Analytics = () => {
                     </p>
                   )}
                 </div>
-                <div className={`${metric.color} p-3 rounded-lg text-white`}>
-                  <metric.icon className="w-6 h-6" />
+                <div className={`${metric.color} p-2.5 sm:p-3 rounded-lg text-white`}>
+                  <metric.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
               </div>
             </Link>
@@ -209,27 +209,27 @@ const Analytics = () => {
         </div>
 
         {/* Revenue Insights */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <div className="card p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
+          <div className="card p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4">
               Revenue Insights
             </h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-800">
                 <span className="text-gray-600 dark:text-gray-400">Average Order Value</span>
-                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                   {avgOrderValue.toLocaleString()} RWF
                 </span>
               </div>
               <div className="flex justify-between items-center pb-3 border-b border-gray-200 dark:border-gray-800">
                 <span className="text-gray-600 dark:text-gray-400">Revenue per Customer</span>
-                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                   {revenuePerCustomer.toLocaleString()} RWF
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-600 dark:text-gray-400">Conversion Rate</span>
-                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
                   {stats.totalCustomers > 0 
                     ? ((stats.totalOrders / stats.totalCustomers) * 100).toFixed(1)
                     : 0}%
@@ -238,8 +238,8 @@ const Analytics = () => {
             </div>
           </div>
 
-          <div className="card p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          <div className="card p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-4">
               Performance Summary
             </h3>
             <div className="space-y-4">
@@ -263,7 +263,7 @@ const Analytics = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                   Quick Stats
                 </p>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-500">Orders per Day</p>
                     <p className="text-lg font-bold text-gray-900 dark:text-white">
@@ -286,8 +286,8 @@ const Analytics = () => {
 
         {/* Revenue Trend Chart */}
         {Object.keys(stats.revenueByMonth).length > 0 && (
-          <div className="card p-6">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
+          <div className="card p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-6">
               Revenue Trend (Last 6 Months)
             </h3>
             <div className="space-y-4">

@@ -405,23 +405,19 @@ const Home = () => {
               </select>
             </div>
 
-            {/* Mobile Category Buttons - Horizontal Scrollable with better touch targets */}
+            {/* Mobile Category Dropdown */}
             <div className="sm:hidden">
-              <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="input-field w-full text-base"
+              >
                 {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`px-4 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0 min-h-[44px] touch-manipulation ${
-                      selectedCategory === cat
-                        ? 'bg-accent text-white shadow-md scale-105'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 dark:active:bg-gray-700'
-                    }`}
-                  >
+                  <option key={cat} value={cat}>
                     {cat === 'all' ? 'All Products' : cat}
-                  </button>
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
 
             {/* View Tabs - Mobile Optimized */}
