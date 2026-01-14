@@ -6,6 +6,9 @@ import { useState, useEffect } from 'react'
 import { ordersAPI } from '../services/api'
 import { EmptyCart } from '../components/EmptyState'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+const ADMIN_WHATSAPP_NUMBER = '250788883986'
+
 const CartDrawer = () => {
   const {
     cart,
@@ -82,6 +85,63 @@ const CartDrawer = () => {
         })),
       }
       
+      // Fast WhatsApp checkout: save order in background and redirect immediately (no 10s timeout, no popup blocker).
+      const checkoutCustomerName = customerName.trim() ? customerName.trim() : 'Guest'
+      const checkoutDeliveryLabel =
+        deliveryOption === 'pickup'
+          ? 'Pickup'
+          : deliveryOption === 'kigali'
+            ? 'Kigali Delivery'
+            : 'Upcountry Delivery'
+
+      const checkoutMessageLines = [
+        'NEW ORDER',
+        '',
+        `Customer: ${checkoutCustomerName}`,
+        `Phone: ${customerPhone.trim()}`,
+      ]
+
+      if (deliveryOption !== 'pickup') {
+        checkoutMessageLines.push(`Delivery: ${checkoutDeliveryLabel}`)
+        if (deliveryLocation.trim()) {
+          checkoutMessageLines.push(`Location: ${deliveryLocation.trim()}`)
+        }
+      }
+
+      checkoutMessageLines.push('', 'ORDER ITEMS:')
+      cart.forEach((item, index) => {
+        checkoutMessageLines.push(
+          `${index + 1}. ${item.name} - Qty: ${item.quantity} x ${item.price.toLocaleString()} RWF`
+        )
+      })
+      checkoutMessageLines.push('', `TOTAL: ${grandTotal.toLocaleString()} RWF`)
+
+      const checkoutText = checkoutMessageLines.join('\n')
+      const whatsappCheckoutUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(checkoutText)}`
+
+      // Fire-and-forget order save (works with Render cold starts).
+      const beaconUrl = `${API_BASE_URL}/orders/beacon`
+      const beaconBody = JSON.stringify(orderData)
+      try {
+        if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+          navigator.sendBeacon(beaconUrl, beaconBody)
+        } else {
+          fetch(beaconUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+            body: beaconBody,
+            keepalive: true,
+          }).catch(() => {})
+        }
+      } catch {
+        // ignore
+      }
+
+      clearCart()
+      setIsOpen(false)
+      window.location.assign(whatsappCheckoutUrl)
+      return
+
       const savedOrder = await ordersAPI.createOrder(orderData)
       console.log('✅ Order saved successfully:', savedOrder.data)
 

@@ -4,10 +4,12 @@ import com.kitenge.dto.OrderRequest;
 import com.kitenge.model.Order;
 import com.kitenge.service.OrderService;
 import com.kitenge.service.WhatsAppService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +28,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final WhatsAppService whatsAppService;
+    private final ObjectMapper objectMapper;
     
     @GetMapping("/orders")
     public ResponseEntity<?> getAllOrders() {
@@ -151,6 +154,22 @@ public class OrderController {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Order failed: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    /**
+     * Lightweight endpoint for "fire-and-forget" order creation from the frontend.
+     * Designed for navigator.sendBeacon(), so it accepts text/plain to avoid CORS preflight.
+     */
+    @PostMapping(value = "/orders/beacon", consumes = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> createOrderBeacon(@RequestBody String rawBody) {
+        try {
+            OrderRequest request = objectMapper.readValue(rawBody, OrderRequest.class);
+            Order order = orderService.createOrder(request, null);
+            return ResponseEntity.accepted().body(Map.of("orderId", order.getId()));
+        } catch (Exception e) {
+            logger.warn("Beacon order creation failed", e);
+            return ResponseEntity.badRequest().build();
         }
     }
 

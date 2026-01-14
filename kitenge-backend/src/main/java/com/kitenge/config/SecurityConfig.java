@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/public-products").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll() // Contact form (public)
-                .requestMatchers(HttpMethod.POST, "/api/orders").permitAll() // Customers can place orders
+                .requestMatchers(HttpMethod.POST, "/api/orders", "/api/orders/beacon").permitAll() // Customers can place orders
                 .requestMatchers(HttpMethod.POST, "/api/orders/track").permitAll() // Guest order tracking
                 .requestMatchers("/api/orders/my-orders").authenticated() // Users can get their own orders
                 .requestMatchers("/api/orders/*/track").authenticated() // Allow authenticated users to track their own orders
