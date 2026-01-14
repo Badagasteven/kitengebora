@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/forgot-password", "/api/reset-password").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/verify-email", "/api/resend-verification", "/api/verify-2fa").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/health").permitAll() // Health check (for uptime monitors)
+                .requestMatchers(HttpMethod.HEAD, "/api/health").permitAll() // UptimeRobot uses HEAD by default
                 .requestMatchers(HttpMethod.GET, "/api/public-products").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll() // Contact form (public)
