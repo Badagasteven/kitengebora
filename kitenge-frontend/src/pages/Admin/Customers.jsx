@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { userAPI, ordersAPI, statsAPI } from '../../services/api'
-import { Users, ShoppingBag, DollarSign, Mail, Phone, MapPin, Calendar, ArrowLeft, Search, Eye, Trash2, AlertTriangle } from 'lucide-react'
+import { Users, ShoppingBag, DollarSign, Mail, Phone, MapPin, Calendar, ArrowLeft, Search, Eye, Trash2, AlertTriangle, Home } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useToast } from '../../contexts/ToastContext'
 import { useAuth } from '../../contexts/AuthContext'
@@ -188,12 +188,28 @@ const Customers = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <AdminSidebar />
       <div className="flex-1">
-        <div className="p-4 sm:p-6 lg:p-8">
+        <div className="px-4 pb-4 pt-16 sm:px-6 sm:pb-6 sm:pt-16 lg:p-8">
+        <div className="lg:hidden flex flex-wrap items-center gap-2 mb-4">
+          <Link
+            to="/admin"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-800 dark:text-gray-200 shadow-sm active:scale-[0.98] transition-transform"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Dashboard
+          </Link>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-800 dark:text-gray-200 shadow-sm active:scale-[0.98] transition-transform"
+          >
+            <Home className="w-4 h-4" />
+            Store
+          </Link>
+        </div>
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <Link
             to="/admin"
-            className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-accent mb-4 transition-colors"
+            className="hidden lg:inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-accent mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard

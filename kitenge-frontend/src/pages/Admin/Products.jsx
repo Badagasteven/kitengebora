@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { productsAPI } from '../../services/api'
 import { useToast } from '../../contexts/ToastContext'
-import { Plus, Edit, Trash2, Upload, Search, Filter, X, Check } from 'lucide-react'
+import { Plus, Edit, Trash2, Upload, Search, Filter, X, Check, ArrowLeft, Home } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 import { getImageUrl } from '../../utils/imageUtils'
 
@@ -264,7 +265,23 @@ const Products = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       <AdminSidebar />
       <div className="flex-1">
-        <div className="p-4 sm:p-6 lg:p-8">
+        <div className="px-4 pb-4 pt-16 sm:px-6 sm:pb-6 sm:pt-16 lg:p-8">
+          <div className="lg:hidden flex flex-wrap items-center gap-2 mb-4">
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-800 dark:text-gray-200 shadow-sm active:scale-[0.98] transition-transform"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Dashboard
+            </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm font-semibold text-gray-800 dark:text-gray-200 shadow-sm active:scale-[0.98] transition-transform"
+            >
+              <Home className="w-4 h-4" />
+              Store
+            </Link>
+          </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">

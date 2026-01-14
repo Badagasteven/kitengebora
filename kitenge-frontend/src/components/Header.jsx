@@ -15,12 +15,14 @@ const Header = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [showThemeMenu, setShowThemeMenu] = useState(false)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
   const themeMenuRef = useRef(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchHistory, setSearchHistory] = useState([])
   const searchRef = useRef(null)
+  const profileMenuRef = useRef(null)
   const navigate = useNavigate()
   const cartCount = getCartCount()
   const [avatarError, setAvatarError] = useState(false)
@@ -101,13 +103,16 @@ const Header = () => {
       if (themeMenuRef.current && !themeMenuRef.current.contains(event.target)) {
         setShowThemeMenu(false)
       }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setShowProfileMenu(false)
+      }
     }
 
-    if (showSearch || showThemeMenu) {
+    if (showSearch || showThemeMenu || showProfileMenu) {
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showSearch, showThemeMenu])
+  }, [showSearch, showThemeMenu, showProfileMenu])
 
   const handleSearchSubmit = (e) => {
     e.preventDefault()
@@ -147,7 +152,11 @@ const Header = () => {
             <div className="flex items-center h-12 px-3">
               <div className="flex items-center flex-1">
                 <button
-                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  onClick={() => {
+                    setShowMobileMenu(!showMobileMenu)
+                    setShowProfileMenu(false)
+                    setShowSearch(false)
+                  }}
                   className="p-2 -ml-1 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
                   aria-label="Menu"
                 >
@@ -193,35 +202,99 @@ const Header = () => {
                   )}
                 </button>
 
-                {!isAuthenticated ? (
-                  <Link
-                    to="/login"
-                    className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    aria-label="Login"
-                  >
-                    <User className="w-4 h-4" />
-                    <span className="sr-only">Login</span>
-                  </Link>
-                ) : (
-                  <Link
-                    to={isAdmin ? '/admin' : '/account'}
-                    className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 overflow-hidden flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    aria-label={`Account: ${userDisplayName || (isAdmin ? 'Admin' : 'Account')}`}
-                  >
-                    {userAvatarUrl && !avatarError ? (
-                      <img
-                        src={userAvatarUrl}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                        onError={() => setAvatarError(true)}
-                      />
-                    ) : (
-                      <span className="w-full h-full bg-gradient-accent text-white flex items-center justify-center font-black text-xs tracking-wide">
-                        {userInitials || <User className="w-4 h-4" />}
+                <div ref={profileMenuRef} className="relative flex-shrink-0">
+                  {!isAuthenticated ? (
+                    <Link
+                      to="/login"
+                      className="p-2 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      aria-label="Login"
+                    >
+                      <span className="w-9 h-9 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center overflow-hidden">
+                        <User className="w-4 h-4 text-gray-800 dark:text-gray-200" />
                       </span>
-                    )}
-                  </Link>
-                )}
+                      <span className="sr-only">Login</span>
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowProfileMenu(!showProfileMenu)
+                          setShowMobileMenu(false)
+                          setShowSearch(false)
+                        }}
+                        className="p-2 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        aria-label={`Account menu: ${userDisplayName || (isAdmin ? 'Admin' : 'Account')}`}
+                        aria-expanded={showProfileMenu}
+                      >
+                        <span className="w-9 h-9 rounded-full border border-gray-300 dark:border-gray-700 overflow-hidden flex items-center justify-center">
+                          {userAvatarUrl && !avatarError ? (
+                            <img
+                              src={userAvatarUrl}
+                              alt="Profile"
+                              className="w-full h-full object-cover"
+                              onError={() => setAvatarError(true)}
+                            />
+                          ) : (
+                            <span className="w-full h-full bg-gradient-accent text-white flex items-center justify-center font-black text-xs tracking-wide">
+                              {userInitials || <User className="w-4 h-4" />}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+
+                      {showProfileMenu && (
+                        <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden">
+                          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                              {userDisplayName || (isAdmin ? 'Admin' : 'Account')}
+                            </p>
+                            {user?.email && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                            )}
+                          </div>
+
+                          {isAdmin && (
+                            <Link
+                              to="/admin"
+                              onClick={() => setShowProfileMenu(false)}
+                              className="block px-4 py-3 min-h-[44px] text-sm font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation"
+                            >
+                              Admin Dashboard
+                            </Link>
+                          )}
+
+                          <Link
+                            to="/account"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="block px-4 py-3 min-h-[44px] text-sm font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation"
+                          >
+                            My Account
+                          </Link>
+                          <Link
+                            to="/profile"
+                            onClick={() => setShowProfileMenu(false)}
+                            className="block px-4 py-3 min-h-[44px] text-sm font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
+                          >
+                            <Settings className="w-4 h-4" />
+                            Profile Settings
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              handleLogout()
+                              setShowProfileMenu(false)
+                            }}
+                            className="w-full text-left px-4 py-3 min-h-[44px] text-sm font-semibold text-red-600 dark:text-red-400 active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Logout
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -727,48 +800,9 @@ const Header = () => {
                 <Heart className="w-5 h-5" />
                 Wishlist
               </Link>
-              {/* Divider */}
-              <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
-              
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
-                >
-                  Admin Dashboard
-                </Link>
-              )}
-              {isAuthenticated && (
-                <>
-                  <Link
-                    to="/account"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
-                  >
-                    My Account
-                  </Link>
-                  <Link
-                    to="/profile"
-                    onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
-                  >
-                    <Settings className="w-5 h-5" />
-                    Profile Settings
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleLogout()
-                      setShowMobileMenu(false)
-                    }}
-                    className="w-full text-left px-4 py-3 min-h-[44px] text-[15px] font-medium text-red-600 dark:text-red-400 active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    Logout
-                  </button>
-                </>
-              )}
               {!isAuthenticated && (
+                <>
+                  <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
                 <Link
                   to="/login"
                   onClick={() => setShowMobileMenu(false)}
@@ -776,6 +810,7 @@ const Header = () => {
                 >
                   Login
                 </Link>
+                </>
               )}
               
               {/* Theme Toggle in Mobile Menu */}
