@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 const MobileBottomNav = () => {
   const location = useLocation()
   const [hidden, setHidden] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
   const lastScrollY = useRef(0)
 
   useEffect(() => {
@@ -30,6 +31,18 @@ const MobileBottomNav = () => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    const handleCartOpen = () => setCartOpen(true)
+    const handleCartClose = () => setCartOpen(false)
+
+    window.addEventListener('cart:open', handleCartOpen)
+    window.addEventListener('cart:close', handleCartClose)
+    return () => {
+      window.removeEventListener('cart:open', handleCartOpen)
+      window.removeEventListener('cart:close', handleCartClose)
+    }
+  }, [])
+
   const searchParams = new URLSearchParams(location.search)
   const isPromo = location.pathname === '/' && searchParams.get('view') === 'promo'
   const isHome = location.pathname === '/' && !isPromo
@@ -47,6 +60,8 @@ const MobileBottomNav = () => {
         ? 'bg-gradient-accent text-white shadow-accent'
         : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
     }`
+
+  if (cartOpen) return null
 
   return (
     <div

@@ -26,6 +26,11 @@ const CartDrawer = () => {
   const [deliveryLocation, setDeliveryLocation] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
 
+  const closeCart = () => {
+    setIsOpen(false)
+    window.dispatchEvent(new Event('cart:close'))
+  }
+
   // Auto-fill customer name and phone from user data when authenticated and drawer opens
   useEffect(() => {
     if (isOpen && isAuthenticated && user) {
@@ -138,7 +143,7 @@ const CartDrawer = () => {
       }
 
       clearCart()
-      setIsOpen(false)
+      closeCart()
       window.location.assign(whatsappCheckoutUrl)
       return
 
@@ -358,7 +363,7 @@ const CartDrawer = () => {
     <>
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
-        onClick={() => setIsOpen(false)}
+        onClick={closeCart}
       />
       <div
         className="fixed right-0 top-0 h-[100dvh] w-full sm:max-w-md bg-white dark:bg-gray-900 z-50 shadow-2xl overflow-hidden transform transition-transform"
@@ -387,7 +392,7 @@ const CartDrawer = () => {
               </div>
             </div>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={closeCart}
               className="p-2.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 rounded-lg transition-colors touch-target"
               aria-label="Close cart"
             >
@@ -398,7 +403,7 @@ const CartDrawer = () => {
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {cart.length === 0 ? (
-              <EmptyCart onClose={() => setIsOpen(false)} />
+              <EmptyCart onClose={closeCart} />
             ) : (
               <div className="space-y-2 sm:space-y-3">
                 {cart.map((item) => {
