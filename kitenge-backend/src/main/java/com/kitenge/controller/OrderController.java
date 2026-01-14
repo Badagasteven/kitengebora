@@ -119,18 +119,12 @@ public class OrderController {
 
             Order order = orderService.createOrder(request, userId);
 
-            // Send WhatsApp notification with images (or generate URL as fallback)
+            // Generate WhatsApp URL for admin (do not auto-send to avoid duplicates)
             String adminWhatsAppUrl = null;
             try {
-                adminWhatsAppUrl = whatsAppService.sendOrderWithImages(order);
+                adminWhatsAppUrl = whatsAppService.generateOrderWhatsAppUrl(order);
             } catch (Exception e) {
-                logger.warn("WhatsApp notification failed", e);
-                // Fallback to URL generation
-                try {
-                    adminWhatsAppUrl = whatsAppService.generateOrderWhatsAppUrl(order);
-                } catch (Exception e2) {
-                    logger.warn("WhatsApp URL generation failed", e2);
-                }
+                logger.warn("WhatsApp URL generation failed", e);
             }
 
             // Generate WhatsApp URL for customer (optional - for customer confirmation)

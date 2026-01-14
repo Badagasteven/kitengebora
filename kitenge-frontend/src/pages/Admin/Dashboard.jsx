@@ -127,13 +127,20 @@ const Dashboard = () => {
               <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
                 Admin Dashboard
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-lg">
-                Welcome back! Here's an overview of your store's performance.
-              </p>
-            </div>
-            <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white">
-              <LineChart className="w-5 h-5" />
-              <span className="font-semibold">Live Data</span>
+               <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-lg">
+                 Welcome back! Here's an overview of your store's performance.
+               </p>
+               <Link
+                 to="/"
+                 className="sm:hidden inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-lg bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm active:scale-[0.98] transition"
+               >
+                 <ShoppingBag className="w-4 h-4" />
+                 Back to Store
+               </Link>
+             </div>
+             <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white">
+               <LineChart className="w-5 h-5" />
+               <span className="font-semibold">Live Data</span>
             </div>
           </div>
         </div>

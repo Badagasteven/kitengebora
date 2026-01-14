@@ -22,8 +22,6 @@ const CartDrawer = () => {
   const [customerPhone, setCustomerPhone] = useState('')
   const [deliveryLocation, setDeliveryLocation] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
-  const [whatsappUrl, setWhatsappUrl] = useState(null)
-  const [showWhatsAppButton, setShowWhatsAppButton] = useState(false)
 
   // Auto-fill customer name and phone from user data when authenticated and drawer opens
   useEffect(() => {
@@ -86,6 +84,46 @@ const CartDrawer = () => {
       
       const savedOrder = await ordersAPI.createOrder(orderData)
       console.log('✅ Order saved successfully:', savedOrder.data)
+
+      // Single WhatsApp checkout action (avoid popup blockers + duplicate WhatsApp steps)
+      const adminPhoneForCheckout = '250788883986' // Admin WhatsApp number
+      const safeCustomerName = customerName.trim() ? customerName.trim() : 'Guest'
+      const deliveryLabel =
+        deliveryOption === 'pickup'
+          ? 'Pickup'
+          : deliveryOption === 'kigali'
+            ? 'Kigali Delivery'
+            : 'Upcountry Delivery'
+
+      const messageLines = [
+        'NEW ORDER',
+        '',
+        `Customer: ${safeCustomerName}`,
+        `Phone: ${customerPhone.trim()}`,
+      ]
+
+      if (deliveryOption !== 'pickup') {
+        messageLines.push(`Delivery: ${deliveryLabel}`)
+        if (deliveryLocation.trim()) {
+          messageLines.push(`Location: ${deliveryLocation.trim()}`)
+        }
+      }
+
+      messageLines.push('', 'ORDER ITEMS:')
+      cart.forEach((item, index) => {
+        messageLines.push(
+          `${index + 1}. ${item.name} - Qty: ${item.quantity} x ${item.price.toLocaleString()} RWF`
+        )
+      })
+      messageLines.push('', `TOTAL: ${grandTotal.toLocaleString()} RWF`)
+
+      const checkoutMessage = messageLines.join('\n')
+      const checkoutWhatsAppUrl = `https://wa.me/${adminPhoneForCheckout}?text=${encodeURIComponent(checkoutMessage)}`
+
+      clearCart()
+      setIsOpen(false)
+      window.location.assign(checkoutWhatsAppUrl)
+      return
 
       // Get order number (monthly sequential) or fallback to ID
       const orderNumber = savedOrder.data?.order?.orderNumber || savedOrder.data?.order?.id || savedOrder.data?.id
@@ -236,9 +274,7 @@ const CartDrawer = () => {
         message += `\n💵 *TOTAL: ${grandTotal.toLocaleString()} RWF*\n`
         
         const fallbackUrl = `https://wa.me/${adminPhone}?text=${encodeURIComponent(message)}`
-        setWhatsappUrl(fallbackUrl)
-        setShowWhatsAppButton(true)
-        console.log('⚠️ Order failed but showing WhatsApp button with fallback URL')
+        console.log('WhatsApp fallback URL:', fallbackUrl)
       } catch (e) {
         console.error('Failed to generate fallback URL:', e)
       }
@@ -500,7 +536,7 @@ const CartDrawer = () => {
               </div>
               
               {/* WhatsApp Button - Shows after order is placed */}
-              {showWhatsAppButton && whatsappUrl && (
+              {false && (
                 <div className="mt-4 p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl border-2 border-green-400 dark:border-green-600 shadow-lg">
                   <div className="flex items-start gap-3 mb-3">
                     <div className="p-1.5 bg-green-500 rounded-full">

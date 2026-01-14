@@ -112,9 +112,6 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
       image: product.image,
       productName: product.name,
     })
-    setTimeout(() => {
-      window.dispatchEvent(new Event('cart:open'))
-    }, 100)
   }
 
   if (!isOpen || !product) {

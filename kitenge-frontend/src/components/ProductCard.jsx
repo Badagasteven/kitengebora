@@ -126,11 +126,6 @@ const ProductCard = ({ product, onView }) => {
       image: product.image,
       productName: product.name,
     })
-    // Open cart drawer after a small delay to ensure state is updated
-    setTimeout(() => {
-      window.dispatchEvent(new Event('cart:open'))
-      console.log('Cart open event dispatched')
-    }, 100)
   }
 
   // Calculate discount percentage - Check multiple sources
