@@ -361,7 +361,7 @@ const CartDrawer = () => {
         onClick={() => setIsOpen(false)}
       />
       <div
-        className="fixed right-0 top-0 h-full w-full sm:max-w-md bg-white dark:bg-gray-900 z-50 shadow-2xl overflow-y-auto transform transition-transform"
+        className="fixed right-0 top-0 h-[100dvh] w-full sm:max-w-md bg-white dark:bg-gray-900 z-50 shadow-2xl overflow-hidden transform transition-transform"
         style={{
           paddingTop: 'env(safe-area-inset-top)',
           paddingBottom: 'env(safe-area-inset-bottom)',
@@ -370,9 +370,9 @@ const CartDrawer = () => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex items-center justify-between p-4 sm:p-6 border-b-2 border-gray-200 dark:border-gray-800 shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="p-3 sm:p-3.5 bg-gradient-accent rounded-xl shadow-accent">
+          <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 flex items-center justify-between p-3 sm:p-6 border-b-2 border-gray-200 dark:border-gray-800 shadow-lg">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-2.5 sm:p-3.5 bg-gradient-accent rounded-xl shadow-accent">
                 <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
@@ -396,11 +396,11 @@ const CartDrawer = () => {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             {cart.length === 0 ? (
               <EmptyCart onClose={() => setIsOpen(false)} />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {cart.map((item) => {
                   const itemTotal = item.price * item.quantity
                   return (
@@ -412,7 +412,7 @@ const CartDrawer = () => {
                         <img
                           src={item.image || '/placeholder.png'}
                           alt={item.name}
-                          className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg shadow-sm"
+                          className="w-16 h-16 sm:w-24 sm:h-24 object-cover rounded-lg shadow-sm"
                           onError={(e) => {
                             e.target.src = '/placeholder.png'
                           }}
@@ -478,121 +478,125 @@ const CartDrawer = () => {
 
           {/* Footer */}
           {cart.length > 0 && (
-            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-800 p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-2xl">
-              {/* Order Summary */}
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl p-4 sm:p-6 space-y-4 border-2 border-gray-200 dark:border-gray-700">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Subtotal
-                  </span>
-                  <span className="font-semibold text-gray-900 dark:text-white">
-                    {subtotal.toLocaleString()} RWF
-                  </span>
+            <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-800 p-3 sm:p-6 shadow-2xl max-h-[70dvh] flex flex-col pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+              <div className="flex-1 overflow-y-auto overscroll-contain space-y-3 sm:space-y-5">
+                {/* Order Summary */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 rounded-2xl p-3 sm:p-6 space-y-3 sm:space-y-4 border-2 border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Subtotal
+                    </span>
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {subtotal.toLocaleString()} RWF
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Delivery Option
+                    </label>
+                    <select
+                      value={deliveryOption}
+                      onChange={(e) => {
+                        setDeliveryOption(e.target.value)
+                        // Clear location when switching to pickup
+                        if (e.target.value === 'pickup') {
+                          setDeliveryLocation('')
+                        }
+                      }}
+                      className="w-full input-field text-base sm:text-sm"
+                      disabled={isProcessing}
+                    >
+                      <option value="pickup">Pick up (Free)</option>
+                      <option value="kigali">Kigali Delivery (2,000 RWF)</option>
+                      <option value="upcountry">Upcountry Delivery (3,500 RWF)</option>
+                    </select>
+                  </div>
+                  {deliveryOption !== 'pickup' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                        Delivery Location/Address <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        placeholder="Enter your full delivery address"
+                        value={deliveryLocation}
+                        onChange={(e) => setDeliveryLocation(e.target.value)}
+                        className="w-full input-field text-base sm:text-sm resize-none"
+                        rows="2"
+                        required={deliveryOption !== 'pickup'}
+                        disabled={isProcessing}
+                      />
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-3 border-t-2 border-gray-300 dark:border-gray-600">
+                    <span className="font-black text-lg sm:text-xl text-gray-900 dark:text-white">Total</span>
+                    <span className="font-black text-xl sm:text-2xl bg-gradient-to-r from-accent to-accent-600 bg-clip-text text-transparent">
+                      {grandTotal.toLocaleString()} RWF
+                    </span>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Delivery Option
-                  </label>
-                  <select
-                    value={deliveryOption}
-                    onChange={(e) => {
-                      setDeliveryOption(e.target.value)
-                      // Clear location when switching to pickup
-                      if (e.target.value === 'pickup') {
-                        setDeliveryLocation('')
-                      }
-                    }}
-                    className="w-full input-field text-base sm:text-sm"
-                    disabled={isProcessing}
-                  >
-                    <option value="pickup">Pick up (Free)</option>
-                    <option value="kigali">Kigali Delivery (2,000 RWF)</option>
-                    <option value="upcountry">Upcountry Delivery (3,500 RWF)</option>
-                  </select>
-                </div>
-                {deliveryOption !== 'pickup' && (
+
+                {/* Customer Information */}
+                <div className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                      Delivery Location/Address <span className="text-red-500">*</span>
+                      Your Name <span className="text-gray-400">(optional)</span>
                     </label>
-                    <textarea
-                      placeholder="Enter your full delivery address"
-                      value={deliveryLocation}
-                      onChange={(e) => setDeliveryLocation(e.target.value)}
-                      className="w-full input-field text-base sm:text-sm resize-none"
-                      rows="3"
-                      required={deliveryOption !== 'pickup'}
+                    <input
+                      type="text"
+                      placeholder="Enter your name"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="input-field text-base sm:text-sm"
                       disabled={isProcessing}
+                      autoComplete="name"
                     />
                   </div>
-                )}
-                <div className="flex justify-between items-center pt-3 border-t-2 border-gray-300 dark:border-gray-600">
-                  <span className="font-black text-lg sm:text-xl text-gray-900 dark:text-white">Total</span>
-                  <span className="font-black text-xl sm:text-2xl bg-gradient-to-r from-accent to-accent-600 bg-clip-text text-transparent">
-                    {grandTotal.toLocaleString()} RWF
-                  </span>
-                </div>
-              </div>
-
-              {/* Customer Information */}
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Your Name <span className="text-gray-400">(optional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="input-field text-base sm:text-sm"
-                    disabled={isProcessing}
-                    autoComplete="name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    WhatsApp Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="e.g., +250 788 123 456"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="input-field text-base sm:text-sm"
-                    required
-                    disabled={isProcessing}
-                    autoComplete="tel"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      WhatsApp Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g., +250 788 123 456"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      className="input-field text-base sm:text-sm"
+                      required
+                      disabled={isProcessing}
+                      autoComplete="tel"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <button
-                  onClick={clearCart}
-                  className="btn-outline w-full sm:flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] touch-manipulation"
-                  disabled={isProcessing}
-                >
-                  Clear Cart
-                </button>
-                <button
-                  onClick={handleCheckout}
-                  disabled={isProcessing || !customerPhone.trim() || (deliveryOption !== 'pickup' && !deliveryLocation.trim())}
-                  className="btn-primary w-full sm:flex-1 text-base sm:text-base py-4 sm:py-3 min-h-[52px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
-                >
-                  {isProcessing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-5 h-5" />
-                      Checkout via WhatsApp
-                    </>
-                  )}
-                </button>
+              <div className="pt-3 sm:pt-5">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <button
+                    onClick={clearCart}
+                    className="btn-outline w-full sm:flex-1 text-base sm:text-base py-3 sm:py-3 min-h-[48px] touch-manipulation"
+                    disabled={isProcessing}
+                  >
+                    Clear Cart
+                  </button>
+                  <button
+                    onClick={handleCheckout}
+                    disabled={isProcessing || !customerPhone.trim() || (deliveryOption !== 'pickup' && !deliveryLocation.trim())}
+                    className="btn-primary w-full sm:flex-1 text-base sm:text-base py-3 sm:py-3 min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-5 h-5" />
+                        Checkout via WhatsApp
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               
               {/* WhatsApp Button - Shows after order is placed */}
