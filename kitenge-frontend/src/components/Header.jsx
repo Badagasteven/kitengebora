@@ -689,40 +689,40 @@ const Header = () => {
 
         {/* Mobile Menu - Shein Style */}
         {showMobileMenu && (
-          <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 max-h-[calc(100vh-8rem)] overflow-y-auto">
-            <nav className="px-4 py-3 space-y-0.5">
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 max-h-[70vh] overflow-y-auto rounded-b-2xl shadow-xl">
+            <nav className="px-4 py-2 space-y-0.5">
               <Link
                 to="/"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
+                className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 Home
               </Link>
               <Link
                 to="/products"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
+                className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 Products
               </Link>
               <Link
                 to="/about"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
+                className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 About
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
+                className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
               >
                 Contact
               </Link>
               <Link
                 to="/wishlist"
                 onClick={() => setShowMobileMenu(false)}
-                className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
+                className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
               >
                 <Heart className="w-5 h-5" />
                 Wishlist
@@ -734,7 +734,7 @@ const Header = () => {
                 <Link
                   to="/admin"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
+                  className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
                 >
                   Admin Dashboard
                 </Link>
@@ -744,14 +744,14 @@ const Header = () => {
                   <Link
                     to="/account"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
+                    className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center"
                   >
                     My Account
                   </Link>
                   <Link
                     to="/profile"
                     onClick={() => setShowMobileMenu(false)}
-                    className="block px-4 py-4 min-h-[48px] text-base font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
+                    className="block px-4 py-3 min-h-[44px] text-[15px] font-medium text-gray-900 dark:text-white active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
                   >
                     <Settings className="w-5 h-5" />
                     Profile Settings
@@ -761,7 +761,7 @@ const Header = () => {
                       handleLogout()
                       setShowMobileMenu(false)
                     }}
-                    className="w-full text-left px-4 py-4 min-h-[48px] text-base font-medium text-red-600 dark:text-red-400 active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
+                    className="w-full text-left px-4 py-3 min-h-[44px] text-[15px] font-medium text-red-600 dark:text-red-400 active:bg-gray-50 dark:active:bg-gray-800 transition-colors touch-manipulation flex items-center gap-2"
                   >
                     <LogOut className="w-5 h-5" />
                     Logout
@@ -772,7 +772,7 @@ const Header = () => {
                 <Link
                   to="/login"
                   onClick={() => setShowMobileMenu(false)}
-                  className="block px-4 py-4 min-h-[48px] text-base font-semibold text-white bg-gradient-accent active:bg-accent-700 rounded-lg transition-colors text-center touch-manipulation flex items-center justify-center shadow-md"
+                  className="block px-4 py-3 min-h-[44px] text-[15px] font-semibold text-white bg-gradient-accent active:bg-accent-700 rounded-lg transition-colors text-center touch-manipulation flex items-center justify-center shadow-md"
                 >
                   Login
                 </Link>
@@ -780,8 +780,8 @@ const Header = () => {
               
               {/* Theme Toggle in Mobile Menu */}
               <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
-              <div className="px-4 py-2">
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase mb-2">Theme</p>
+              <div className="px-4 py-1.5">
+                <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2 tracking-wide">Theme</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
