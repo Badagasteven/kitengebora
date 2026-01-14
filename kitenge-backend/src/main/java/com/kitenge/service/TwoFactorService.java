@@ -5,6 +5,7 @@ import com.kitenge.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class TwoFactorService {
 
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
+
+    @Value("${app.mail.from:}")
+    private String mailFrom;
     
     private static final int CODE_TTL_MINUTES = 10;
 
@@ -85,7 +89,9 @@ public class TwoFactorService {
             }
             
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@kitengebora.com");
+            if (mailFrom != null && !mailFrom.trim().isEmpty()) {
+                message.setFrom(mailFrom.trim());
+            }
             message.setTo(email);
             message.setSubject("Your Two-Factor Authentication Code - Kitenge Bora");
             message.setText(

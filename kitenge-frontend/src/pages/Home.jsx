@@ -365,13 +365,13 @@ const Home = () => {
       )}
 
       {/* Collection Section - Main Products */}
-      <section id="collection" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+      <section id="collection" className="py-8 sm:py-16 md:py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 sm:mb-10 md:mb-12 text-center animate-fade-in-up">
-            <div className="inline-block mb-3 sm:mb-4">
+          <div className="mb-6 sm:mb-10 md:mb-12 text-center animate-fade-in-up">
+            <div className="inline-block mb-2 sm:mb-4">
               <span className="text-accent font-bold text-xs sm:text-sm uppercase tracking-widest bg-accent/10 px-4 py-2 rounded-full">Products</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-5 text-gray-900 dark:text-white leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 sm:mb-5 text-gray-900 dark:text-white leading-tight">
               Our Collection
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 font-semibold max-w-2xl mx-auto px-4">
@@ -380,7 +380,7 @@ const Home = () => {
           </div>
 
           {/* Filters - Mobile Optimized */}
-          <div className="mb-6 sm:mb-8 space-y-3 sm:space-y-4">
+          <div className="mb-5 sm:mb-8 space-y-3 sm:space-y-4">
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />

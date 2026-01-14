@@ -28,6 +28,9 @@ public class EmailVerificationService {
     
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
+
+    @Value("${app.mail.from:}")
+    private String mailFrom;
     
     @Transactional
     public void sendVerificationEmail(User user) {
@@ -83,7 +86,9 @@ public class EmailVerificationService {
             }
             
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@kitengebora.com");
+            if (mailFrom != null && !mailFrom.trim().isEmpty()) {
+                message.setFrom(mailFrom.trim());
+            }
             message.setTo(email);
             message.setSubject("Verify Your Email - Kitenge Bora");
             message.setText(

@@ -50,6 +50,9 @@ public class OrderService {
 
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
+
+    @Value("${app.mail.from:}")
+    private String mailFrom;
     
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -265,10 +268,12 @@ public class OrderService {
                 
                 // Send email to notification email(s) only
                 String[] notificationEmails = adminNotificationEmail.split(",");
-                String senderEmail = notificationEmails[0].trim(); // Use first notification email as sender
+                String senderEmail = mailFrom != null ? mailFrom.trim() : "";
                 for (String notificationEmail : notificationEmails) {
                     SimpleMailMessage message = new SimpleMailMessage();
-                    message.setFrom(senderEmail);
+                    if (senderEmail != null && !senderEmail.isEmpty()) {
+                        message.setFrom(senderEmail);
+                    }
                     message.setTo(notificationEmail.trim());
                     message.setSubject("🧵 New Order #" + orderNumber + " - " + order.getCustomerName());
                     message.setText(emailContent.toString());
@@ -311,10 +316,10 @@ public class OrderService {
                 
                 if (customerEmail != null && customerEmail.contains("@")) {
                     SimpleMailMessage message = new SimpleMailMessage();
-                    String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
-                        ? adminNotificationEmail.split(",")[0].trim() 
-                        : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
-                    message.setFrom(senderEmail);
+                    String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+                    if (senderEmail != null && !senderEmail.isEmpty()) {
+                        message.setFrom(senderEmail);
+                    }
                     message.setTo(customerEmail);
                     Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
                     String monthYear = order.getCreatedAt() != null 
@@ -371,10 +376,10 @@ public class OrderService {
                 
                 if (customerEmail != null && customerEmail.contains("@")) {
                     SimpleMailMessage message = new SimpleMailMessage();
-                    String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
-                        ? adminNotificationEmail.split(",")[0].trim() 
-                        : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
-                    message.setFrom(senderEmail);
+                    String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+                    if (senderEmail != null && !senderEmail.isEmpty()) {
+                        message.setFrom(senderEmail);
+                    }
                     message.setTo(customerEmail);
                     Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
                     String monthYear = order.getCreatedAt() != null 
@@ -425,10 +430,10 @@ public class OrderService {
                 
                 if (customerEmail != null && customerEmail.contains("@")) {
                     SimpleMailMessage message = new SimpleMailMessage();
-                    String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
-                        ? adminNotificationEmail.split(",")[0].trim() 
-                        : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
-                    message.setFrom(senderEmail);
+                    String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+                    if (senderEmail != null && !senderEmail.isEmpty()) {
+                        message.setFrom(senderEmail);
+                    }
                     message.setTo(customerEmail);
                     Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
                     String monthYear = order.getCreatedAt() != null 

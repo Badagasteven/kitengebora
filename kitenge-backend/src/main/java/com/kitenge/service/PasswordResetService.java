@@ -33,6 +33,9 @@ public class PasswordResetService {
     
     @Value("${app.admin.notification.email:kitengeboraa@gmail.com}")
     private String adminNotificationEmail;
+
+    @Value("${app.mail.from:}")
+    private String mailFrom;
     
     @Transactional
     public void requestPasswordReset(String email) {
@@ -93,8 +96,10 @@ public class PasswordResetService {
             SimpleMailMessage message = new SimpleMailMessage();
             String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
                 ? adminNotificationEmail.split(",")[0].trim() 
-                : (adminNotificationEmail != null ? adminNotificationEmail : "noreply@kitengebora.com");
-            message.setFrom(senderEmail);
+                : (adminNotificationEmail != null ? adminNotificationEmail : mailFrom);
+            if (senderEmail != null && !senderEmail.trim().isEmpty()) {
+                message.setFrom(senderEmail.trim());
+            }
             message.setTo(email);
             message.setSubject("Reset Your Password - Kitenge Bora");
             message.setText(

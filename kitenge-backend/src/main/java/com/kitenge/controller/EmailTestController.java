@@ -19,6 +19,9 @@ public class EmailTestController {
     
     @Value("${app.admin.email}")
     private String adminEmail;
+
+    @Value("${app.mail.from:}")
+    private String mailFrom;
     
     @PostMapping("/email")
     public ResponseEntity<?> testEmail(@RequestBody Map<String, String> request) {
@@ -35,7 +38,9 @@ public class EmailTestController {
             }
             
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@kitengebora.com");
+            if (mailFrom != null && !mailFrom.trim().isEmpty()) {
+                message.setFrom(mailFrom.trim());
+            }
             message.setTo(toEmail);
             message.setSubject("Test Email - Kitenge Bora");
             message.setText(

@@ -124,12 +124,12 @@ const Products = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 sm:py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-5 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumbs />
         
         {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
             All Products
           </h1>
@@ -139,8 +139,8 @@ const Products = () => {
         </div>
 
         {/* Main Search and Quick Filters Bar */}
-        <div className="card p-4 sm:p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
+        <div className="card p-3 sm:p-6 mb-5 sm:mb-6">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
             {/* Search Bar */}
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -149,7 +149,7 @@ const Products = () => {
                 placeholder="Search products by name, category, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-field pl-12 pr-4 w-full h-12 text-base"
+                className="input-field pl-12 pr-4 w-full h-11 sm:h-12 text-base"
               />
               {searchQuery && (
                 <button
