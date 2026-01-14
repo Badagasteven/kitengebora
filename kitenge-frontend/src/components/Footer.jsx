@@ -78,7 +78,7 @@ const Footer = () => {
               <Sparkles className="w-5 h-5 text-accent" />
               Quick Links
             </h4>
-            <ul className="grid grid-cols-2 gap-x-5 gap-y-2 sm:block sm:space-y-3">
+            <ul className="grid grid-cols-1 min-[430px]:grid-cols-2 sm:grid-cols-1 gap-x-6 gap-y-2 sm:gap-y-3">
               {[
                 { to: '/', label: 'Home' },
                 { to: '/products', label: 'Products' },
@@ -105,7 +105,7 @@ const Footer = () => {
               <Heart className="w-5 h-5 text-accent" />
               Customer Service
             </h4>
-            <ul className="grid grid-cols-2 gap-x-5 gap-y-2 sm:block sm:space-y-3">
+            <ul className="grid grid-cols-1 min-[430px]:grid-cols-2 sm:grid-cols-1 gap-x-6 gap-y-2 sm:gap-y-3">
               {[
                 { to: '/account', label: 'My Account' },
                 { to: '/profile', label: 'Profile Settings' },
