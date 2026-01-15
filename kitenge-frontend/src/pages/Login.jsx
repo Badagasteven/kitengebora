@@ -143,7 +143,7 @@ const Login = () => {
           <div className="relative z-10 flex items-center justify-center h-full px-6 text-white text-center">
             <div className="bg-black/45 backdrop-blur-sm rounded-2xl px-6 py-8 sm:px-8 sm:py-10 border border-white/20 shadow-2xl">
               <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                Hello Again 👋
+                Hello Again
               </h2>
               <p className="text-sm sm:text-base text-white/95 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] leading-relaxed">
                 Your favourite kitenge pieces are waiting for you.
@@ -151,21 +151,6 @@ const Login = () => {
             </div>
           </div>
 
-          {products.length > 1 && (
-            <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center gap-2">
-              {products.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setCurrentSlide(index)}
-                  className={`h-1.5 rounded-full transition-all ${
-                    index === currentSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/50'
-                  }`}
-                  aria-label={`Show slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
         </div>
       )}
 
@@ -174,10 +159,10 @@ const Login = () => {
           <div className="bg-white/90 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl shadow-xl lg:shadow-none lg:bg-transparent lg:dark:bg-transparent lg:border-0 p-6 sm:p-8 lg:p-0">
           <div className="mb-6">
             <h1 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white">
-              Welcome back
+              Hello Again
             </h1>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 font-medium">
-              Sign in to view your wishlist and keep shopping.
+              Your favourite kitenge pieces are waiting for you.
             </p>
           </div>
 
@@ -194,7 +179,7 @@ const Login = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1.5 text-sm sm:text-base">Unable to Sign In</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1.5 text-sm sm:text-base">Unable to Login</p>
                       <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">
                         {error.toLowerCase().includes('invalid credentials') || error.toLowerCase().includes('invalid')
                           ? 'The email or password you entered is incorrect. Please verify your credentials and try again.'
@@ -304,7 +289,7 @@ const Login = () => {
                 disabled={loading}
                 className="btn-primary w-full min-h-[48px] text-base touch-manipulation"
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
           ) : (
@@ -405,7 +390,7 @@ const Login = () => {
         <div className="relative z-10 flex items-center justify-center p-12 text-white">
           <div className="bg-black/50 backdrop-blur-md rounded-3xl px-10 py-12 border border-white/30 shadow-2xl max-w-lg text-center">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
-              Hello Again 👋
+                Hello Again
             </h2>
             <p className="text-xl lg:text-2xl text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] leading-relaxed">
               Your favourite kitenge pieces are waiting for you.
