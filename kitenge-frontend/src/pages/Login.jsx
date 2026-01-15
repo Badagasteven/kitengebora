@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { authAPI } from '../services/api'
+import { authAPI, productsAPI } from '../services/api'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { getImageUrl } from '../utils/imageUtils'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -14,8 +15,34 @@ const Login = () => {
   const [requires2FA, setRequires2FA] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
   const [touched, setTouched] = useState({})
+  const [products, setProducts] = useState([])
+  const [currentSlide, setCurrentSlide] = useState(0)
   const { login, isAdmin, checkAuth } = useAuth()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    loadProducts()
+  }, [])
+
+  useEffect(() => {
+    if (products.length <= 1) return
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % products.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [products.length])
+
+  const loadProducts = async () => {
+    try {
+      const response = await productsAPI.getPublicProducts()
+      const productsWithImages = (response.data || [])
+        .filter(p => p.image && p.image.trim() !== '')
+        .slice(0, 8)
+      setProducts(productsWithImages)
+    } catch (error) {
+      console.error('Failed to load products:', error)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -277,6 +304,50 @@ const Login = () => {
               Create one
             </Link>
           </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Product Carousel - Shown only on large screens */}
+      <div className="hidden lg:flex flex-1 relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-700">
+        {products.length > 0 ? (
+          <>
+            {products.map((product, index) => (
+              <div
+                key={product.id}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                  index === currentSlide ? 'opacity-100 z-0 scale-100' : 'opacity-0 z-0 scale-105'
+                }`}
+              >
+                <img
+                  src={getImageUrl(product.image)}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  style={{
+                    imageRendering: 'crisp-edges',
+                    objectFit: 'cover'
+                  }}
+                  loading="eager"
+                  onError={(e) => {
+                    e.target.src = '/placeholder.png'
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60"></div>
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-orange-700"></div>
+        )}
+
+        <div className="relative z-10 flex items-center justify-center p-12 text-white">
+          <div className="bg-black/50 backdrop-blur-md rounded-3xl px-10 py-12 border border-white/30 shadow-2xl max-w-lg text-center">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
+                Hello Again
+            </h2>
+            <p className="text-xl lg:text-2xl text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] leading-relaxed">
+              Your favourite kitenge pieces are waiting for you.
+            </p>
           </div>
         </div>
       </div>
