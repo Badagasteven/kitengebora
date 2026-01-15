@@ -7,6 +7,7 @@ import { useToast } from '../contexts/ToastContext'
 import OrderTracking from '../components/OrderTracking'
 import { OrderCardSkeleton, LoadingSpinner } from '../components/SkeletonLoader'
 import { EmptyOrders } from '../components/EmptyState'
+import { formatDateTimeRwanda, parseBackendDate } from '../utils/dateTime'
 
 const Account = () => {
   const { user, isAuthenticated, isAdmin } = useAuth()
@@ -147,9 +148,11 @@ const Account = () => {
     if (!orders || orders.length === 0) return {}
     // Sort by created_at ascending so the earliest order is #1
     const sorted = [...orders].sort((a, b) => {
-      const dateA = a.created_at ? new Date(a.created_at) : new Date(0)
-      const dateB = b.created_at ? new Date(b.created_at) : new Date(0)
-      return dateA - dateB
+      const dateA = a.created_at ? parseBackendDate(a.created_at) : null
+      const dateB = b.created_at ? parseBackendDate(b.created_at) : null
+      const safeA = dateA || new Date(0)
+      const safeB = dateB || new Date(0)
+      return safeA - safeB
     })
     const map = {}
     sorted.forEach((order, index) => {
@@ -170,7 +173,8 @@ const Account = () => {
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
       filtered = filtered.filter(order => {
         if (!order.created_at) return false
-        return new Date(order.created_at) >= sevenDaysAgo
+        const d = parseBackendDate(order.created_at)
+        return d ? d >= sevenDaysAgo : false
       })
     } else if (filterStatus === 'thisMonth') {
       const startOfMonth = new Date()
@@ -178,20 +182,25 @@ const Account = () => {
       startOfMonth.setHours(0, 0, 0, 0)
       filtered = filtered.filter(order => {
         if (!order.created_at) return false
-        return new Date(order.created_at) >= startOfMonth
+        const d = parseBackendDate(order.created_at)
+        return d ? d >= startOfMonth : false
       })
     }
 
     // Apply sorting
     filtered.sort((a, b) => {
       if (sortBy === 'newest') {
-        const dateA = a.created_at ? new Date(a.created_at) : new Date(0)
-        const dateB = b.created_at ? new Date(b.created_at) : new Date(0)
-        return dateB - dateA
+        const dateA = a.created_at ? parseBackendDate(a.created_at) : null
+        const dateB = b.created_at ? parseBackendDate(b.created_at) : null
+        const safeA = dateA || new Date(0)
+        const safeB = dateB || new Date(0)
+        return safeB - safeA
       } else if (sortBy === 'oldest') {
-        const dateA = a.created_at ? new Date(a.created_at) : new Date(0)
-        const dateB = b.created_at ? new Date(b.created_at) : new Date(0)
-        return dateA - dateB
+        const dateA = a.created_at ? parseBackendDate(a.created_at) : null
+        const dateB = b.created_at ? parseBackendDate(b.created_at) : null
+        const safeA = dateA || new Date(0)
+        const safeB = dateB || new Date(0)
+        return safeA - safeB
       } else if (sortBy === 'amount') {
         const totalA = (a.subtotal || 0) + (a.delivery_fee || 0)
         const totalB = (b.subtotal || 0) + (b.delivery_fee || 0)
@@ -215,9 +224,8 @@ const Account = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Date unknown'
-    const date = new Date(dateString)
-    // Show full date and time so customer sees exactly when order was made
-    return date.toLocaleString('en-US', {
+    // Show full date and time in Rwanda timezone
+    return formatDateTimeRwanda(dateString, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

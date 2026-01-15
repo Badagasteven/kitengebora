@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Package, CheckCircle, Clock, Truck, XCircle } from 'lucide-react'
 import { ordersAPI } from '../services/api'
+import { formatDateTimeRwanda } from '../utils/dateTime'
 
 const OrderTracking = ({ orderId, orderNumber, phone, pollIntervalMs = 15000, emptyMessage = null }) => {
   const [trackingInfo, setTrackingInfo] = useState(null)
@@ -194,7 +195,7 @@ const OrderTracking = ({ orderId, orderNumber, phone, pollIntervalMs = 15000, em
               Order Placed:
             </span>
             <span className="text-sm text-gray-900 dark:text-white">
-              {new Date(trackingInfo.createdAt).toLocaleString()}
+              {formatDateTimeRwanda(trackingInfo.createdAt)}
             </span>
           </div>
         )}
@@ -204,7 +205,7 @@ const OrderTracking = ({ orderId, orderNumber, phone, pollIntervalMs = 15000, em
               Shipped:
             </span>
             <span className="text-sm text-gray-900 dark:text-white">
-              {new Date(trackingInfo.shippedAt).toLocaleString()}
+              {formatDateTimeRwanda(trackingInfo.shippedAt)}
             </span>
           </div>
         )}
@@ -214,7 +215,7 @@ const OrderTracking = ({ orderId, orderNumber, phone, pollIntervalMs = 15000, em
               Delivered:
             </span>
             <span className="text-sm text-gray-900 dark:text-white">
-              {new Date(trackingInfo.deliveredAt).toLocaleString()}
+              {formatDateTimeRwanda(trackingInfo.deliveredAt)}
             </span>
           </div>
         )}

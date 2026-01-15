@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { Search, Trash2, Eye, Edit, Save, X, ShoppingBag, Calendar, TrendingUp, DollarSign, ChevronDown, Filter, ArrowLeft, Home } from 'lucide-react'
 import AdminSidebar from '../../components/AdminSidebar'
 import { getImageUrl } from '../../utils/imageUtils'
+import { formatDateRwanda, formatDateTimeRwanda, getRwandaDateKey, parseBackendDate } from '../../utils/dateTime'
 
 const Orders = () => {
   const [orders, setOrders] = useState([])
@@ -103,14 +104,16 @@ const Orders = () => {
     // Apply time filter
     if (timeFilter !== 'all') {
       const now = new Date()
+      const todayKey = getRwandaDateKey(now)
       filtered = filtered.filter((o) => {
         const createdAt = o?.createdAt || o?.created_at
         if (!createdAt) return false
-        const orderDate = new Date(createdAt)
+        const orderDate = parseBackendDate(createdAt)
+        if (!orderDate) return false
         
         switch (timeFilter) {
           case 'today':
-            return orderDate.toDateString() === now.toDateString()
+            return getRwandaDateKey(orderDate) === todayKey
           case 'week':
             const weekAgo = new Date(now)
             weekAgo.setDate(now.getDate() - 7)
@@ -166,15 +169,20 @@ const Orders = () => {
       const createdAt = order.createdAt || order.created_at
       if (!createdAt) return
       
-      const date = new Date(createdAt)
-      const year = date.getFullYear()
-      const month = date.getMonth() // 0-11
-      const monthKey = `${year}-${String(month + 1).padStart(2, '0')}` // e.g., "2024-01"
+      const date = parseBackendDate(createdAt)
+      const dateKey = getRwandaDateKey(date)
+      if (!dateKey) return
+
+      const [yearStr, monthStr, dayStr] = dateKey.split('-')
+      const year = parseInt(yearStr, 10)
+      const monthIndex = parseInt(monthStr, 10) - 1 // 0-11
+      const dayOfMonth = parseInt(dayStr, 10)
+
+      const monthKey = `${yearStr}-${monthStr}` // e.g., "2024-01"
       
       // Calculate week number within the month (1-5)
-      const firstDay = new Date(year, month, 1)
-      const firstDayOfWeek = firstDay.getDay() // 0-6 (Sunday = 0)
-      const dayOfMonth = date.getDate()
+      const firstDay = new Date(Date.UTC(year, monthIndex, 1))
+      const firstDayOfWeek = firstDay.getUTCDay() // 0-6 (Sunday = 0)
       const weekNumber = Math.ceil((dayOfMonth + firstDayOfWeek) / 7)
       
       if (!grouped[monthKey]) {
@@ -204,8 +212,8 @@ const Orders = () => {
       // Sort orders within each week (newest first)
       weeks.forEach(weekKey => {
         grouped[monthKey][weekKey].sort((a, b) => {
-          const dateA = new Date(a.createdAt || a.created_at)
-          const dateB = new Date(b.createdAt || b.created_at)
+          const dateA = parseBackendDate(a.createdAt || a.created_at) || new Date(0)
+          const dateB = parseBackendDate(b.createdAt || b.created_at) || new Date(0)
           return dateB - dateA
         })
       })
@@ -217,8 +225,8 @@ const Orders = () => {
   // Get month name from key (e.g., "2024-01" -> "January 2024")
   const getMonthName = (monthKey) => {
     const [year, month] = monthKey.split('-')
-    const date = new Date(parseInt(year), parseInt(month) - 1, 1)
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    const date = new Date(Date.UTC(parseInt(year, 10), parseInt(month, 10) - 1, 1))
+    return formatDateRwanda(date, { month: 'long', year: 'numeric' })
   }
 
   const getStatusBadgeClasses = (status) => {
@@ -244,8 +252,7 @@ const Orders = () => {
     const createdAt = order.createdAt || order.created_at
     if (!createdAt) return `#${orderNumber}`
     
-    const date = new Date(createdAt)
-    const monthYear = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    const monthYear = formatDateRwanda(createdAt, { month: 'short', year: 'numeric' })
     return `#${orderNumber} (${monthYear})`
   }
 
@@ -349,48 +356,49 @@ const Orders = () => {
 
   const getTodayOrders = () => {
     if (!Array.isArray(orders)) return 0
-    const today = new Date().toDateString()
+    const todayKey = getRwandaDateKey(new Date())
     return orders.filter((o) => {
       const createdAt = o?.createdAt || o?.created_at
       if (!createdAt) return false
-      return new Date(createdAt).toDateString() === today
+      const orderDate = parseBackendDate(createdAt)
+      return orderDate ? getRwandaDateKey(orderDate) === todayKey : false
     }).length
   }
 
   const getThisMonthOrders = () => {
     if (!Array.isArray(orders)) return 0
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
+    const nowKey = getRwandaDateKey(new Date())
+    const currentMonthKey = nowKey ? nowKey.slice(0, 7) : null // YYYY-MM
     return orders.filter((o) => {
       const createdAt = o?.createdAt || o?.created_at
       if (!createdAt) return false
-      const orderDate = new Date(createdAt)
-      return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear
+      const orderKey = getRwandaDateKey(createdAt)
+      return currentMonthKey && orderKey ? orderKey.startsWith(currentMonthKey) : false
     }).length
   }
 
   const getThisYearOrders = () => {
     if (!Array.isArray(orders)) return 0
-    const currentYear = new Date().getFullYear()
+    const nowKey = getRwandaDateKey(new Date())
+    const currentYear = nowKey ? nowKey.slice(0, 4) : null
     return orders.filter((o) => {
       const createdAt = o?.createdAt || o?.created_at
       if (!createdAt) return false
-      return new Date(createdAt).getFullYear() === currentYear
+      const orderKey = getRwandaDateKey(createdAt)
+      return currentYear && orderKey ? orderKey.startsWith(currentYear) : false
     }).length
   }
 
   const getThisMonthRevenue = () => {
     if (!Array.isArray(orders)) return 0
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
+    const nowKey = getRwandaDateKey(new Date())
+    const currentMonthKey = nowKey ? nowKey.slice(0, 7) : null // YYYY-MM
     return orders
       .filter((o) => {
         const createdAt = o?.createdAt || o?.created_at
         if (!createdAt) return false
-        const orderDate = new Date(createdAt)
-        return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear
+        const orderKey = getRwandaDateKey(createdAt)
+        return currentMonthKey && orderKey ? orderKey.startsWith(currentMonthKey) : false
       })
       .reduce((sum, o) => {
         const subtotal = o?.subtotal || 0
@@ -674,12 +682,12 @@ const Orders = () => {
                             const deliveryOption = order.deliveryOption || order.delivery_option
                             const displayName = customerName || 'Unknown'
                             const formattedDate = createdAt
-                              ? new Date(createdAt).toLocaleDateString('en-US', {
+                              ? formatDateTimeRwanda(createdAt, {
                                   year: 'numeric',
                                   month: 'short',
                                   day: 'numeric',
                                   hour: '2-digit',
-                                  minute: '2-digit'
+                                  minute: '2-digit',
                                 })
                               : '-'
                             const productImage = getFirstProductImage(order)
@@ -798,12 +806,12 @@ const Orders = () => {
                                 
                                 // Format date
                                 const formattedDate = createdAt
-                                  ? new Date(createdAt).toLocaleDateString('en-US', {
+                                  ? formatDateTimeRwanda(createdAt, {
                                       year: 'numeric',
                                       month: 'short',
                                       day: 'numeric',
                                       hour: '2-digit',
-                                      minute: '2-digit'
+                                      minute: '2-digit',
                                     })
                                   : '-'
                                 

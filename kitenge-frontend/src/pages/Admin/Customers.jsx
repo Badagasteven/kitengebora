@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { useToast } from '../../contexts/ToastContext'
 import { useAuth } from '../../contexts/AuthContext'
 import AdminSidebar from '../../components/AdminSidebar'
+import { formatDateRwanda } from '../../utils/dateTime'
 
 const Customers = () => {
   const [customers, setCustomers] = useState([])
@@ -604,9 +605,7 @@ const Customers = () => {
                                   Order #{order.id}
                                 </p>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {order.created_at
-                                    ? new Date(order.created_at).toLocaleDateString()
-                                    : 'Date unknown'}
+                                  {order.created_at ? formatDateRwanda(order.created_at) : 'Date unknown'}
                                 </p>
                               </div>
                               <span

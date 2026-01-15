@@ -19,6 +19,7 @@ const Login = () => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const { login, isAdmin, checkAuth } = useAuth()
   const navigate = useNavigate()
+  const showCarousel = products.length > 0
 
   useEffect(() => {
     loadProducts()
@@ -112,9 +113,9 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Mobile Product Carousel - Shown only on mobile */}
-      {products.length > 0 && (
+      <div className="min-h-screen flex flex-col lg:flex-row">
+        {/* Mobile Product Carousel - Shown only on mobile */}
+       {showCarousel && (
         <div className="lg:hidden relative h-48 sm:h-64 overflow-hidden bg-gradient-to-br from-accent-600 via-accent-500 to-accent-700">
           {products.map((product, index) => (
             <div
@@ -149,11 +150,28 @@ const Login = () => {
               </p>
             </div>
           </div>
+
+          {products.length > 1 && (
+            <div className="absolute bottom-3 left-0 right-0 z-20 flex justify-center gap-2">
+              {products.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentSlide(index)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    index === currentSlide ? 'w-8 bg-white' : 'w-2.5 bg-white/50'
+                  }`}
+                  aria-label={`Show slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="w-full max-w-md">
+        <div className={`w-full max-w-md ${showCarousel ? '-mt-10 sm:-mt-14' : ''} lg:mt-0`}>
+          <div className="bg-white/90 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl shadow-xl lg:shadow-none lg:bg-transparent lg:dark:bg-transparent lg:border-0 p-6 sm:p-8 lg:p-0">
           <div className="mb-6">
             <h1 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white">
               Welcome back
@@ -346,6 +364,7 @@ const Login = () => {
               Create one
             </Link>
           </p>
+          </div>
         </div>
       </div>
 
