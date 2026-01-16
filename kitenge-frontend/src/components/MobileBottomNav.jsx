@@ -48,6 +48,7 @@ const MobileBottomNav = () => {
   const isHome = location.pathname === '/' && !isPromo
   const isProducts = location.pathname.startsWith('/products')
   const isContact = location.pathname === '/contact'
+  const isAuthRoute = location.pathname === '/login' || location.pathname === '/register'
 
   const itemClasses = (active) =>
     `flex flex-col items-center gap-1 py-2 ${
@@ -61,7 +62,7 @@ const MobileBottomNav = () => {
         : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300'
     }`
 
-  if (cartOpen) return null
+  if (cartOpen || isAuthRoute) return null
 
   return (
     <div

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ShoppingBag, Heart, User, Moon, Sun, LogOut, Search, X, Menu, Monitor, Check, Settings } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useCart } from '../contexts/CartContext'
@@ -23,9 +23,11 @@ const Header = () => {
   const [searchHistory, setSearchHistory] = useState([])
   const searchRef = useRef(null)
   const profileMenuRef = useRef(null)
+  const location = useLocation()
   const navigate = useNavigate()
   const cartCount = getCartCount()
   const [avatarError, setAvatarError] = useState(false)
+  const isAuthRoute = location.pathname === '/login' || location.pathname === '/register'
 
   const userDisplayName = user?.name || user?.email?.split('@')?.[0] || ''
   const userInitials = userDisplayName
@@ -189,18 +191,20 @@ const Header = () => {
               </Link>
 
               <div className="flex items-center justify-end flex-1 gap-1">
-                <button
-                  onClick={() => window.dispatchEvent(new Event('cart:open'))}
-                  className="relative p-2 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
-                  aria-label="Cart"
-                >
-                  <ShoppingBag className="w-6 h-6 text-gray-900 dark:text-white" />
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
-                      {cartCount > 9 ? '9+' : cartCount}
-                    </span>
-                  )}
-                </button>
+                {!isAuthRoute && (
+                  <button
+                    onClick={() => window.dispatchEvent(new Event('cart:open'))}
+                    className="relative p-2 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                    aria-label="Cart"
+                  >
+                    <ShoppingBag className="w-6 h-6 text-gray-900 dark:text-white" />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center leading-none">
+                        {cartCount > 9 ? '9+' : cartCount}
+                      </span>
+                    )}
+                  </button>
+                )}
 
                 <div ref={profileMenuRef} className="relative flex-shrink-0">
                   {!isAuthenticated ? (
@@ -300,74 +304,75 @@ const Header = () => {
           </div>
 
           {/* Search Bar - Always Visible, Prominent */}
-          <div className="relative px-3 pb-3 pt-2 bg-gray-50 dark:bg-gray-900" ref={searchRef}>
-            <form
-              onSubmit={handleSearchSubmit}
-              onClick={() => setShowSearch(true)}
-              className="flex items-center gap-2 cursor-text"
-            >
-              <div className="flex-1 flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm min-h-[44px] h-11 px-3 focus-within:border-accent-400 focus-within:ring-2 focus-within:ring-accent/20">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setShowSearch(true)}
-                  placeholder="Search Products..."
-                  className="flex-1 bg-transparent border-0 outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                  style={{ fontSize: '16px' }}
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSearchQuery('')
-                      setSearchResults([])
-                    }}
-                    className="p-2 flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
-                    aria-label="Clear search"
-                  >
-                    <X className="w-4 h-4 text-gray-400" />
-                  </button>
-                )}
-              </div>
-              <button
-                type="submit"
-                className="w-11 h-11 rounded-lg bg-gradient-accent text-white flex items-center justify-center shadow-md hover:shadow-lg transition-transform active:scale-95"
-                aria-label="Search"
+          {!isAuthRoute && (
+            <div className="relative px-3 pb-3 pt-2 bg-gray-50 dark:bg-gray-900" ref={searchRef}>
+              <form
+                onSubmit={handleSearchSubmit}
+                onClick={() => setShowSearch(true)}
+                className="flex items-center gap-2 cursor-text"
               >
-                <Search className="w-5 h-5" />
-              </button>
-            </form>
+                <div className="flex-1 flex items-center bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm min-h-[44px] h-11 px-3 focus-within:border-accent-400 focus-within:ring-2 focus-within:ring-accent/20">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setShowSearch(true)}
+                    placeholder="Search Products..."
+                    className="flex-1 bg-transparent border-0 outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                    style={{ fontSize: '16px' }}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSearchQuery('')
+                        setSearchResults([])
+                      }}
+                      className="p-2 flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center"
+                      aria-label="Clear search"
+                    >
+                      <X className="w-4 h-4 text-gray-400" />
+                    </button>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  className="w-11 h-11 rounded-lg bg-gradient-accent text-white flex items-center justify-center shadow-md hover:shadow-lg transition-transform active:scale-95"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+              </form>
 
-            {/* Search Results Dropdown */}
-            {showSearch && searchQuery && (
-              <div className="absolute left-3 right-3 top-full mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 z-50 max-h-[60vh] overflow-y-auto">
-                {searchLoading ? (
-                  <div className="p-6 text-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mx-auto"></div>
-                  </div>
-                ) : searchResults.length > 0 ? (
-                  <div className="py-2">
-                    {searchResults.map((product) => (
-                      <Link
-                        key={product.id}
-                        to={`/products/${product.id}`}
-                        onClick={() => {
-                          setShowSearch(false)
-                          setSearchQuery('')
-                        }}
-                        className="flex items-center gap-3 p-4 min-h-[64px] active:bg-gray-50 dark:active:bg-gray-800 touch-manipulation"
-                      >
-                        <img
-                          src={product.image || '/placeholder.png'}
-                          alt={product.name}
-                          className="w-14 h-14 object-cover rounded flex-shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-base text-gray-900 dark:text-white truncate">
-                            {product.name}
-                          </p>
+              {/* Search Results Dropdown */}
+              {showSearch && searchQuery && (
+                <div className="absolute left-3 right-3 top-full mt-2 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-800 z-50 max-h-[60vh] overflow-y-auto">
+                  {searchLoading ? (
+                    <div className="p-6 text-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mx-auto"></div>
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="py-2">
+                      {searchResults.map((product) => (
+                        <Link
+                          key={product.id}
+                          to={`/products/${product.id}`}
+                          onClick={() => {
+                            setShowSearch(false)
+                            setSearchQuery('')
+                          }}
+                          className="flex items-center gap-3 p-4 min-h-[64px] active:bg-gray-50 dark:active:bg-gray-800 touch-manipulation"
+                        >
+                          <img
+                            src={product.image || '/placeholder.png'}
+                            alt={product.name}
+                            className="w-14 h-14 object-cover rounded flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-base text-gray-900 dark:text-white truncate">
+                              {product.name}
+                            </p>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
                             {product.price.toLocaleString()} RWF
                           </p>
@@ -416,6 +421,7 @@ const Header = () => {
               </div>
             )}
           </div>
+          )}
         </div>
 
         {/* Desktop Header - Keep Original */}
