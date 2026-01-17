@@ -48,7 +48,17 @@ const MobileBottomNav = () => {
   const isHome = location.pathname === '/' && !isPromo
   const isProducts = location.pathname.startsWith('/products')
   const isContact = location.pathname === '/contact'
-  const isAuthRoute = location.pathname === '/login' || location.pathname === '/register'
+  const authRoutes = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+    '/resend-verification',
+  ]
+  const isAuthRoute = authRoutes.some(
+    (route) => location.pathname === route || location.pathname.startsWith(`${route}/`)
+  )
 
   const itemClasses = (active) =>
     `flex flex-col items-center gap-1 py-2 ${

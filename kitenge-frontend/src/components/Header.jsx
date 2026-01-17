@@ -27,7 +27,17 @@ const Header = () => {
   const navigate = useNavigate()
   const cartCount = getCartCount()
   const [avatarError, setAvatarError] = useState(false)
-  const isAuthRoute = location.pathname === '/login' || location.pathname === '/register'
+  const authRoutes = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+    '/resend-verification',
+  ]
+  const isAuthRoute = authRoutes.some(
+    (route) => location.pathname === route || location.pathname.startsWith(`${route}/`)
+  )
 
   const userDisplayName = user?.name || user?.email?.split('@')?.[0] || ''
   const userInitials = userDisplayName

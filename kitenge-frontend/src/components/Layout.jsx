@@ -9,6 +9,17 @@ import MobileBottomNav from './MobileBottomNav'
 const Layout = () => {
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
+  const authRoutes = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+    '/resend-verification',
+  ]
+  const isAuthRoute = authRoutes.some(
+    (route) => location.pathname === route || location.pathname.startsWith(`${route}/`)
+  )
   const showStoreChrome = !isAdminRoute
 
   return (
@@ -18,7 +29,7 @@ const Layout = () => {
           <Header />
         </ErrorBoundary>
       )}
-      <main className={`flex-grow ${showStoreChrome ? 'pb-24 lg:pb-0' : ''}`}>
+      <main className={`flex-grow ${showStoreChrome && !isAuthRoute ? 'pb-24 lg:pb-0' : ''}`}>
         <ErrorBoundary>
           <Outlet />
         </ErrorBoundary>
