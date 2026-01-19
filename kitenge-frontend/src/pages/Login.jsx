@@ -3,6 +3,10 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { authAPI } from '../services/api'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { getKitengePatternDataUri } from '../utils/kitengePattern'
+
+const KITENGE_PATTERN_LIGHT = getKitengePatternDataUri('#111827')
+const KITENGE_PATTERN_DARK = getKitengePatternDataUri('#ffffff')
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -70,8 +74,26 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-[calc(100svh-3rem)] lg:min-h-[calc(100svh-4rem)] flex items-center justify-center px-4 pt-4 pb-14 sm:px-6 sm:pt-6 sm:pb-16 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="w-full max-w-md">
+    <div className="min-h-[calc(100svh-3rem)] lg:min-h-[calc(100svh-4rem)] relative overflow-hidden flex items-center justify-center px-4 pt-4 pb-14 sm:px-6 sm:pt-6 sm:pb-16 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none bg-repeat dark:hidden"
+        style={{
+          backgroundImage: `url("${KITENGE_PATTERN_LIGHT}")`,
+          backgroundSize: '96px 96px',
+          opacity: 0.05,
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none bg-repeat hidden dark:block"
+        style={{
+          backgroundImage: `url("${KITENGE_PATTERN_DARK}")`,
+          backgroundSize: '96px 96px',
+          opacity: 0.04,
+        }}
+      />
+      <div className="w-full max-w-md relative z-10">
         <div className="bg-white/90 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl shadow-xl p-6 sm:p-8">
           <div className="mb-6">
             <h1 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white">
