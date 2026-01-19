@@ -340,14 +340,27 @@ public class WhatsAppService {
 
     private String buildCustomerStatusMessage(Order order, String status) {
         Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+        String normalized = status != null ? status.trim().toUpperCase() : "PENDING";
+        int total = (order.getSubtotal() != null ? order.getSubtotal() : 0)
+                + (order.getDeliveryFee() != null ? order.getDeliveryFee() : 0);
+
         StringBuilder message = new StringBuilder();
-        message.append("Order Update #").append(orderNumber).append("\n\n");
-        message.append("Status: ").append(status != null ? status : "PENDING").append("\n");
-        if (order.getTrackingNumber() != null && !order.getTrackingNumber().trim().isEmpty()) {
-            message.append("Tracking: ").append(order.getTrackingNumber()).append("\n");
+        message.append("Kitenge Bora\n");
+
+        if ("PENDING".equals(normalized)) {
+            message.append("We have received your order #").append(orderNumber).append(".\n");
+        } else {
+            message.append("Order update #").append(orderNumber).append(".\n");
         }
-        message.append("\nTrack your order: ").append(frontendUrl).append("/track-order\n");
-        message.append("Thank you for shopping with Kitenge Bora.");
+
+        message.append("Status: ").append(normalized).append("\n");
+        message.append("Total: ").append(total).append(" RWF\n");
+
+        if (order.getTrackingNumber() != null && !order.getTrackingNumber().trim().isEmpty()) {
+            message.append("Tracking: ").append(order.getTrackingNumber().trim()).append("\n");
+        }
+
+        message.append("Track: ").append(frontendUrl).append("/track-order");
         return message.toString();
     }
     

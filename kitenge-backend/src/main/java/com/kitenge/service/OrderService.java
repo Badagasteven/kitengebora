@@ -53,6 +53,9 @@ public class OrderService {
 
     @Value("${app.mail.from:}")
     private String mailFrom;
+
+    @Value("${spring.mail.username:}")
+    private String mailUsername;
     
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -159,6 +162,7 @@ public class OrderService {
         // Send notifications
         sendOrderNotification(order);
         sendOrderConfirmationEmail(order);
+        sendCustomerStatusUpdates(order, order.getStatus());
         // Send WhatsApp notification to admin
         whatsAppService.sendOrderNotification(order);
         
@@ -183,23 +187,27 @@ public class OrderService {
         boolean trackingUpdated = trackingNumber != null && !trackingNumber.trim().isEmpty()
                 && (previousTracking == null || !previousTracking.equals(trackingNumber.trim()));
 
-        order.setStatus(status);
+        String normalizedStatus = status != null ? status.trim().toUpperCase() : null;
+        order.setStatus(normalizedStatus);
 
         if (trackingNumber != null && !trackingNumber.trim().isEmpty()) {
             order.setTrackingNumber(trackingNumber.trim());
         }
 
-        if ("SHIPPED".equals(status) && order.getShippedAt() == null) {
+        if ("SHIPPED".equals(normalizedStatus) && order.getShippedAt() == null) {
             order.setShippedAt(LocalDateTime.now());
             sendShippingNotification(order);
-        } else if ("DELIVERED".equals(status) && order.getDeliveredAt() == null) {
+        } else if ("DELIVERED".equals(normalizedStatus) && order.getDeliveredAt() == null) {
             order.setDeliveredAt(LocalDateTime.now());
             sendDeliveryNotification(order);
         }
 
         Order saved = orderRepository.save(order);
         if (statusChanged || trackingUpdated) {
-            sendCustomerStatusUpdates(saved, status);
+            sendCustomerStatusUpdates(saved, normalizedStatus);
+        }
+        if (statusChanged) {
+            sendOrderStatusEmail(saved, normalizedStatus);
         }
 
         return saved;
@@ -207,23 +215,28 @@ public class OrderService {
     
     private void sendOrderNotification(Order order) {
         try {
-            if (mailSender != null && adminNotificationEmail != null && !adminNotificationEmail.isEmpty()) {
+            if (!isEmailConfigured()) {
+                logger.warn("Email not configured; admin order notification not sent for order {}", order.getId());
+                return;
+            }
+
+            if (adminNotificationEmail != null && !adminNotificationEmail.trim().isEmpty()) {
                 // Build detailed email content once
                 StringBuilder emailContent = new StringBuilder();
                 Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
                 String monthYear = order.getCreatedAt() != null 
                     ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
                     : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
-                emailContent.append("🧵 NEW ORDER RECEIVED\n\n");
+                emailContent.append("NEW ORDER RECEIVED\n\n");
                 emailContent.append("Order #").append(orderNumber).append(" (").append(monthYear).append(")\n");
                 emailContent.append("Customer Name: ").append(order.getCustomerName() != null ? order.getCustomerName() : "Guest").append("\n");
                 emailContent.append("Phone: ").append(order.getCustomerPhone()).append("\n");
                 emailContent.append("Channel: ").append(order.getChannel() != null ? order.getChannel() : "Store").append("\n");
                 emailContent.append("Order Date: ").append(order.getCreatedAt() != null ? order.getCreatedAt().toString() : "Now").append("\n\n");
                 
-                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("--------------------------------------------------\n");
                 emailContent.append("ORDER ITEMS:\n");
-                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+                emailContent.append("--------------------------------------------------\n\n");
                 
                 // Get product details for each item
                 for (OrderItem item : order.getItems()) {
@@ -238,15 +251,15 @@ public class OrderService {
                         // Use product ID if fetch fails
                     }
                     
-                    emailContent.append("• ").append(productName).append("\n");
+                    emailContent.append("- ").append(productName).append("\n");
                     emailContent.append("  Quantity: ").append(item.getQuantity()).append("\n");
                     emailContent.append("  Unit Price: ").append(item.getUnitPrice()).append(" RWF\n");
                     emailContent.append("  Subtotal: ").append(item.getQuantity() * item.getUnitPrice()).append(" RWF\n\n");
                 }
                 
-                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("--------------------------------------------------\n");
                 emailContent.append("ORDER SUMMARY:\n");
-                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("--------------------------------------------------\n");
                 emailContent.append("Subtotal: ").append(order.getSubtotal()).append(" RWF\n");
                 
                 if (order.getDeliveryOption() != null && !order.getDeliveryOption().isEmpty()) {
@@ -262,20 +275,26 @@ public class OrderService {
                 int total = order.getSubtotal() + (order.getDeliveryFee() != null ? order.getDeliveryFee() : 0);
                 emailContent.append("TOTAL: ").append(total).append(" RWF\n\n");
                 
-                emailContent.append("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+                emailContent.append("--------------------------------------------------\n");
                 emailContent.append("Please process this order promptly.\n");
                 emailContent.append("WhatsApp: ").append(adminWhatsApp).append("\n");
                 
                 // Send email to notification email(s) only
                 String[] notificationEmails = adminNotificationEmail.split(",");
                 String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+                String safeCustomerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
+                        ? order.getCustomerName().trim()
+                        : "Guest Customer";
                 for (String notificationEmail : notificationEmails) {
+                    if (notificationEmail == null || notificationEmail.trim().isEmpty()) {
+                        continue;
+                    }
                     SimpleMailMessage message = new SimpleMailMessage();
                     if (senderEmail != null && !senderEmail.isEmpty()) {
                         message.setFrom(senderEmail);
                     }
                     message.setTo(notificationEmail.trim());
-                    message.setSubject("🧵 New Order #" + orderNumber + " - " + order.getCustomerName());
+                    message.setSubject("New Order #" + orderNumber + " - " + safeCustomerName);
                     message.setText(emailContent.toString());
                     mailSender.send(message);
                     logger.info("Admin notification email sent for order {}", orderNumber);
@@ -289,62 +308,52 @@ public class OrderService {
     
     private void sendOrderConfirmationEmail(Order order) {
         try {
-            if (mailSender == null) {
+            if (!isEmailConfigured()) {
                 logger.warn("Email not configured; order confirmation email not sent for order {}", order.getId());
                 return;
             }
             
-            if (order.getCustomerName() != null) {
-                // Try to get user email if order is linked to a user
-                String customerEmail = null;
-                if (order.getUserId() != null) {
-                    // Fetch user email from user repository
-                    try {
-                        User user = userRepository.findById(order.getUserId()).orElse(null);
-                        if (user != null) {
-                            customerEmail = user.getEmail();
-                        }
-                    } catch (Exception e) {
-                        logger.warn("Failed to fetch user email", e);
-                    }
-                }
-                
-                // Fallback: check if customer name is an email
-                if (customerEmail == null && order.getCustomerName() != null && order.getCustomerName().contains("@")) {
-                    customerEmail = order.getCustomerName();
-                }
-                
-                if (customerEmail != null && customerEmail.contains("@")) {
-                    SimpleMailMessage message = new SimpleMailMessage();
-                    String senderEmail = mailFrom != null ? mailFrom.trim() : "";
-                    if (senderEmail != null && !senderEmail.isEmpty()) {
-                        message.setFrom(senderEmail);
-                    }
-                    message.setTo(customerEmail);
-                    Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
-                    String monthYear = order.getCreatedAt() != null 
-                        ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
-                        : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
-                    message.setSubject("Order Confirmation - Kitenge Bora #" + orderNumber);
-                    StringBuilder emailBody = new StringBuilder();
-                    emailBody.append("Hello ").append(order.getCustomerName()).append(",\n\n");
-                    emailBody.append("Thank you for your order!\n\n");
-                    emailBody.append("Order #").append(orderNumber).append(" (").append(monthYear).append(")\n");
-                    emailBody.append("Subtotal: ").append(order.getSubtotal()).append(" RWF\n");
-                    emailBody.append("Delivery Fee: ").append(order.getDeliveryFee() != null ? order.getDeliveryFee() : 0).append(" RWF\n");
-                    if (order.getDeliveryLocation() != null && !order.getDeliveryLocation().trim().isEmpty()) {
-                        emailBody.append("Delivery Location: ").append(order.getDeliveryLocation()).append("\n");
-                    }
-                    emailBody.append("Total: ").append((order.getSubtotal() != null ? order.getSubtotal() : 0) + 
-                                    (order.getDeliveryFee() != null ? order.getDeliveryFee() : 0)).append(" RWF\n\n");
-                    emailBody.append("We'll send you updates on your order status.\n\n");
-                    emailBody.append("Best regards,\n");
-                    emailBody.append("Kitenge Bora Team");
-                    message.setText(emailBody.toString());
-                    mailSender.send(message);
-                    logger.info("Order confirmation email sent for order {}", order.getId());
-                }
+            String customerEmail = resolveCustomerEmail(order);
+            if (customerEmail == null || !customerEmail.contains("@")) {
+                return;
             }
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+            if (senderEmail != null && !senderEmail.isEmpty()) {
+                message.setFrom(senderEmail);
+            }
+
+            message.setTo(customerEmail);
+
+            Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+            String monthYear = order.getCreatedAt() != null
+                    ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                    : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
+            message.setSubject("Order Received - Kitenge Bora #" + orderNumber);
+
+            String customerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
+                    ? order.getCustomerName().trim()
+                    : "Customer";
+
+            StringBuilder emailBody = new StringBuilder();
+            emailBody.append("Hello ").append(customerName).append(",\n\n");
+            emailBody.append("We have received your order and will confirm it shortly.\n\n");
+            emailBody.append("Order #").append(orderNumber).append(" (").append(monthYear).append(")\n");
+            emailBody.append("Subtotal: ").append(order.getSubtotal()).append(" RWF\n");
+            emailBody.append("Delivery Fee: ").append(order.getDeliveryFee() != null ? order.getDeliveryFee() : 0).append(" RWF\n");
+            if (order.getDeliveryLocation() != null && !order.getDeliveryLocation().trim().isEmpty()) {
+                emailBody.append("Delivery Location: ").append(order.getDeliveryLocation()).append("\n");
+            }
+            emailBody.append("Total: ").append((order.getSubtotal() != null ? order.getSubtotal() : 0) +
+                            (order.getDeliveryFee() != null ? order.getDeliveryFee() : 0)).append(" RWF\n\n");
+            emailBody.append("Track your order: ").append(frontendUrl).append("/track-order\n\n");
+            emailBody.append("Best regards,\n");
+            emailBody.append("Kitenge Bora Team");
+            message.setText(emailBody.toString());
+
+            mailSender.send(message);
+            logger.info("Order confirmation email sent for order {}", order.getId());
         } catch (Exception e) {
             logger.warn("Failed to send order confirmation email for order {}", order.getId(), e);
         }
@@ -352,53 +361,46 @@ public class OrderService {
     
     private void sendShippingNotification(Order order) {
         try {
-            if (mailSender == null) {
+            if (!isEmailConfigured()) {
                 logger.warn("Email not configured; shipping notification not sent for order {}", order.getId());
                 return;
             }
             
-            if (order.getCustomerName() != null) {
-                String customerEmail = null;
-                if (order.getUserId() != null) {
-                    try {
-                        User user = userRepository.findById(order.getUserId()).orElse(null);
-                        if (user != null) {
-                            customerEmail = user.getEmail();
-                        }
-                    } catch (Exception e) {
-                        logger.warn("Failed to fetch user email", e);
-                    }
-                }
-                
-                if (customerEmail == null && order.getCustomerName() != null && order.getCustomerName().contains("@")) {
-                    customerEmail = order.getCustomerName();
-                }
-                
-                if (customerEmail != null && customerEmail.contains("@")) {
-                    SimpleMailMessage message = new SimpleMailMessage();
-                    String senderEmail = mailFrom != null ? mailFrom.trim() : "";
-                    if (senderEmail != null && !senderEmail.isEmpty()) {
-                        message.setFrom(senderEmail);
-                    }
-                    message.setTo(customerEmail);
-                    Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
-                    String monthYear = order.getCreatedAt() != null 
-                        ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
-                        : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
-                    message.setSubject("Your Order Has Been Shipped - Kitenge Bora #" + orderNumber);
-                    message.setText(
-                        "Hello " + order.getCustomerName() + ",\n\n" +
-                        "Great news! Your order #" + orderNumber + " (" + monthYear + ") has been shipped.\n\n" +
-                        (order.getTrackingNumber() != null ? 
-                            "Tracking Number: " + order.getTrackingNumber() + "\n\n" : "") +
-                        "You can track your order status in your account.\n\n" +
-                        "Best regards,\n" +
-                        "Kitenge Bora Team"
-                    );
-                    mailSender.send(message);
-                    logger.info("Shipping notification sent for order {}", order.getId());
-                }
+            String customerEmail = resolveCustomerEmail(order);
+            if (customerEmail == null || !customerEmail.contains("@")) {
+                return;
             }
+
+            String customerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
+                    ? order.getCustomerName().trim()
+                    : "Customer";
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+            if (senderEmail != null && !senderEmail.isEmpty()) {
+                message.setFrom(senderEmail);
+            }
+            message.setTo(customerEmail);
+
+            Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+            String monthYear = order.getCreatedAt() != null
+                    ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                    : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
+            message.setSubject("Order Shipped - Kitenge Bora #" + orderNumber);
+
+            StringBuilder body = new StringBuilder();
+            body.append("Hello ").append(customerName).append(",\n\n");
+            body.append("Good news! Your order #").append(orderNumber).append(" (").append(monthYear).append(") has been shipped.\n\n");
+            if (order.getTrackingNumber() != null && !order.getTrackingNumber().trim().isEmpty()) {
+                body.append("Tracking Number: ").append(order.getTrackingNumber().trim()).append("\n\n");
+            }
+            body.append("Track your order: ").append(frontendUrl).append("/track-order\n\n");
+            body.append("Best regards,\n");
+            body.append("Kitenge Bora Team");
+
+            message.setText(body.toString());
+            mailSender.send(message);
+            logger.info("Shipping notification sent for order {}", order.getId());
         } catch (Exception e) {
             logger.warn("Failed to send shipping notification for order {}", order.getId(), e);
         }
@@ -406,52 +408,43 @@ public class OrderService {
     
     private void sendDeliveryNotification(Order order) {
         try {
-            if (mailSender == null) {
+            if (!isEmailConfigured()) {
                 logger.warn("Email not configured; delivery notification not sent for order {}", order.getId());
                 return;
             }
             
-            if (order.getCustomerName() != null) {
-                String customerEmail = null;
-                if (order.getUserId() != null) {
-                    try {
-                        User user = userRepository.findById(order.getUserId()).orElse(null);
-                        if (user != null) {
-                            customerEmail = user.getEmail();
-                        }
-                    } catch (Exception e) {
-                        logger.warn("Failed to fetch user email", e);
-                    }
-                }
-                
-                if (customerEmail == null && order.getCustomerName() != null && order.getCustomerName().contains("@")) {
-                    customerEmail = order.getCustomerName();
-                }
-                
-                if (customerEmail != null && customerEmail.contains("@")) {
-                    SimpleMailMessage message = new SimpleMailMessage();
-                    String senderEmail = mailFrom != null ? mailFrom.trim() : "";
-                    if (senderEmail != null && !senderEmail.isEmpty()) {
-                        message.setFrom(senderEmail);
-                    }
-                    message.setTo(customerEmail);
-                    Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
-                    String monthYear = order.getCreatedAt() != null 
-                        ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
-                        : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
-                    message.setSubject("Order Delivered - Kitenge Bora #" + orderNumber);
-                    message.setText(
-                        "Hello " + order.getCustomerName() + ",\n\n" +
-                        "Your order #" + orderNumber + " (" + monthYear + ") has been delivered!\n\n" +
-                        "We hope you love your purchase. If you have any questions, please don't hesitate to contact us.\n\n" +
-                        "Thank you for shopping with Kitenge Bora!\n\n" +
-                        "Best regards,\n" +
-                        "Kitenge Bora Team"
-                    );
-                    mailSender.send(message);
-                    logger.info("Delivery notification sent for order {}", order.getId());
-                }
+            String customerEmail = resolveCustomerEmail(order);
+            if (customerEmail == null || !customerEmail.contains("@")) {
+                return;
             }
+
+            String customerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
+                    ? order.getCustomerName().trim()
+                    : "Customer";
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+            if (senderEmail != null && !senderEmail.isEmpty()) {
+                message.setFrom(senderEmail);
+            }
+            message.setTo(customerEmail);
+
+            Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+            String monthYear = order.getCreatedAt() != null
+                    ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                    : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
+            message.setSubject("Order Delivered - Kitenge Bora #" + orderNumber);
+
+            StringBuilder body = new StringBuilder();
+            body.append("Hello ").append(customerName).append(",\n\n");
+            body.append("Your order #").append(orderNumber).append(" (").append(monthYear).append(") has been delivered.\n\n");
+            body.append("Thank you for shopping with Kitenge Bora.\n\n");
+            body.append("Best regards,\n");
+            body.append("Kitenge Bora Team");
+
+            message.setText(body.toString());
+            mailSender.send(message);
+            logger.info("Delivery notification sent for order {}", order.getId());
         } catch (Exception e) {
             logger.warn("Failed to send delivery notification for order {}", order.getId(), e);
         }
@@ -480,14 +473,131 @@ public class OrderService {
 
     private String buildCustomerStatusMessage(Order order, String status) {
         Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+        String normalized = status != null ? status.trim().toUpperCase() : "PENDING";
+        int total = (order.getSubtotal() != null ? order.getSubtotal() : 0)
+                + (order.getDeliveryFee() != null ? order.getDeliveryFee() : 0);
+
         StringBuilder message = new StringBuilder();
-        message.append("Order Update #").append(orderNumber).append("\n\n");
-        message.append("Status: ").append(status != null ? status : "PENDING").append("\n");
-        if (order.getTrackingNumber() != null && !order.getTrackingNumber().trim().isEmpty()) {
-            message.append("Tracking: ").append(order.getTrackingNumber()).append("\n");
+        message.append("Kitenge Bora\n");
+
+        if ("PENDING".equals(normalized)) {
+            message.append("We have received your order #").append(orderNumber).append(".\n");
+        } else {
+            message.append("Order update #").append(orderNumber).append(".\n");
         }
-        message.append("\nTrack your order: ").append(frontendUrl).append("/track-order\n");
-        message.append("Thank you for shopping with Kitenge Bora.");
+
+        message.append("Status: ").append(normalized).append("\n");
+        message.append("Total: ").append(total).append(" RWF\n");
+
+        if (order.getTrackingNumber() != null && !order.getTrackingNumber().trim().isEmpty()) {
+            message.append("Tracking: ").append(order.getTrackingNumber().trim()).append("\n");
+        }
+
+        message.append("Track: ").append(frontendUrl).append("/track-order");
         return message.toString();
+    }
+
+    private void sendOrderStatusEmail(Order order, String status) {
+        try {
+            if (!isEmailConfigured()) {
+                return;
+            }
+
+            if (order == null || status == null || status.trim().isEmpty()) {
+                return;
+            }
+
+            String normalizedStatus = status.trim().toUpperCase();
+            if ("SHIPPED".equals(normalizedStatus) || "DELIVERED".equals(normalizedStatus)) {
+                // Dedicated emails are sent via sendShippingNotification/sendDeliveryNotification
+                return;
+            }
+
+            if (!"CONFIRMED".equals(normalizedStatus) && !"PROCESSING".equals(normalizedStatus) && !"CANCELLED".equals(normalizedStatus)) {
+                return;
+            }
+
+            String customerEmail = resolveCustomerEmail(order);
+            if (customerEmail == null || !customerEmail.contains("@")) {
+                return;
+            }
+
+            Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
+            String monthYear = order.getCreatedAt() != null
+                    ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
+                    : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
+
+            String subjectPrefix;
+            if ("CONFIRMED".equals(normalizedStatus)) {
+                subjectPrefix = "Order Confirmed";
+            } else if ("PROCESSING".equals(normalizedStatus)) {
+                subjectPrefix = "Order Processing";
+            } else if ("CANCELLED".equals(normalizedStatus)) {
+                subjectPrefix = "Order Cancelled";
+            } else {
+                subjectPrefix = "Order Update";
+            }
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
+            if (senderEmail != null && !senderEmail.isEmpty()) {
+                message.setFrom(senderEmail);
+            }
+            message.setTo(customerEmail.trim());
+            message.setSubject(subjectPrefix + " - Kitenge Bora #" + orderNumber);
+
+            String customerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
+                    ? order.getCustomerName().trim()
+                    : "Customer";
+
+            StringBuilder body = new StringBuilder();
+            body.append("Hello ").append(customerName).append(",\n\n");
+            body.append("Order #").append(orderNumber).append(" (").append(monthYear).append(")\n");
+            body.append("Status: ").append(normalizedStatus).append("\n\n");
+
+            if ("CONFIRMED".equals(normalizedStatus)) {
+                body.append("We have received and confirmed your order. We will start processing it shortly.\n\n");
+            } else if ("PROCESSING".equals(normalizedStatus)) {
+                body.append("Your order is being processed. We'll notify you when it ships.\n\n");
+            } else if ("CANCELLED".equals(normalizedStatus)) {
+                body.append("Your order has been cancelled. If you believe this is a mistake, please contact us.\n\n");
+            }
+
+            body.append("Track your order: ").append(frontendUrl).append("/track-order\n\n");
+            body.append("Best regards,\n");
+            body.append("Kitenge Bora Team");
+
+            message.setText(body.toString());
+            mailSender.send(message);
+        } catch (Exception e) {
+            logger.warn("Failed to send order status email for order {}", order != null ? order.getId() : null, e);
+        }
+    }
+
+    private String resolveCustomerEmail(Order order) {
+        if (order == null) {
+            return null;
+        }
+
+        if (order.getUserId() != null) {
+            try {
+                User user = userRepository.findById(order.getUserId()).orElse(null);
+                if (user != null && user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+                    return user.getEmail().trim();
+                }
+            } catch (Exception e) {
+                logger.warn("Failed to fetch user email", e);
+            }
+        }
+
+        if (order.getCustomerName() != null && order.getCustomerName().contains("@")) {
+            return order.getCustomerName().trim();
+        }
+
+        return null;
+    }
+
+    private boolean isEmailConfigured() {
+        return mailUsername != null && !mailUsername.trim().isEmpty();
     }
 }
