@@ -400,12 +400,7 @@
   }
 }
 
-/* Prevent pull-to-refresh on mobile (can interfere with scrolling) */
-@media (max-width: 640px) {
-  body {
-    overscroll-behavior-y: contain;
-  }
-}
+/* Note: avoid scroll-locking globals on mobile (can interfere with scrolling) */
 
 @media (prefers-reduced-motion: reduce) {
   *,
