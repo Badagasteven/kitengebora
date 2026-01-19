@@ -1,12 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { authAPI } from '../services/api'
+import { authAPI, productsAPI } from '../services/api'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
-import { getKitengePatternDataUri } from '../utils/kitengePattern'
-
-const KITENGE_PATTERN_LIGHT = getKitengePatternDataUri('#111827')
-const KITENGE_PATTERN_DARK = getKitengePatternDataUri('#ffffff')
+import { getImageUrl } from '../utils/imageUtils'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -18,8 +15,36 @@ const Login = () => {
   const [requires2FA, setRequires2FA] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
   const [touched, setTouched] = useState({})
+  const [products, setProducts] = useState([])
+  const [currentSlide, setCurrentSlide] = useState(0)
   const { login, isAdmin, checkAuth } = useAuth()
   const navigate = useNavigate()
+
+  const loadProducts = async () => {
+    try {
+      const response = await productsAPI.getPublicProducts()
+      const productsWithImages = (response.data || [])
+        .filter((product) => product.image && product.image.trim() !== '')
+        .slice(0, 8)
+      setProducts(productsWithImages)
+    } catch (error) {
+      console.error('Failed to load products:', error)
+    }
+  }
+
+  useEffect(() => {
+    loadProducts()
+  }, [])
+
+  useEffect(() => {
+    if (products.length <= 1) return
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % products.length)
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [products.length])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -74,27 +99,10 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-[calc(100svh-3rem)] lg:min-h-[calc(100svh-4rem)] relative overflow-hidden flex items-center justify-center px-4 pt-4 pb-14 sm:px-6 sm:pt-6 sm:pb-16 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none bg-repeat dark:hidden"
-        style={{
-          backgroundImage: `url("${KITENGE_PATTERN_LIGHT}")`,
-          backgroundSize: '96px 96px',
-          opacity: 0.05,
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none bg-repeat hidden dark:block"
-        style={{
-          backgroundImage: `url("${KITENGE_PATTERN_DARK}")`,
-          backgroundSize: '96px 96px',
-          opacity: 0.04,
-        }}
-      />
-      <div className="w-full max-w-md relative z-10">
-        <div className="bg-white/90 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl shadow-xl p-6 sm:p-8">
+    <div className="min-h-[calc(100svh-3rem)] lg:min-h-[calc(100svh-4rem)] flex flex-col lg:flex-row">
+      <div className="flex-1 flex items-center justify-center px-4 pt-4 pb-14 sm:px-6 sm:pt-6 sm:pb-16 lg:p-8 bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="w-full max-w-md lg:mt-0">
+          <div className="bg-white/90 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl shadow-xl lg:shadow-none lg:bg-transparent lg:dark:bg-transparent lg:border-0 p-6 sm:p-8 lg:p-0">
           <div className="mb-6">
             <h1 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white">
               Hello Again
@@ -268,6 +276,47 @@ const Login = () => {
               Create one
             </Link>
           </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop Product Carousel */}
+      <div className="hidden lg:flex flex-1 relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-700">
+        {products.length > 0 ? (
+          <>
+            {products.map((product, index) => (
+              <div
+                key={product.id}
+                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                  index === currentSlide ? 'opacity-100 z-0 scale-100' : 'opacity-0 z-0 scale-105'
+                }`}
+              >
+                <img
+                  src={getImageUrl(product.image)}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  loading="eager"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.png'
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/50 to-black/60" />
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-orange-700" />
+        )}
+
+        <div className="relative z-10 flex items-center justify-center p-12 text-white">
+          <div className="bg-black/50 backdrop-blur-md rounded-3xl px-10 py-12 border border-white/30 shadow-2xl max-w-lg text-center">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]">
+              Hello Again
+            </h2>
+            <p className="text-xl lg:text-2xl text-white/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] leading-relaxed">
+              Your favourite kitenge pieces are waiting for you.
+            </p>
+          </div>
         </div>
       </div>
     </div>
