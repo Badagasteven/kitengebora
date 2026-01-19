@@ -142,17 +142,10 @@ const ProductDetail = () => {
           {/* Product Images */}
           <div>
             <div 
-              className="relative aspect-square bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl overflow-hidden mb-4 cursor-zoom-in group touch-none sm:touch-auto"
+              className="relative aspect-square bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl overflow-hidden mb-4 cursor-zoom-in group touch-pan-y sm:touch-auto"
               onMouseMove={handleImageMouseMove}
               onMouseEnter={() => setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
-              onTouchStart={(e) => {
-                // Disable zoom on mobile - use tap to view fullscreen instead
-                if (window.innerWidth < 640) {
-                  e.preventDefault()
-                  handleImageClick()
-                }
-              }}
               onClick={handleImageClick}
               ref={imageRef}
             >
