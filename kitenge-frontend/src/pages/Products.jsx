@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { productsAPI } from '../services/api'
 import ProductCard from '../components/ProductCard'
+import QuickViewModal from '../components/QuickViewModal'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { Search, Filter, Grid, List, X, SlidersHorizontal, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useToast } from '../contexts/ToastContext'
@@ -13,6 +14,7 @@ const Products = () => {
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedProduct, setSelectedProduct] = useState(null)
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all')
   const [priceRange, setPriceRange] = useState([0, 1000000])
@@ -422,10 +424,7 @@ const Products = () => {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onView={(product) => {
-                    // Navigate to product detail page
-                    window.location.href = `/products/${product.id}`
-                  }}
+                  onView={setSelectedProduct}
                 />
               ))}
             </div>
@@ -495,6 +494,12 @@ const Products = () => {
           </>
         )}
       </div>
+
+      <QuickViewModal
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </div>
   )
 }
