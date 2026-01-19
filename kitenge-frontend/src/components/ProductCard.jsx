@@ -217,12 +217,6 @@ const ProductCard = ({ product, onView }) => {
           </div>
         </div>
 
-        {product.description && (
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 sm:mb-2.5 line-clamp-1 sm:line-clamp-2 flex-1">
-            {product.description}
-          </p>
-        )}
-
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <span className={`text-lg sm:text-xl md:text-2xl font-black ${product.is_promo ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'} transition-colors duration-300`}>

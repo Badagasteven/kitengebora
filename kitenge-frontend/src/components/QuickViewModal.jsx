@@ -140,12 +140,12 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-fade-in"
       style={{
-        paddingTop: 'max(0.5rem, env(safe-area-inset-top))',
-        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
-        paddingLeft: 'max(0.5rem, env(safe-area-inset-left))',
-        paddingRight: 'max(0.5rem, env(safe-area-inset-right))',
+        paddingTop: 'max(1rem, env(safe-area-inset-top))',
+        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+        paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+        paddingRight: 'max(1rem, env(safe-area-inset-right))',
       }}
       onClick={onClose}
       role="dialog"
@@ -154,26 +154,27 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
     >
       <div
         ref={modalRef}
-        className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl animate-fade-in-up"
+        className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-[85svh] sm:max-h-[85vh] md:max-h-[90vh] shadow-2xl animate-fade-in-up overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative p-4 sm:p-6">
-          {/* Close Button */}
+        <div className="flex items-center justify-end px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur">
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors z-10 touch-target"
+            className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors touch-target"
             aria-label="Close modal"
           >
-            <X className="w-5 h-5 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
+            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
+        </div>
 
+        <div className="p-4 sm:p-6 overflow-y-auto">
           <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
             {/* Product Image */}
             <div className="relative">
               <LazyImage
                 src={product.image}
                 alt={product.name}
-                className="w-full h-64 sm:h-80 md:h-96 object-cover rounded-lg"
+                className="w-full h-52 sm:h-64 md:h-72 object-cover rounded-lg"
                 loading="eager"
               />
               {product.is_promo && discountPercent > 0 && (
@@ -203,18 +204,18 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
               </h2>
 
               {product.description && (
-                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-4">
                   {product.description}
                 </p>
               )}
 
               <div className="mb-6">
                 <div className="flex items-center gap-4 mb-2">
-                  <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                  <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                     {product.price.toLocaleString()} RWF
                   </span>
                   {product.original_price && product.original_price > product.price && (
-                    <span className="text-xl text-gray-400 line-through">
+                    <span className="text-lg sm:text-xl text-gray-400 line-through">
                       {product.original_price.toLocaleString()} RWF
                     </span>
                   )}
