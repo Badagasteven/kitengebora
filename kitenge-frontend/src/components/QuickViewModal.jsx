@@ -157,7 +157,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
         className="bg-white dark:bg-gray-900 rounded-xl sm:rounded-2xl max-w-2xl w-full max-h-[85svh] sm:max-h-[85vh] md:max-h-[90vh] shadow-2xl animate-fade-in-up overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-end px-3 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur">
+        <div className="flex items-center justify-end px-2.5 py-2 sm:px-4 sm:py-3 border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur">
           <button
             onClick={onClose}
             className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors touch-target"
@@ -167,85 +167,81 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="p-4 sm:p-6 overflow-y-auto">
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+        <div className="p-3 sm:p-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 items-start">
             {/* Product Image */}
             <div className="relative">
               <LazyImage
                 src={product.image}
                 alt={product.name}
-                className="w-full h-52 sm:h-64 md:h-72 object-cover rounded-lg"
+                className="w-full h-44 sm:h-64 md:h-72 object-cover rounded-lg"
                 loading="eager"
               />
               {product.is_promo && discountPercent > 0 && (
-                <span className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-lg">
+                <span className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs sm:text-sm font-bold px-2.5 py-1 rounded-full shadow-lg">
                   -{discountPercent}% OFF
                 </span>
               )}
               {!product.in_stock && (
-                <span className="absolute top-4 right-4 bg-gray-500 text-white text-sm font-bold px-3 py-1.5 rounded-full">
+                <span className="absolute top-3 right-3 bg-gray-500 text-white text-xs sm:text-sm font-bold px-2.5 py-1 rounded-full">
                   Out of stock
                 </span>
               )}
             </div>
 
             {/* Product Info */}
-            <div className="flex flex-col">
-              <div className="mb-4">
+            <div className="flex flex-col h-full min-w-0">
+              <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-4">
                 {product.category && (
-                  <span className="inline-block px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium mb-2">
+                  <span className="inline-flex items-center px-2.5 py-1 bg-accent/10 text-accent rounded-full text-xs sm:text-sm font-medium">
                     {product.category}
                   </span>
                 )}
-              </div>
-
-              <h2 id="quick-view-title" className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                {product.name}
-              </h2>
-
-              {product.description && (
-                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-4">
-                  {product.description}
-                </p>
-              )}
-
-              <div className="mb-6">
-                <div className="flex items-center gap-4 mb-2">
-                  <span className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                    {product.price.toLocaleString()} RWF
-                  </span>
-                  {product.original_price && product.original_price > product.price && (
-                    <span className="text-lg sm:text-xl text-gray-400 line-through">
-                      {product.original_price.toLocaleString()} RWF
-                    </span>
-                  )}
-                </div>
-                {product.is_promo && discountPercent > 0 && product.original_price && product.original_price > product.price && (
-                  <p className="text-green-600 dark:text-green-400 font-medium text-sm">
-                    You save {Math.max(0, product.original_price - product.price).toLocaleString()} RWF
-                  </p>
-                )}
-              </div>
-
-              {/* Stock Status */}
-              <div className="mb-6">
                 {product.in_stock ? (
-                  <span className="inline-flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-sm font-medium">
+                  <span className="inline-flex items-center px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-xs sm:text-sm font-medium">
                     In Stock
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded-full text-sm font-medium">
+                  <span className="inline-flex items-center px-2.5 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded-full text-xs sm:text-sm font-medium">
                     Out of Stock
                   </span>
                 )}
               </div>
 
+              <h2 id="quick-view-title" className="text-lg sm:text-3xl font-bold text-gray-900 dark:text-white mb-1.5 sm:mb-3 leading-tight line-clamp-2">
+                {product.name}
+              </h2>
+
+              {product.description && (
+                <p className="text-xs sm:text-base text-gray-600 dark:text-gray-400 mb-2 sm:mb-4 line-clamp-2">
+                  {product.description}
+                </p>
+              )}
+
+              <div className="mb-3 sm:mb-6">
+                <div className="flex items-center gap-2 sm:gap-4 mb-1.5 sm:mb-2 flex-wrap">
+                  <span className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                    {product.price.toLocaleString()} RWF
+                  </span>
+                  {product.original_price && product.original_price > product.price && (
+                    <span className="text-sm sm:text-xl text-gray-400 line-through">
+                      {product.original_price.toLocaleString()} RWF
+                    </span>
+                  )}
+                </div>
+                {product.is_promo && discountPercent > 0 && product.original_price && product.original_price > product.price && (
+                  <p className="text-green-600 dark:text-green-400 font-medium text-xs sm:text-sm">
+                    You save {Math.max(0, product.original_price - product.price).toLocaleString()} RWF
+                  </p>
+                )}
+              </div>
+
               {/* Actions */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6">
+              <div className="flex flex-row gap-2 sm:gap-3 mt-auto">
                 <button
                   onClick={handleAddToCart}
                   disabled={product.in_stock === false}
-                  className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base py-3 sm:py-2.5"
+                  className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base py-2.5 sm:py-2.5"
                 >
                   <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5" />
                   <span>Add to Cart</span>
@@ -253,7 +249,7 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
                 <button
                   onClick={handleWishlist}
                   disabled={isLoading}
-                  className={`btn-outline p-3 sm:p-4 min-w-[52px] sm:min-w-[56px] ${isWishlisted ? 'text-red-600 border-red-600' : ''}`}
+                  className={`btn-outline p-3 sm:p-4 min-w-[48px] sm:min-w-[56px] ${isWishlisted ? 'text-red-600 border-red-600' : ''}`}
                   aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
                   <Heart className={`w-5 h-5 sm:w-5 sm:h-5 ${isWishlisted ? 'fill-current' : ''}`} />
@@ -261,8 +257,8 @@ const QuickViewModal = ({ product, isOpen, onClose }) => {
               </div>
 
               {/* Social Links */}
-              <div className="mb-6 pt-6 border-t border-gray-200 dark:border-gray-800">
-                <SocialShare product={product} />
+              <div className="mt-3 pt-3 sm:mt-6 sm:pt-6 border-t border-gray-200 dark:border-gray-800">
+                <SocialShare product={product} variant="compact" />
               </div>
             </div>
           </div>
