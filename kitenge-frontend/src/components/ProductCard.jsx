@@ -166,7 +166,7 @@ const ProductCard = ({ product, onView }) => {
         <LazyImage
           src={product.image}
           alt={product.name}
-          className="w-full h-48 sm:h-56 md:h-64 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+          className="w-full h-40 sm:h-44 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           loading="lazy"
         />
         {/* Enhanced gradient overlay with shimmer effect */}
@@ -191,7 +191,7 @@ const ProductCard = ({ product, onView }) => {
           onClick={handleWishlist}
           disabled={isLoading}
           aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-          className={`absolute top-3 sm:top-4 left-3 sm:left-4 p-3 sm:p-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-lg z-10 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
+          className={`absolute top-3 sm:top-4 left-3 sm:left-4 p-2.5 sm:p-2.5 rounded-full backdrop-blur-md transition-all duration-300 shadow-lg z-10 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
             isWishlisted
               ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-red-500/50 active:scale-110'
               : 'bg-white/95 dark:bg-gray-900/95 text-gray-700 dark:text-gray-300 active:bg-gradient-to-br active:from-red-500 active:to-red-600 active:text-white active:shadow-red-500/50 active:scale-110'
@@ -203,7 +203,7 @@ const ProductCard = ({ product, onView }) => {
         </button>
       </div>
 
-      <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col bg-white dark:bg-gray-900">
+      <div className="p-3 sm:p-4 md:p-5 flex-1 flex flex-col bg-white dark:bg-gray-900">
         <div className="flex items-start justify-between mb-2 sm:mb-3">
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-base sm:text-lg md:text-xl text-gray-900 dark:text-white mb-1 sm:mb-1.5 truncate group-hover:text-accent transition-colors duration-300">
@@ -218,18 +218,18 @@ const ProductCard = ({ product, onView }) => {
         </div>
 
         {product.description && (
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 sm:mb-3 line-clamp-2 flex-1">
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 sm:mb-2.5 line-clamp-1 sm:line-clamp-2 flex-1">
             {product.description}
           </p>
         )}
 
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <span className={`text-xl sm:text-2xl md:text-3xl font-black ${product.is_promo ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'} transition-colors duration-300`}>
+            <span className={`text-lg sm:text-xl md:text-2xl font-black ${product.is_promo ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'} transition-colors duration-300`}>
               {product.price.toLocaleString()} RWF
             </span>
             {product.original_price && product.original_price > product.price && (
-              <span className="text-sm sm:text-base md:text-lg text-gray-400 dark:text-gray-500 line-through font-semibold">
+              <span className="text-xs sm:text-sm md:text-base text-gray-400 dark:text-gray-500 line-through font-semibold">
                 {product.original_price.toLocaleString()} RWF
               </span>
             )}
@@ -246,7 +246,7 @@ const ProductCard = ({ product, onView }) => {
             onClick={handleAddToCart}
             disabled={product.in_stock === false}
             aria-label={`Add ${product.name} to cart`}
-            className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-sm py-4 sm:py-3.5 min-h-[48px] group-hover:shadow-accent-lg transition-all duration-300 touch-manipulation"
+            className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-sm py-3.5 sm:py-3 min-h-[48px] group-hover:shadow-accent-lg transition-all duration-300 touch-manipulation"
           >
             <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
             <span className="hidden sm:inline font-bold">Add to cart</span>
@@ -255,7 +255,7 @@ const ProductCard = ({ product, onView }) => {
           <button
             onClick={() => onView && onView(product)}
             aria-label={`View details for ${product.name}`}
-            className="btn-outline px-5 sm:px-5 py-4 sm:py-3.5 min-w-[48px] min-h-[48px] active:bg-accent active:text-white active:border-accent transition-all duration-300 group-hover:scale-105 touch-manipulation flex items-center justify-center"
+            className="btn-outline px-4 sm:px-4 py-3.5 sm:py-3 min-w-[48px] min-h-[48px] active:bg-accent active:text-white active:border-accent transition-all duration-300 group-hover:scale-105 touch-manipulation flex items-center justify-center"
           >
             <Eye className="w-5 h-5 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" aria-hidden="true" />
           </button>
