@@ -2,15 +2,13 @@ package com.kitenge.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class ContactService {
     
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     
     @Value("${app.admin.email:kitengeboraa@gmail.com}")
     private String adminEmail;
@@ -20,41 +18,41 @@ public class ContactService {
     
     public void sendContactMessage(String name, String email, String subject, String message) {
         try {
+            if (!emailService.isConfigured()) {
+                throw new RuntimeException("Email is not configured. Set EMAIL_WEBHOOK_URL (recommended on Render free) or SPRING_MAIL_USERNAME/SPRING_MAIL_PASSWORD.");
+            }
+
             // Send email to notification email(s) only
             String[] notificationEmails = adminNotificationEmail.split(",");
             String senderEmail = notificationEmails[0].trim(); // Use first notification email as sender
             for (String notificationEmail : notificationEmails) {
-                SimpleMailMessage adminMessage = new SimpleMailMessage();
-                adminMessage.setFrom(senderEmail);
-                adminMessage.setTo(notificationEmail.trim());
-                adminMessage.setSubject("New Contact Form Message: " + subject);
-                adminMessage.setText(
-                    "You have received a new message from the contact form:\n\n" +
-                    "Name: " + name + "\n" +
-                    "Email: " + email + "\n" +
-                    "Subject: " + subject + "\n\n" +
-                    "Message:\n" + message + "\n\n" +
-                    "---\n" +
-                    "Reply to: " + email
+                emailService.sendText(
+                        notificationEmail.trim(),
+                        "New Contact Form Message: " + subject,
+                        "You have received a new message from the contact form:\n\n" +
+                                "Name: " + name + "\n" +
+                                "Email: " + email + "\n" +
+                                "Subject: " + subject + "\n\n" +
+                                "Message:\n" + message + "\n\n" +
+                                "---\n" +
+                                "Reply to: " + email,
+                        senderEmail
                 );
-                mailSender.send(adminMessage);
             }
             
             // Send confirmation email to user
-            SimpleMailMessage confirmationMessage = new SimpleMailMessage();
-            confirmationMessage.setFrom(senderEmail);
-            confirmationMessage.setTo(email);
-            confirmationMessage.setSubject("Thank you for contacting Kitenge Bora");
-            confirmationMessage.setText(
-                "Dear " + name + ",\n\n" +
-                "Thank you for contacting Kitenge Bora. We have received your message and will get back to you as soon as possible.\n\n" +
-                "Your message:\n" +
-                "Subject: " + subject + "\n" +
-                "Message: " + message + "\n\n" +
-                "Best regards,\n" +
-                "Kitenge Bora Team"
+            emailService.sendText(
+                    email,
+                    "Thank you for contacting Kitenge Bora",
+                    "Dear " + name + ",\n\n" +
+                            "Thank you for contacting Kitenge Bora. We have received your message and will get back to you as soon as possible.\n\n" +
+                            "Your message:\n" +
+                            "Subject: " + subject + "\n" +
+                            "Message: " + message + "\n\n" +
+                            "Best regards,\n" +
+                            "Kitenge Bora Team",
+                    senderEmail
             );
-            mailSender.send(confirmationMessage);
         } catch (Exception e) {
             throw new RuntimeException("Failed to send contact message: " + e.getMessage());
         }

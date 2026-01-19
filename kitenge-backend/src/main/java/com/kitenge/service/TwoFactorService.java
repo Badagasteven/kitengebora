@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -22,11 +20,8 @@ public class TwoFactorService {
     private static final Logger logger = LoggerFactory.getLogger(TwoFactorService.class);
 
     private final UserRepository userRepository;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
 
-    @Value("${app.mail.from:}")
-    private String mailFrom;
-    
     private static final int CODE_TTL_MINUTES = 10;
 
     private static class TwoFactorCode {
@@ -83,27 +78,22 @@ public class TwoFactorService {
     
     private void sendTwoFactorCode(String email, String code) {
         try {
-            if (mailSender == null) {
-                logger.warn("JavaMailSender is not configured; 2FA code will not be sent via email.");
+            if (!emailService.isConfigured()) {
+                logger.warn("Email is not configured; 2FA code will not be sent via email.");
                 return;
             }
-            
-            SimpleMailMessage message = new SimpleMailMessage();
-            if (mailFrom != null && !mailFrom.trim().isEmpty()) {
-                message.setFrom(mailFrom.trim());
-            }
-            message.setTo(email);
-            message.setSubject("Your Two-Factor Authentication Code - Kitenge Bora");
-            message.setText(
-                "Hello,\n\n" +
-                "Your two-factor authentication code is:\n\n" +
-                code + "\n\n" +
-                "This code will expire in 10 minutes.\n\n" +
-                "If you didn't request this code, please ignore this email.\n\n" +
-                "Best regards,\n" +
-                "Kitenge Bora Team"
+
+            emailService.sendText(
+                    email,
+                    "Your Two-Factor Authentication Code - Kitenge Bora",
+                    "Hello,\n\n" +
+                            "Your two-factor authentication code is:\n\n" +
+                            code + "\n\n" +
+                            "This code will expire in 10 minutes.\n\n" +
+                            "If you didn't request this code, please ignore this email.\n\n" +
+                            "Best regards,\n" +
+                            "Kitenge Bora Team"
             );
-            mailSender.send(message);
         } catch (Exception e) {
             logger.warn("Failed to send 2FA code", e);
         }

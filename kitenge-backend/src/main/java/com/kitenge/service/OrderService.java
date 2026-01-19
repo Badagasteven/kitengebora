@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,13 +32,10 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private final WhatsAppService whatsAppService;
     private final SmsService smsService;
     private final UserNotificationsRepository userNotificationsRepository;
-    
-    @Value("${app.admin.email}")
-    private String adminEmail;
     
     @Value("${app.admin.notification.email:kitengeboraa@gmail.com}")
     private String adminNotificationEmail;
@@ -50,12 +45,6 @@ public class OrderService {
 
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
-
-    @Value("${app.mail.from:}")
-    private String mailFrom;
-
-    @Value("${spring.mail.username:}")
-    private String mailUsername;
     
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -215,7 +204,7 @@ public class OrderService {
     
     private void sendOrderNotification(Order order) {
         try {
-            if (!isEmailConfigured()) {
+            if (!emailService.isConfigured()) {
                 logger.warn("Email not configured; admin order notification not sent for order {}", order.getId());
                 return;
             }
@@ -281,7 +270,6 @@ public class OrderService {
                 
                 // Send email to notification email(s) only
                 String[] notificationEmails = adminNotificationEmail.split(",");
-                String senderEmail = mailFrom != null ? mailFrom.trim() : "";
                 String safeCustomerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
                         ? order.getCustomerName().trim()
                         : "Guest Customer";
@@ -289,15 +277,16 @@ public class OrderService {
                     if (notificationEmail == null || notificationEmail.trim().isEmpty()) {
                         continue;
                     }
-                    SimpleMailMessage message = new SimpleMailMessage();
-                    if (senderEmail != null && !senderEmail.isEmpty()) {
-                        message.setFrom(senderEmail);
+                    boolean sent = emailService.sendText(
+                            notificationEmail.trim(),
+                            "New Order #" + orderNumber + " - " + safeCustomerName,
+                            emailContent.toString()
+                    );
+                    if (sent) {
+                        logger.info("Admin notification email sent for order {}", orderNumber);
+                    } else {
+                        logger.warn("Admin notification email failed for order {}", orderNumber);
                     }
-                    message.setTo(notificationEmail.trim());
-                    message.setSubject("New Order #" + orderNumber + " - " + safeCustomerName);
-                    message.setText(emailContent.toString());
-                    mailSender.send(message);
-                    logger.info("Admin notification email sent for order {}", orderNumber);
                 }
             }
         } catch (Exception e) {
@@ -308,7 +297,7 @@ public class OrderService {
     
     private void sendOrderConfirmationEmail(Order order) {
         try {
-            if (!isEmailConfigured()) {
+            if (!emailService.isConfigured()) {
                 logger.warn("Email not configured; order confirmation email not sent for order {}", order.getId());
                 return;
             }
@@ -318,19 +307,11 @@ public class OrderService {
                 return;
             }
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
-            if (senderEmail != null && !senderEmail.isEmpty()) {
-                message.setFrom(senderEmail);
-            }
-
-            message.setTo(customerEmail);
-
             Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
             String monthYear = order.getCreatedAt() != null
                     ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
                     : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
-            message.setSubject("Order Received - Kitenge Bora #" + orderNumber);
+            String subject = "Order Received - Kitenge Bora #" + orderNumber;
 
             String customerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
                     ? order.getCustomerName().trim()
@@ -350,10 +331,12 @@ public class OrderService {
             emailBody.append("Track your order: ").append(frontendUrl).append("/track-order\n\n");
             emailBody.append("Best regards,\n");
             emailBody.append("Kitenge Bora Team");
-            message.setText(emailBody.toString());
-
-            mailSender.send(message);
-            logger.info("Order confirmation email sent for order {}", order.getId());
+            boolean sent = emailService.sendText(customerEmail, subject, emailBody.toString());
+            if (sent) {
+                logger.info("Order confirmation email sent for order {}", order.getId());
+            } else {
+                logger.warn("Order confirmation email failed for order {}", order.getId());
+            }
         } catch (Exception e) {
             logger.warn("Failed to send order confirmation email for order {}", order.getId(), e);
         }
@@ -361,7 +344,7 @@ public class OrderService {
     
     private void sendShippingNotification(Order order) {
         try {
-            if (!isEmailConfigured()) {
+            if (!emailService.isConfigured()) {
                 logger.warn("Email not configured; shipping notification not sent for order {}", order.getId());
                 return;
             }
@@ -375,18 +358,11 @@ public class OrderService {
                     ? order.getCustomerName().trim()
                     : "Customer";
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
-            if (senderEmail != null && !senderEmail.isEmpty()) {
-                message.setFrom(senderEmail);
-            }
-            message.setTo(customerEmail);
-
             Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
             String monthYear = order.getCreatedAt() != null
                     ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
                     : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
-            message.setSubject("Order Shipped - Kitenge Bora #" + orderNumber);
+            String subject = "Order Shipped - Kitenge Bora #" + orderNumber;
 
             StringBuilder body = new StringBuilder();
             body.append("Hello ").append(customerName).append(",\n\n");
@@ -397,10 +373,12 @@ public class OrderService {
             body.append("Track your order: ").append(frontendUrl).append("/track-order\n\n");
             body.append("Best regards,\n");
             body.append("Kitenge Bora Team");
-
-            message.setText(body.toString());
-            mailSender.send(message);
-            logger.info("Shipping notification sent for order {}", order.getId());
+            boolean sent = emailService.sendText(customerEmail, subject, body.toString());
+            if (sent) {
+                logger.info("Shipping notification sent for order {}", order.getId());
+            } else {
+                logger.warn("Shipping notification email failed for order {}", order.getId());
+            }
         } catch (Exception e) {
             logger.warn("Failed to send shipping notification for order {}", order.getId(), e);
         }
@@ -408,7 +386,7 @@ public class OrderService {
     
     private void sendDeliveryNotification(Order order) {
         try {
-            if (!isEmailConfigured()) {
+            if (!emailService.isConfigured()) {
                 logger.warn("Email not configured; delivery notification not sent for order {}", order.getId());
                 return;
             }
@@ -422,18 +400,11 @@ public class OrderService {
                     ? order.getCustomerName().trim()
                     : "Customer";
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
-            if (senderEmail != null && !senderEmail.isEmpty()) {
-                message.setFrom(senderEmail);
-            }
-            message.setTo(customerEmail);
-
             Integer orderNumber = order.getOrderNumber() != null ? order.getOrderNumber() : order.getId().intValue();
             String monthYear = order.getCreatedAt() != null
                     ? order.getCreatedAt().getMonth().toString().substring(0, 3) + " " + order.getCreatedAt().getYear()
                     : LocalDateTime.now().getMonth().toString().substring(0, 3) + " " + LocalDateTime.now().getYear();
-            message.setSubject("Order Delivered - Kitenge Bora #" + orderNumber);
+            String subject = "Order Delivered - Kitenge Bora #" + orderNumber;
 
             StringBuilder body = new StringBuilder();
             body.append("Hello ").append(customerName).append(",\n\n");
@@ -441,10 +412,12 @@ public class OrderService {
             body.append("Thank you for shopping with Kitenge Bora.\n\n");
             body.append("Best regards,\n");
             body.append("Kitenge Bora Team");
-
-            message.setText(body.toString());
-            mailSender.send(message);
-            logger.info("Delivery notification sent for order {}", order.getId());
+            boolean sent = emailService.sendText(customerEmail, subject, body.toString());
+            if (sent) {
+                logger.info("Delivery notification sent for order {}", order.getId());
+            } else {
+                logger.warn("Delivery notification email failed for order {}", order.getId());
+            }
         } catch (Exception e) {
             logger.warn("Failed to send delivery notification for order {}", order.getId(), e);
         }
@@ -499,7 +472,7 @@ public class OrderService {
 
     private void sendOrderStatusEmail(Order order, String status) {
         try {
-            if (!isEmailConfigured()) {
+            if (!emailService.isConfigured()) {
                 return;
             }
 
@@ -537,14 +510,7 @@ public class OrderService {
             } else {
                 subjectPrefix = "Order Update";
             }
-
-            SimpleMailMessage message = new SimpleMailMessage();
-            String senderEmail = mailFrom != null ? mailFrom.trim() : "";
-            if (senderEmail != null && !senderEmail.isEmpty()) {
-                message.setFrom(senderEmail);
-            }
-            message.setTo(customerEmail.trim());
-            message.setSubject(subjectPrefix + " - Kitenge Bora #" + orderNumber);
+            String subject = subjectPrefix + " - Kitenge Bora #" + orderNumber;
 
             String customerName = order.getCustomerName() != null && !order.getCustomerName().trim().isEmpty()
                     ? order.getCustomerName().trim()
@@ -566,9 +532,10 @@ public class OrderService {
             body.append("Track your order: ").append(frontendUrl).append("/track-order\n\n");
             body.append("Best regards,\n");
             body.append("Kitenge Bora Team");
-
-            message.setText(body.toString());
-            mailSender.send(message);
+            boolean sent = emailService.sendText(customerEmail.trim(), subject, body.toString());
+            if (!sent) {
+                logger.warn("Order status email failed for order {} ({})", orderNumber, normalizedStatus);
+            }
         } catch (Exception e) {
             logger.warn("Failed to send order status email for order {}", order != null ? order.getId() : null, e);
         }
@@ -597,7 +564,4 @@ public class OrderService {
         return null;
     }
 
-    private boolean isEmailConfigured() {
-        return mailUsername != null && !mailUsername.trim().isEmpty();
-    }
 }

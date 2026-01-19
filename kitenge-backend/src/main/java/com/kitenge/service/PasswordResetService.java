@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +24,7 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
@@ -89,30 +87,30 @@ public class PasswordResetService {
     
     private void sendPasswordResetEmail(String email, String token) {
         try {
-            if (mailSender == null) {
-                throw new RuntimeException("Email service is not configured. Please set EMAIL_USER and EMAIL_PASS in application.properties or as environment variables.");
+            if (!emailService.isConfigured()) {
+                throw new RuntimeException("Email is not configured. Set EMAIL_WEBHOOK_URL (recommended on Render free) or SPRING_MAIL_USERNAME/SPRING_MAIL_PASSWORD.");
             }
             
-            SimpleMailMessage message = new SimpleMailMessage();
             String senderEmail = adminNotificationEmail != null && adminNotificationEmail.contains(",") 
                 ? adminNotificationEmail.split(",")[0].trim() 
                 : (adminNotificationEmail != null ? adminNotificationEmail : mailFrom);
-            if (senderEmail != null && !senderEmail.trim().isEmpty()) {
-                message.setFrom(senderEmail.trim());
-            }
-            message.setTo(email);
-            message.setSubject("Reset Your Password - Kitenge Bora");
-            message.setText(
-                "Hello,\n\n" +
-                "You requested to reset your password for Kitenge Bora.\n\n" +
-                "Click the link below to reset your password:\n" +
-                frontendUrl + "/reset-password?token=" + token + "\n\n" +
-                "This link will expire in 1 hour.\n\n" +
-                "If you didn't request this, please ignore this email.\n\n" +
-                "Best regards,\n" +
-                "Kitenge Bora Team"
+            boolean sent = emailService.sendText(
+                    email,
+                    "Reset Your Password - Kitenge Bora",
+                    "Hello,\n\n" +
+                            "You requested to reset your password for Kitenge Bora.\n\n" +
+                            "Click the link below to reset your password:\n" +
+                            frontendUrl + "/reset-password?token=" + token + "\n\n" +
+                            "This link will expire in 1 hour.\n\n" +
+                            "If you didn't request this, please ignore this email.\n\n" +
+                            "Best regards,\n" +
+                            "Kitenge Bora Team",
+                    senderEmail
             );
-            mailSender.send(message);
+
+            if (!sent) {
+                throw new RuntimeException("Failed to send password reset email.");
+            }
         } catch (Exception e) {
             logger.warn("Failed to send password reset email", e);
             // Re-throw to notify the user that email failed

@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,13 +22,10 @@ public class EmailVerificationService {
 
     private final EmailVerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
-    private final JavaMailSender mailSender;
+    private final EmailService emailService;
     
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
-
-    @Value("${app.mail.from:}")
-    private String mailFrom;
     
     @Transactional
     public void sendVerificationEmail(User user) {
@@ -80,28 +75,23 @@ public class EmailVerificationService {
     
     private void sendVerificationEmail(String email, String token) {
         try {
-            if (mailSender == null) {
-                logger.warn("JavaMailSender is not configured; verification email will not be sent.");
+            if (!emailService.isConfigured()) {
+                logger.warn("Email is not configured; verification email will not be sent.");
                 return;
             }
-            
-            SimpleMailMessage message = new SimpleMailMessage();
-            if (mailFrom != null && !mailFrom.trim().isEmpty()) {
-                message.setFrom(mailFrom.trim());
-            }
-            message.setTo(email);
-            message.setSubject("Verify Your Email - Kitenge Bora");
-            message.setText(
-                "Hello,\n\n" +
-                "Thank you for registering with Kitenge Bora!\n\n" +
-                "Please verify your email address by clicking the link below:\n" +
-                frontendUrl + "/verify-email?token=" + token + "\n\n" +
-                "This link will expire in 7 days.\n\n" +
-                "If you didn't create an account, please ignore this email.\n\n" +
-                "Best regards,\n" +
-                "Kitenge Bora Team"
+
+            emailService.sendText(
+                    email,
+                    "Verify Your Email - Kitenge Bora",
+                    "Hello,\n\n" +
+                            "Thank you for registering with Kitenge Bora!\n\n" +
+                            "Please verify your email address by clicking the link below:\n" +
+                            frontendUrl + "/verify-email?token=" + token + "\n\n" +
+                            "This link will expire in 7 days.\n\n" +
+                            "If you didn't create an account, please ignore this email.\n\n" +
+                            "Best regards,\n" +
+                            "Kitenge Bora Team"
             );
-            mailSender.send(message);
         } catch (Exception e) {
             logger.warn("Failed to send verification email", e);
         }
