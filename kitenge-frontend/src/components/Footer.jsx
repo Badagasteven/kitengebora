@@ -12,23 +12,23 @@ const Footer = () => {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
       </div>
       
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10 md:gap-12 mb-8 sm:mb-12">
           {/* Brand Section */}
-          <div className="col-span-2 md:col-span-1 space-y-6">
+          <div className="col-span-2 md:col-span-1 space-y-4 sm:space-y-6">
             <div>
-              <h3 className="text-3xl sm:text-4xl font-black text-white mb-4 bg-gradient-to-r from-accent-400 via-accent-500 to-accent-600 to-accent-500 bg-clip-text text-transparent">
+              <h3 className="text-3xl sm:text-4xl font-black text-white mb-3 sm:mb-4 bg-gradient-to-r from-accent-400 via-accent-500 to-accent-600 to-accent-500 bg-clip-text text-transparent">
                 KITENGE BORA
               </h3>
-              <p className="text-sm sm:text-base text-gray-400 leading-relaxed mb-6 font-medium">
+              <p className="text-sm sm:text-base text-gray-400 leading-relaxed mb-4 sm:mb-6 font-medium">
                 Curated African fabrics & outfits. Bringing authentic African fashion to your doorstep with passion and quality.
               </p>
             </div>
             
             {/* Social Media Icons */}
             <div>
-              <p className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Follow Us</p>
+              <p className="text-sm font-bold text-white mb-3 sm:mb-4 uppercase tracking-wider">Follow Us</p>
               <div className="flex flex-wrap gap-3">
                 <a
                   href="https://facebook.com"
@@ -182,7 +182,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800 pt-10">
+        <div className="border-t border-gray-800 pt-6 sm:pt-10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2 text-sm text-gray-400 font-medium">
               <Heart className="w-4 h-4 text-accent fill-current animate-pulse" />
