@@ -78,7 +78,7 @@ const ProductDetail = () => {
     for (let i = 0; i < quantity; i++) {
       addToCart(product)
     }
-    toast.success(`${product.name} added to cart!`, 4000, {
+    toast.success(product.name, 4000, {
       image: product.image,
       productName: product.name,
     })
