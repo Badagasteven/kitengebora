@@ -131,32 +131,32 @@ const Products = () => {
         <Breadcrumbs />
         
         {/* Header Section */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-1.5 sm:mb-2">
             All Products
           </h1>
-          <p className="text-sm sm:text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-sm sm:text-lg text-gray-600 dark:text-gray-400 leading-snug">
             Discover our curated collection of African fabrics and outfits
           </p>
         </div>
 
         {/* Main Search and Quick Filters Bar */}
-        <div className="card p-3 sm:p-6 mb-5 sm:mb-6">
-          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
+        <div className="card p-3 sm:p-5 mb-4 sm:mb-6">
+          <div className="flex flex-col lg:flex-row gap-2 sm:gap-4">
             {/* Search Bar */}
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search products by name, category, or description..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-field pl-12 pr-4 w-full h-11 sm:h-12 text-base"
+                className="input-field pl-10 pr-10 w-full h-11 sm:h-12 text-base"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 active:text-gray-600 dark:active:text-gray-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 active:text-gray-600 dark:active:text-gray-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -168,7 +168,7 @@ const Products = () => {
               {/* Promos Button */}
               <button
                 onClick={() => setShowPromoOnly(!showPromoOnly)}
-                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${
+                className={`px-4 py-2.5 sm:px-6 sm:py-3 rounded-full text-sm font-semibold transition-all flex items-center gap-2 min-h-[44px] ${
                   showPromoOnly
                     ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-lg shadow-red-500/30'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
@@ -177,7 +177,7 @@ const Products = () => {
                 <Sparkles className={`w-4 h-4 ${showPromoOnly ? 'animate-pulse' : ''}`} />
                 Promos
                 {products.filter(p => p.is_promo).length > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  <span className={`w-6 h-6 rounded-full text-xs font-bold inline-flex items-center justify-center ${
                     showPromoOnly 
                       ? 'bg-white/30 text-white' 
                       : 'bg-accent/20 text-accent'
@@ -188,10 +188,10 @@ const Products = () => {
               </button>
 
               {/* View Mode Toggle */}
-              <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-full border border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-3 rounded-md transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
+                  className={`p-2.5 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
                     viewMode === 'grid'
                       ? 'bg-accent text-white shadow-md'
                       : 'text-gray-600 dark:text-gray-400 active:text-gray-900 dark:active:text-gray-200'
@@ -202,7 +202,7 @@ const Products = () => {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-3 rounded-md transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
+                  className={`p-2.5 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation ${
                     viewMode === 'list'
                       ? 'bg-accent text-white shadow-md'
                       : 'text-gray-600 dark:text-gray-400 active:text-gray-900 dark:active:text-gray-200'
@@ -216,7 +216,7 @@ const Products = () => {
               {/* Mobile Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`lg:hidden px-5 py-3 sm:px-6 sm:py-3 rounded-lg border flex items-center gap-2 touch-manipulation min-h-[48px] transition-all ${
+                className={`lg:hidden px-4 py-2.5 sm:px-6 sm:py-3 rounded-full border flex items-center gap-2 touch-manipulation min-h-[44px] transition-all ${
                   showFilters
                     ? 'bg-gradient-accent text-white border-transparent shadow-accent'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 dark:active:bg-gray-700 border-gray-200 dark:border-gray-700'
@@ -224,7 +224,7 @@ const Products = () => {
                 aria-label="Toggle filters"
               >
                 <SlidersHorizontal className="w-5 h-5" />
-                <span className="text-base sm:inline">Filters</span>
+                <span className="hidden sm:inline text-base">Filters</span>
               </button>
             </div>
           </div>
